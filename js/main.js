@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initTheme();
     checkAuthGuard();
     updateNavigation();
+    initMobileMenu();
     
     const loginView = document.getElementById('login-view');
     if (loginView) {
@@ -296,4 +297,48 @@ function initAuthPage() {
             btn.disabled = false;
         });
     }
+}
+
+/**
+ * ─── Mobile Hamburger Menu ────────────────────────────────────────────────
+ * Injecte et pilote le menu latéral mobile (drawer)
+ */
+function initMobileMenu() {
+    const hamburgerBtn = document.getElementById('hamburger-btn');
+    const mobileMenu   = document.getElementById('mobile-menu');
+    const overlay      = document.getElementById('mobile-nav-overlay');
+    const closeBtn     = document.getElementById('mobile-menu-close');
+
+    if (!hamburgerBtn || !mobileMenu) return;
+
+    function openMenu() {
+        mobileMenu.classList.add('open');
+        overlay && overlay.classList.add('open');
+        hamburgerBtn.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeMenu() {
+        mobileMenu.classList.remove('open');
+        overlay && overlay.classList.remove('open');
+        hamburgerBtn.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    hamburgerBtn.addEventListener('click', () => {
+        mobileMenu.classList.contains('open') ? closeMenu() : openMenu();
+    });
+
+    if (closeBtn) closeBtn.addEventListener('click', closeMenu);
+    if (overlay) overlay.addEventListener('click', closeMenu);
+
+    // Fermer sur clic d'un lien dans le menu
+    mobileMenu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', closeMenu);
+    });
+
+    // Fermer si l'écran devient grand (resize)
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 768) closeMenu();
+    });
 }

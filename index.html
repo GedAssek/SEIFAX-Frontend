@@ -34,6 +34,9 @@
                 <span id="user-badge" class="user-badge" style="display:none;"></span>
                 <a href="pages/login.html" class="btn btn-primary" id="nav-auth">Se connecter</a>
                 <a href="#" class="btn btn-outline" id="nav-logout" style="display:none;">Déconnexion</a>
+                <button class="hamburger-btn" id="hamburger-btn" aria-label="Menu" aria-expanded="false">
+                    <span></span><span></span><span></span>
+                </button>
             </div>
         </nav>
 
@@ -170,8 +173,47 @@
 
     </div>
 
+    <!-- ═══ MOBILE MENU ═══════════════════════════════════════════════ -->
+    <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+    <nav class="mobile-menu" id="mobile-menu" aria-label="Menu mobile">
+        <div class="mobile-menu-header">
+            <img src="assets/img/logo.jpg" alt="LEFAXEUR">
+            <button class="mobile-menu-close" id="mobile-menu-close" aria-label="Fermer">&times;</button>
+        </div>
+        <a href="index.html" class="nav-link active" id="mm-home">🏠 Accueil</a>
+        <a href="pages/documents.html" class="nav-link" id="mm-docs" style="display:none;">📚 Documents</a>
+        <a href="pages/notes.html" class="nav-link" id="mm-notes" style="display:none;">📊 Notes</a>
+        <a href="pages/infos.html" class="nav-link" id="mm-infos" style="display:none;">🔔 Informations</a>
+        <a href="pages/admin.html" class="nav-link" id="mm-admin" style="display:none;">⚙️ Administration</a>
+        <div class="mobile-menu-footer">
+            <a href="pages/login.html" class="btn btn-primary" id="mm-auth">Se connecter</a>
+            <a href="#" class="btn btn-outline" id="mm-logout" style="display:none;">Déconnexion</a>
+        </div>
+    </nav>
+
     <script src="js/api.js"></script>
     <script src="js/main.js"></script>
+    <script>
+        // Synchronise le menu mobile avec l'état d'authentification
+        document.addEventListener('DOMContentLoaded', () => {
+            const stored = JSON.parse(localStorage.getItem('LEFAXEUR_user'));
+            const user = stored?.user || null;
+            const mmDocs = document.getElementById('mm-docs');
+            const mmNotes = document.getElementById('mm-notes');
+            const mmInfos = document.getElementById('mm-infos');
+            const mmAdmin = document.getElementById('mm-admin');
+            const mmAuth = document.getElementById('mm-auth');
+            const mmLogout = document.getElementById('mm-logout');
+            if (user) {
+                if (mmDocs) mmDocs.style.display = '';
+                if (mmNotes) mmNotes.style.display = '';
+                if (mmInfos) mmInfos.style.display = '';
+                if (mmAdmin) mmAdmin.style.display = (user.role === 'admin') ? '' : 'none';
+                if (mmAuth) mmAuth.style.display = 'none';
+                if (mmLogout) { mmLogout.style.display = ''; mmLogout.addEventListener('click', e => { e.preventDefault(); localStorage.removeItem('LEFAXEUR_user'); window.location.reload(); }); }
+            }
+        });
+    </script>
 </body>
 
 </html>

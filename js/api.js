@@ -4,10 +4,7 @@
  * Remplacez API_BASE_URL par votre vraie URL quand le backend sera lancé.
  */
 
-const IS_LOCAL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-const API_BASE_URL = IS_LOCAL 
-    ? 'http://localhost:8000/api' 
-    : 'https://seifax-backend.onrender.com/api'; // TODO: Remplacez par votre vraie URL de backend une fois déployé sur Render
+const API_BASE_URL = 'https://seifax-backend.onrender.com/api'; // Backend distant sur Render
 
 const api = {
     // ─── Authentification ───────────────────────────────────────────────────
@@ -30,9 +27,9 @@ const api = {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(userData)
         });
-        if (!res.ok) { 
-            const err = await res.json(); 
-            throw new Error(err.detail || 'Erreur lors de l\'inscription'); 
+        if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.detail || 'Erreur lors de l\'inscription');
         }
         return res.json();
     },
@@ -54,7 +51,7 @@ const api = {
         try {
             const token = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.access_token;
             const user = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.user;
-            
+
             // Filtrage strict si l'utilisateur n'est pas admin
             if (user && user.role !== 'admin') {
                 filters.cycle = user.cycle;
@@ -67,7 +64,7 @@ const api = {
             if (filters.annee) params.append('annee', filters.annee);
             if (filters.matiere) params.append('matiere', filters.matiere);
             if (filters.categorie_eval) params.append('categorie_eval', filters.categorie_eval);
-            
+
             const res = await fetch(`${API_BASE_URL}/documents?${params.toString()}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -128,7 +125,7 @@ const api = {
         try {
             const token = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.access_token;
             const user = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.user;
-            
+
             // Filtrage strict si l'utilisateur n'est pas admin
             let fetchCycle = cycle;
             if (user && user.role !== 'admin') {
@@ -154,7 +151,7 @@ const api = {
         const token = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.access_token;
         const res = await fetch(`${API_BASE_URL}/infos`, {
             method: 'POST',
-            headers: { 
+            headers: {
                 'Authorization': `Bearer ${token}`
             },
             body: formData
@@ -165,7 +162,7 @@ const api = {
         }
         return res.json();
     },
-    
+
     updateInfo: async (id, formData) => {
         const token = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.access_token;
         const res = await fetch(`${API_BASE_URL}/infos/${id}`, {
@@ -179,7 +176,7 @@ const api = {
         }
         return res.json();
     },
-    
+
     deleteInfo: async (id) => {
         const token = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.access_token;
         const res = await fetch(`${API_BASE_URL}/infos/${id}`, {
@@ -192,13 +189,13 @@ const api = {
         }
         return res.json();
     },
-    
+
     // ─── Profil ─────────────────────────────────────────────────────
     updatePassword: async (old_password, new_password) => {
         const token = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.access_token;
         const res = await fetch(`${API_BASE_URL}/auth/password`, {
             method: 'PATCH',
-            headers: { 
+            headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             },
@@ -219,7 +216,7 @@ const api = {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-        } catch(e) {
+        } catch (e) {
             console.error('Heartbeat failed', e);
         }
     },

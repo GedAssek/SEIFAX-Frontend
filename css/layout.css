@@ -212,6 +212,112 @@
 }
 .footer-logo { height: 28px; width: auto; opacity: 0.7; border-radius: 5px; }
 
+/* ─── Hamburger Button ───────────────────────────────────── */
+.hamburger-btn {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--glass-bg);
+    border: 1.5px solid var(--glass-border);
+    cursor: pointer;
+    transition: var(--transition);
+    flex-shrink: 0;
+    padding: 0;
+}
+.hamburger-btn:hover { border-color: var(--primary); }
+.hamburger-btn span {
+    display: block;
+    width: 18px;
+    height: 2px;
+    background: var(--text-main);
+    border-radius: 2px;
+    transition: var(--transition);
+}
+.hamburger-btn.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.hamburger-btn.open span:nth-child(2) { opacity: 0; width: 0; }
+.hamburger-btn.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* ─── Mobile Nav Overlay ─────────────────────────────────── */
+.mobile-nav-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    background: rgba(0,0,0,0.3);
+    backdrop-filter: blur(2px);
+}
+.mobile-nav-overlay.open { display: block; }
+
+/* ─── Mobile Menu Drawer ─────────────────────────────────── */
+.mobile-menu {
+    display: none;
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    width: min(280px, 80vw);
+    background: var(--surface);
+    z-index: 99;
+    padding: 2rem 1.5rem;
+    flex-direction: column;
+    gap: 0.5rem;
+    box-shadow: -8px 0 32px rgba(0,0,0,0.15);
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow-y: auto;
+}
+.mobile-menu.open {
+    display: flex;
+    transform: translateX(0);
+}
+.mobile-menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--glass-border);
+}
+.mobile-menu-header img { height: 36px; border-radius: 6px; }
+.mobile-menu-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 0.25rem;
+    line-height: 1;
+}
+.mobile-menu .nav-link {
+    display: block;
+    padding: 0.85rem 1rem;
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    transition: var(--transition);
+    text-decoration: none;
+}
+.mobile-menu .nav-link:hover,
+.mobile-menu .nav-link.active {
+    background: rgba(26, 86, 219, 0.08);
+    color: var(--primary);
+}
+.mobile-menu .nav-link::after { display: none; }
+.mobile-menu-footer {
+    margin-top: auto;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--glass-border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
 /* ─── Responsive ─────────────────────────────────────────── */
 @media (max-width: 900px) {
     .navbar { margin: 0 2%; padding: 0.5rem 1rem; }
@@ -222,8 +328,25 @@
     .grid-2, .grid-3 { grid-template-columns: 1fr; }
 }
 
+@media (max-width: 768px) {
+    .hamburger-btn { display: flex; }
+    .navbar-nav { display: none !important; }
+    .user-badge { display: none !important; }
+    .navbar-actions .btn { font-size: 0.82rem; padding: 0.5rem 1rem; }
+}
+
 @media (max-width: 600px) {
-    .navbar-nav { display: none; }
-    .main-content { padding: 2.5rem 4% 2rem; }
-    .page-title { font-size: 1.8rem; }
+    .navbar { margin: 0.5rem 3%; padding: 0.4rem 0.85rem; }
+    .main-content { padding: 2rem 4% 2rem; }
+    .page-title { font-size: 1.75rem; }
+    .page-subtitle { font-size: 0.95rem; }
+    .hero-title { font-size: clamp(1.8rem, 8vw, 2.4rem); }
+    .hero-subtitle { font-size: 0.98rem; }
+    .footer { flex-direction: column; gap: 0.5rem; font-size: 0.82rem; }
+}
+
+@media (max-width: 400px) {
+    .main-content { padding: 1.5rem 3% 2rem; }
+    .page-title { font-size: 1.5rem; }
+    .navbar-actions .btn { font-size: 0.78rem; padding: 0.45rem 0.8rem; }
 }
