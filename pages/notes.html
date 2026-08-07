@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notes et Calculs — LEFAXEUR</title>
+    <meta name="description" content="Calculez vos notes et moyennes directement en ligne.">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/layout.css">
+</head>
+
+<body class="animate-fade-in">
+    <div class="app-container">
+
+        <!-- ═══ NAVBAR ══════════════════════════════════════════════════ -->
+        <nav class="navbar">
+            <a href="../index.html" class="navbar-brand">
+                <img src="../assets/img/logo.jpg" alt="LEFAXEUR" class="navbar-logo">
+            </a>
+
+            <ul class="navbar-nav">
+                <li><a href="../index.html" class="nav-link">Accueil</a></li>
+                <li><a href="documents.html" class="nav-link">Documents</a></li>
+                <li><a href="notes.html" class="nav-link active">Notes</a></li>
+                <li><a href="infos.html" class="nav-link">Informations</a></li>
+                <li><a href="admin.html" class="nav-link" id="nav-admin" style="display:none;">Administration</a></li>
+            </ul>
+
+            <div class="navbar-actions">
+                <button id="theme-toggle" class="btn-icon" title="Thème">🌙</button>
+                <span id="user-badge" class="user-badge" style="display:none;"></span>
+                <a href="login.html" class="btn btn-primary" id="nav-auth">Se connecter</a>
+                <a href="#" class="btn btn-outline" id="nav-logout" style="display:none;">Déconnexion</a>
+            </div>
+        </nav>
+
+        <!-- ═══ MAIN ═════════════════════════════════════════════════════ -->
+        <main class="main-content">
+
+            <header class="page-header" style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <h1 class="page-title">📊 Calculateur de Notes</h1>
+                    <p class="page-subtitle">Renseignez vos notes dans la feuille Excel pour voir vos moyennes se
+                        calculer automatiquement.</p>
+                </div>
+                <a href="../assets/Calculateur_Notes.xlsx" download="RELEVE_DE_NOTES_EAC_SEI1.xlsx"
+                    class="btn btn-outline">📥 Télécharger le modèle Excel</a>
+            </header>
+
+            <!-- ── Custom JS Calculator ─────────────────────────────────────────── -->
+            <div class="card" style="padding:1.5rem; overflow-x:auto;">
+                <h2 style="margin-bottom:1rem; color:var(--primary); font-size:1.5rem;">Relevé de notes interactif</h2>
+                <p style="margin-bottom: 2rem; color:var(--text-muted);">Saisissez vos notes (sur 20) pour calculer vos
+                    moyennes automatiquement. Les données sont sauvegardées localement dans votre navigateur.</p>
+
+                <table id="calc-table" class="notes-table"
+                    style="width: 100%; border-collapse: collapse; text-align: center; min-width: 800px;">
+                    <thead>
+                        <tr style="background:var(--surface); border-bottom: 2px solid var(--border-color);">
+                            <th style="text-align: left; padding: 1rem;">Matières</th>
+                            <th style="padding: 1rem;">Interrogation</th>
+                            <th style="padding: 1rem;">Composition</th>
+                            <th style="padding: 1rem;">Examen</th>
+                            <th style="padding: 1rem;">TP</th>
+                            <th style="padding: 1rem;">Coef Total</th>
+                            <th style="padding: 1rem;">Note Finale</th>
+                            <th style="padding: 1rem;">Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody id="calc-body">
+                        <!-- Généré par JavaScript -->
+                    </tbody>
+                    <tfoot>
+                        <tr
+                            style="background:var(--surface); font-weight: bold; border-top: 2px solid var(--border-color);">
+                            <td colspan="5" style="text-align: right; padding: 1rem; font-size: 1.2rem;">Moyenne
+                                Générale :</td>
+                            <td id="total-coefs" style="padding: 1rem; font-size: 1.2rem;">0</td>
+                            <td id="global-average" style="padding: 1rem; font-size: 1.2rem; color: var(--primary);">
+                                0.00</td>
+                            <td id="global-status" style="padding: 1rem;">-</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <style>
+                .notes-table th,
+                .notes-table td {
+                    border: 1px solid var(--border-color);
+                }
+
+                .notes-table input[type="number"] {
+                    width: 70px;
+                    padding: 0.4rem;
+                    border: 1px solid var(--border-color);
+                    border-radius: var(--radius-sm);
+                    background: var(--bg-color);
+                    color: var(--text-color);
+                    text-align: center;
+                }
+
+                .notes-table input[type="number"]:focus {
+                    outline: 2px solid var(--primary);
+                    border-color: transparent;
+                }
+
+                .category-row {
+                    background-color: rgba(26, 86, 219, 0.1);
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    color: var(--primary);
+                    text-align: left !important;
+                }
+
+                .status-valide {
+                    color: #10b981;
+                    font-weight: 600;
+                }
+
+                .status-non-valide {
+                    color: #ef4444;
+                    font-weight: 600;
+                }
+            </style>
+
+        </main>
+
+        <!-- ═══ FOOTER ════════════════════════════════════════════════════ -->
+        <footer class="footer">
+            <img src="../assets/img/logo.jpg" alt="LEFAXEUR" class="footer-logo">
+            <span>© 2026 LEFAXEUR — Fait par AYENA Gedeon Assekampa.</span>
+        </footer>
+
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const subjectsData = [
+                { "type": "subject", "name": "Electricité générale", "coefs": { "int": 0, "comp": 1.0, "ex": 2.0, "tp": 0 } },
+                { "type": "subject", "name": "Circuits électriques", "coefs": { "int": 0.75, "comp": 1.25, "ex": 2.0, "tp": 1.0 } },
+                { "type": "subject", "name": "Electronique Fond", "coefs": { "int": 1.5, "comp": 2.5, "ex": 3.5, "tp": 1.5 } },
+                { "type": "subject", "name": "Electronique Num", "coefs": { "int": 1.5, "comp": 2.5, "ex": 3.5, "tp": 1.5 } },
+                { "type": "subject", "name": "Algo et Prog C", "coefs": { "int": 1.0, "comp": 1.5, "ex": 2.5, "tp": 0 } },
+                { "type": "subject", "name": "Techno, Mat. Et Comp.", "coefs": { "int": 0.5, "comp": 1.0, "ex": 1.5, "tp": 0 } },
+                { "type": "subject", "name": "App de Mes et Outil électronic", "coefs": { "int": 0, "comp": 0, "ex": 1.5, "tp": 1.0 } },
+                { "type": "category", "name": "Matières Principales Générales(Groupe Anglais)" },
+                { "type": "subject", "name": "Anglais général", "coefs": { "int": 0, "comp": 1.5, "ex": 2.5, "tp": 0 } },
+                { "type": "subject", "name": "Anglais technique et prof", "coefs": { "int": 0, "comp": 1.0, "ex": 2.0, "tp": 0 } },
+                { "type": "category", "name": "Matières Secondaires Professionnelles" },
+                { "type": "subject", "name": "AOP", "coefs": { "int": 0, "comp": 0.75, "ex": 1.5, "tp": 0.75 } },
+                { "type": "subject", "name": "Machine électrique", "coefs": { "int": 0, "comp": 1.0, "ex": 2.0, "tp": 0 } },
+                { "type": "subject", "name": "Electro de puissance", "coefs": { "int": 0, "comp": 1.0, "ex": 2.0, "tp": 0 } },
+                { "type": "subject", "name": "Automatique", "coefs": { "int": 0, "comp": 1.0, "ex": 2.0, "tp": 0 } },
+                { "type": "subject", "name": "Architec et config PC", "coefs": { "int": 0, "comp": 1.0, "ex": 2.0, "tp": 0 } },
+                { "type": "subject", "name": "Bureautique", "coefs": { "int": 0, "comp": 0, "ex": 2.0, "tp": 0 } },
+                { "type": "subject", "name": "Organisations et normes", "coefs": { "int": 0, "comp": 0, "ex": 2.0, "tp": 0 } },
+                { "type": "subject", "name": "Circulation aérienne", "coefs": { "int": 0, "comp": 0, "ex": 2.0, "tp": 0 } },
+                { "type": "subject", "name": "Aérotechnique", "coefs": { "int": 0, "comp": 0, "ex": 1.0, "tp": 0 } },
+                { "type": "subject", "name": "Météorologie", "coefs": { "int": 0, "comp": 0, "ex": 2.0, "tp": 0 } },
+                { "type": "subject", "name": "Sécurité incendie", "coefs": { "int": 0, "comp": 0, "ex": 1.0, "tp": 0 } },
+                { "type": "subject", "name": "Com et réseaux ATM", "coefs": { "int": 0, "comp": 0, "ex": 1.0, "tp": 0 } },
+                { "type": "subject", "name": "Navigation CNS/ATM", "coefs": { "int": 0, "comp": 0, "ex": 1.0, "tp": 0 } },
+                { "type": "subject", "name": "Surveillance", "coefs": { "int": 0, "comp": 0, "ex": 1.0, "tp": 0 } },
+                { "type": "subject", "name": "Secourisme", "coefs": { "int": 0, "comp": 0, "ex": 2.0, "tp": 0 } },
+                { "type": "subject", "name": "Intro aux réseaux", "coefs": { "int": 0, "comp": 0, "ex": 2.0, "tp": 0 } },
+                { "type": "subject", "name": "Transmission de données", "coefs": { "int": 0, "comp": 1.0, "ex": 2.0, "tp": 0 } },
+                { "type": "subject", "name": "Reseaux nationaux", "coefs": { "int": 0, "comp": 0, "ex": 1.0, "tp": 0 } },
+                { "type": "subject", "name": "Résaux internationaux", "coefs": { "int": 0, "comp": 0, "ex": 1.0, "tp": 0 } },
+                { "type": "subject", "name": "Réseaux mondiaux", "coefs": { "int": 0, "comp": 0, "ex": 1.0, "tp": 0 } },
+                { "type": "subject", "name": "Les protocoles", "coefs": { "int": 0, "comp": 0, "ex": 2.0, "tp": 0 } },
+                { "type": "subject", "name": "Commutateurs de messages", "coefs": { "int": 0, "comp": 0, "ex": 1.0, "tp": 0 } },
+                { "type": "subject", "name": "Sys de gest de l'info aéro", "coefs": { "int": 0, "comp": 0, "ex": 1.0, "tp": 0 } },
+                { "type": "subject", "name": "Traitement des don. Surveill", "coefs": { "int": 0, "comp": 0, "ex": 1.0, "tp": 0 } },
+                { "type": "subject", "name": "App de Mes  Outil électricien..", "coefs": { "int": 0, "comp": 0, "ex": 2.0, "tp": 0 } },
+                { "type": "subject", "name": "Transport d'energ electrique", "coefs": { "int": 0, "comp": 0, "ex": 1.5, "tp": 0 } },
+                { "type": "subject", "name": "Transport de données", "coefs": { "int": 0, "comp": 0, "ex": 1.0, "tp": 0 } },
+                { "type": "subject", "name": "Sys de prod et gest. Énergie", "coefs": { "int": 0, "comp": 0, "ex": 3.0, "tp": 0 } },
+                { "type": "subject", "name": "Balisage", "coefs": { "int": 0, "comp": 0, "ex": 2.0, "tp": 0 } },
+                { "type": "category", "name": "Matières Secondaires Générales" },
+                { "type": "subject", "name": "Education Physique", "coefs": { "int": 0.33, "comp": 0.33, "ex": 0.34, "tp": 0 } },
+                { "type": "subject", "name": "Assiduité", "coefs": { "int": 1.0, "comp": 1.0, "ex": 1.0, "tp": 0 } }
+            ];
+
+            const tbody = document.getElementById('calc-body');
+
+            // Protection et chargement dynamique par cycle
+            const storedUser = JSON.parse(localStorage.getItem('LEFAXEUR_user'));
+            const user = storedUser?.user || null;
+
+            if (!user) {
+                document.querySelector('.card').innerHTML = `<div class="text-center" style="padding:4rem 0;"><h3>Veuillez vous connecter pour accéder à vos notes.</h3></div>`;
+                return;
+            }
+
+            if (user.cycle !== "EAC-SEI" || String(user.annee) !== "1") {
+                document.querySelector('.card').innerHTML = `<div class="text-center" style="padding:4rem 0;"><div style="font-size:3rem;">🚧</div><h3>Calculateur non disponible</h3><p class="text-muted">Le fichier de notes pour le cycle <strong>${user.cycle}</strong> (Année ${user.annee}) sera ajouté prochainement.</p></div>`;
+                return;
+            }
+
+            const savedNotes = JSON.parse(localStorage.getItem('lefaxeur_notes')) || {};
+
+            function renderTable() {
+                tbody.innerHTML = '';
+                subjectsData.forEach((item, index) => {
+                    const tr = document.createElement('tr');
+
+                    if (item.type === 'category') {
+                        tr.className = 'category-row';
+                        tr.innerHTML = `<td colspan="8" style="padding: 1rem;">${item.name}</td>`;
+                        tbody.appendChild(tr);
+                        return;
+                    }
+
+                    const c = item.coefs;
+                    const coefTotal = c.int + c.comp + c.ex + c.tp;
+
+                    // Input generator
+                    const genInput = (type, coef) => {
+                        if (coef === 0) return `<span style="color:var(--text-muted);">-</span>`;
+                        const val = savedNotes[`${index}_${type}`] || '';
+                        return `
+                            <div>
+                                <input type="number" min="0" max="20" step="0.25" 
+                                    data-index="${index}" data-type="${type}" 
+                                    value="${val}" placeholder="/20">
+                                <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">Coef: ${coef}</div>
+                            </div>
+                        `;
+                    };
+
+                    tr.innerHTML = `
+                        <td style="text-align:left; padding: 1rem; font-weight:600;">${item.name}</td>
+                        <td style="padding: 0.5rem;">${genInput('int', c.int)}</td>
+                        <td style="padding: 0.5rem;">${genInput('comp', c.comp)}</td>
+                        <td style="padding: 0.5rem;">${genInput('ex', c.ex)}</td>
+                        <td style="padding: 0.5rem;">${genInput('tp', c.tp)}</td>
+                        <td style="padding: 1rem; font-weight:bold;">${coefTotal.toFixed(2)}</td>
+                        <td style="padding: 1rem; font-weight:bold; font-size:1.1rem;" id="final_${index}">0.00</td>
+                        <td style="padding: 1rem;" id="status_${index}">-</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                // Add event listeners
+                document.querySelectorAll('#calc-table input').forEach(input => {
+                    input.addEventListener('input', (e) => {
+                        const idx = e.target.getAttribute('data-index');
+                        const type = e.target.getAttribute('data-type');
+                        savedNotes[`${idx}_${type}`] = e.target.value;
+                        localStorage.setItem('lefaxeur_notes', JSON.stringify(savedNotes));
+                        calculateAll();
+                    });
+                });
+
+                calculateAll();
+            }
+
+            function calculateAll() {
+                let globalSumNotes = 0;
+                let globalSumCoefs = 0;
+
+                subjectsData.forEach((item, index) => {
+                    if (item.type === 'category') return;
+
+                    const c = item.coefs;
+                    const coefTotal = c.int + c.comp + c.ex + c.tp;
+                    let subjectSum = 0;
+
+                    const getVal = (type) => {
+                        const v = parseFloat(savedNotes[`${index}_${type}`]);
+                        return isNaN(v) ? 0 : v;
+                    };
+
+                    subjectSum += getVal('int') * c.int;
+                    subjectSum += getVal('comp') * c.comp;
+                    subjectSum += getVal('ex') * c.ex;
+                    subjectSum += getVal('tp') * c.tp;
+
+                    let finalNote = 0;
+                    if (coefTotal > 0) {
+                        finalNote = subjectSum / coefTotal;
+                    }
+
+                    document.getElementById(`final_${index}`).textContent = finalNote.toFixed(2);
+
+                    const statusEl = document.getElementById(`status_${index}`);
+                    if (finalNote >= 12) {
+                        statusEl.textContent = 'Validé';
+                        statusEl.className = 'status-valide';
+                    } else if (finalNote > 0) {
+                        statusEl.textContent = 'Non Validé';
+                        statusEl.className = 'status-non-valide';
+                    } else {
+                        statusEl.textContent = '-';
+                        statusEl.className = '';
+                    }
+
+                    // For global average (unweighted average of final notes)
+                    if (coefTotal > 0) {
+                        globalSumNotes += finalNote;
+                        globalSumCoefs += 1;
+                    }
+                });
+
+                document.getElementById('total-coefs').textContent = '-'; // Le fichier Excel original ne semble pas utiliser un total simple des coefs pour la moyenne
+                const globalAvg = globalSumCoefs > 0 ? (globalSumNotes / globalSumCoefs) : 0;
+                document.getElementById('global-average').textContent = globalAvg.toFixed(2);
+
+                const gStatus = document.getElementById('global-status');
+
+                // Vérifier si toutes les matières sont validées (>= 12)
+                let allValidated = true;
+                subjectsData.forEach((item, index) => {
+                    if (item.type === 'category') return;
+                    const c = item.coefs;
+                    const coefTotal = c.int + c.comp + c.ex + c.tp;
+                    if (coefTotal === 0) return;
+
+                    let subjectSum = 0;
+                    const getVal = (type) => {
+                        const v = parseFloat(savedNotes[`${index}_${type}`]);
+                        return isNaN(v) ? 0 : v;
+                    };
+                    subjectSum += getVal('int') * c.int;
+                    subjectSum += getVal('comp') * c.comp;
+                    subjectSum += getVal('ex') * c.ex;
+                    subjectSum += getVal('tp') * c.tp;
+                    const finalNote = subjectSum / coefTotal;
+
+                    if (finalNote < 12) {
+                        allValidated = false;
+                    }
+                });
+
+                if (globalAvg > 0) {
+                    if (allValidated) {
+                        gStatus.textContent = 'Année Validée';
+                        gStatus.className = 'status-valide';
+                    } else {
+                        gStatus.textContent = 'Passe en rappel';
+                        gStatus.className = 'status-non-valide';
+                    }
+                } else {
+                    gStatus.textContent = '-';
+                    gStatus.className = '';
+                }
+            }
+
+            renderTable();
+        });
+    </script>
+</body>
+
+</html>

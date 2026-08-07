@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administration — LEFAXEUR</title>
+    <meta name="description" content="Tableau de bord administrateur LEFAXEUR.">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <style>
+        .stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:1rem; margin-bottom:2rem; }
+        .stat-card { background:var(--card-bg); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.25rem 1rem; text-align:center; transition:transform .2s,box-shadow .2s; }
+        .stat-card:hover { transform:translateY(-3px); box-shadow:0 8px 24px rgba(0,0,0,.1); }
+        .stat-card .stat-icon { font-size:2rem; margin-bottom:.5rem; }
+        .stat-card .stat-value { font-size:2rem; font-weight:800; color:var(--primary); line-height:1; }
+        .stat-card .stat-label { font-size:.82rem; color:var(--text-muted); margin-top:.25rem; }
+        .admin-tabs { display:flex; gap:.5rem; border-bottom:2px solid var(--border); margin-bottom:1.5rem; overflow-x:auto; scrollbar-width:none; }
+        .admin-tabs::-webkit-scrollbar { display:none; }
+        .admin-tab { padding:.65rem 1.25rem; border:none; background:none; cursor:pointer; font-size:.9rem; font-weight:600; color:var(--text-muted); border-bottom:3px solid transparent; white-space:nowrap; transition:all .2s; }
+        .admin-tab.active { color:var(--primary); border-bottom-color:var(--primary); }
+        .admin-tab:hover:not(.active) { color:var(--text); }
+        .tab-panel { display:none; }
+        .tab-panel.active { display:block; }
+        .data-table { width:100%; border-collapse:collapse; font-size:.88rem; }
+        .data-table th { padding:.75rem 1rem; text-align:left; font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--text-muted); background:rgba(0,0,0,.03); border-bottom:1px solid var(--border); }
+        .data-table td { padding:.85rem 1rem; border-bottom:1px solid var(--border); vertical-align:middle; }
+        .data-table tr:hover td { background:rgba(26,86,219,.03); }
+        .data-table tr:last-child td { border-bottom:none; }
+        .role-badge { display:inline-block; padding:.2rem .65rem; border-radius:9999px; font-size:.75rem; font-weight:700; }
+        .role-badge.admin { background:rgba(220,38,38,.1); color:var(--danger); border:1px solid rgba(220,38,38,.25); }
+        .role-badge.student { background:rgba(26,86,219,.1); color:var(--primary); border:1px solid rgba(26,86,219,.2); }
+        .action-btn { padding:.3rem .7rem; border-radius:var(--radius-sm); font-size:.78rem; font-weight:600; border:1px solid var(--border); cursor:pointer; background:var(--card-bg); color:var(--text); transition:all .15s; margin-left:3px; }
+        .action-btn:hover { opacity:.8; }
+        .action-btn.danger { border-color:var(--danger); color:var(--danger); }
+        .action-btn.promote { border-color:#16a34a; color:#16a34a; }
+        .form-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:.85rem; }
+        @media(max-width:480px) { .form-grid-2 { grid-template-columns:1fr; } }
+        textarea.form-control { resize:vertical; min-height:120px; }
+        .admin-badge-pill { display:inline-flex; align-items:center; gap:.4rem; background:rgba(220,38,38,.1); color:var(--danger); padding:.3rem .9rem; border-radius:9999px; font-size:.82rem; font-weight:700; border:1px solid rgba(220,38,38,.25); }
+        .cycle-bar-wrap { margin-bottom:.75rem; }
+        .cycle-bar-label { display:flex; justify-content:space-between; font-size:.82rem; margin-bottom:.25rem; }
+        .cycle-bar-track { background:var(--border); border-radius:9999px; height:8px; overflow:hidden; }
+        .cycle-bar-fill { height:100%; border-radius:9999px; background:linear-gradient(90deg,#1a56db,#6366f1); transition:width .5s ease; }
+        .table-wrap { overflow-x:auto; }
+        .search-box { padding:.55rem 1rem; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--card-bg); color:var(--text); font-size:.9rem; width:100%; max-width:320px; margin-bottom:1rem; }
+        .publish-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.75rem; }
+        @media(max-width:720px) { .publish-grid { grid-template-columns:1fr; } }
+        .action-btn.edit { border-color:#2563eb; color:#2563eb; }
+        /* ── Modal Édition ─────────────────────────────────────────── */
+        .edit-modal-bg {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.65);
+            z-index: 99999;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(4px);
+        }
+        .edit-modal-bg.open { display: flex; }
+        .edit-modal-box {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 520px;
+            margin: 1rem;
+            position: relative;
+            box-shadow: 0 24px 80px rgba(0,0,0,.35);
+            color: #1a1a2e;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .edit-modal-box h3 {
+            font-size: 1.15rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            color: #1a1a2e;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        .edit-modal-box .form-label {
+            color: #374151 !important;
+            font-weight: 600;
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .edit-modal-box .form-control {
+            background: #f9fafb !important;
+            border: 1.5px solid #d1d5db !important;
+            color: #111827 !important;
+            border-radius: 10px;
+            padding: 0.65rem 0.9rem;
+            font-size: 0.92rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .edit-modal-box .form-control:focus {
+            outline: none;
+            border-color: #2563eb !important;
+            box-shadow: 0 0 0 3px rgba(37,99,235,.15);
+        }
+        .edit-modal-box textarea.form-control { min-height: 110px; resize: vertical; }
+        .edit-modal-box .form-group { margin-bottom: 1rem; }
+        .edit-modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: #f3f4f6;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: #6b7280;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background .15s;
+        }
+        .edit-modal-close:hover { background: #e5e7eb; color: #111827; }
+    </style>
+</head>
+
+<body class="animate-fade-in">
+    <div class="app-container">
+        <nav class="navbar">
+            <a href="../index.html" class="navbar-brand" style="gap:.6rem;">
+                <img src="../assets/img/logo.jpg" alt="LEFAXEUR" class="navbar-logo">
+                <span class="admin-badge-pill">⚙️ Admin</span>
+            </a>
+            <div class="navbar-actions">
+                <button id="theme-toggle" class="btn-icon" title="Thème">🌙</button>
+                <a href="../index.html" class="btn btn-outline" style="font-size:.88rem;">← Retour</a>
+                <a href="#" class="btn btn-danger" id="nav-logout" style="font-size:.88rem;">Déconnexion</a>
+            </div>
+        </nav>
+
+        <main class="main-content">
+
+            <div id="admin-protection" class="text-center hidden" style="padding:4rem 0;">
+                <div style="font-size:4rem;margin-bottom:1rem;">🚫</div>
+                <h2 style="color:var(--danger);margin-bottom:.75rem;">Accès Refusé</h2>
+                <p class="text-muted">Vous devez être administrateur pour accéder à cette page.</p>
+            </div>
+
+            <div id="admin-content" style="display:none;">
+                <header class="page-header">
+                    <h1 class="page-title">⚙️ Tableau de Bord Admin</h1>
+                    <p class="page-subtitle">Vue d'ensemble et gestion complète de la plateforme LEFAXEUR.</p>
+                </header>
+
+                <!-- Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-value" id="stat-users">—</div><div class="stat-label">Utilisateurs</div></div>
+                    <div class="stat-card"><div class="stat-icon">🎓</div><div class="stat-value" id="stat-students">—</div><div class="stat-label">Étudiants</div></div>
+                    <div class="stat-card"><div class="stat-icon">🟢</div><div class="stat-value" id="stat-online" style="color:#16a34a;">—</div><div class="stat-label">En ligne</div></div>
+                    <div class="stat-card"><div class="stat-icon">📄</div><div class="stat-value" id="stat-docs">—</div><div class="stat-label">Documents</div></div>
+                    <div class="stat-card"><div class="stat-icon">🔔</div><div class="stat-value" id="stat-infos">—</div><div class="stat-label">Informations</div></div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="admin-tabs">
+                    <button class="admin-tab active" data-tab="tab-users">👥 Utilisateurs</button>
+                    <button class="admin-tab" data-tab="tab-cycles">📊 Cycles</button>
+                    <button class="admin-tab" data-tab="tab-publish">📚 Publier</button>
+                    <button class="admin-tab" data-tab="tab-manage">🗂️ Gérer contenu</button>
+                </div>
+
+                <!-- Tab Utilisateurs -->
+                <div id="tab-users" class="tab-panel active">
+                    <div class="card">
+                        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1rem;">
+                            <h2 style="font-size:1.1rem;font-weight:700;">Liste des utilisateurs</h2>
+                            <button class="btn btn-outline" id="btn-refresh-users" style="font-size:.85rem;">🔄 Actualiser</button>
+                        </div>
+                        <input type="text" class="search-box" id="user-search" placeholder="🔍 Rechercher par nom, email, cycle...">
+                        <div class="table-wrap">
+                            <table class="data-table">
+                                <thead><tr><th>Utilisateur</th><th>Email</th><th>Cycle</th><th>Activité</th><th>Rôle</th><th style="text-align:right;">Actions</th></tr></thead>
+                                <tbody id="users-table-body"><tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-muted);">Chargement...</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab Cycles -->
+                <div id="tab-cycles" class="tab-panel">
+                    <div class="card">
+                        <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;">📊 Étudiants par cycle</h2>
+                        <div id="cycle-bars"><p class="text-muted">Chargement...</p></div>
+                    </div>
+                    <div class="card" style="margin-top:1.5rem;">
+                        <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;">🕐 Dernières inscriptions</h2>
+                        <div class="table-wrap">
+                            <table class="data-table">
+                                <thead><tr><th>Nom</th><th>Email</th><th>Cycle</th></tr></thead>
+                                <tbody id="recent-users-body"><tr><td colspan="3" style="text-align:center;padding:2rem;color:var(--text-muted);">Chargement...</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab Publier -->
+                <div id="tab-publish" class="tab-panel">
+                    <div class="publish-grid">
+                        <div class="card">
+                            <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;">📚 Publier un Document</h2>
+                            <form id="form-add-document">
+                                <div class="form-group"><label class="form-label">Titre *</label><input type="text" id="doc-titre" class="form-control" required placeholder="ex: Chapitre 1"></div>
+                                <div class="form-grid-2">
+                                    <div class="form-group"><label class="form-label">Type *</label>
+                                        <select class="form-control" required id="doc-type"><option value="cours">Cours</option><option value="tp">TP / TD</option><option value="evaluation">Évaluation</option></select>
+                                    </div>
+                                    <div class="form-group hidden" id="group-categorie-eval"><label class="form-label">Catégorie *</label>
+                                        <select class="form-control" id="doc-categorie-eval"><option value="interro">Interrogation</option><option value="compo">Composition</option><option value="examen">Examen</option></select>
+                                    </div>
+                                </div>
+                                <div class="form-group"><label class="form-label">Matière *</label><input type="text" id="doc-matiere" class="form-control" required placeholder="ex: Navigation aérienne"></div>
+                                <div class="form-grid-2">
+                                    <div class="form-group"><label class="form-label">Cycle *</label><select class="form-control" required id="doc-cycle"><option value="">Choisir...</option></select></div>
+                                    <div class="form-group"><label class="form-label">Année *</label>
+                                        <select class="form-control" required id="doc-annee"><option value="">Choisir...</option><option>2025</option><option>2024</option><option>2023</option><option>2022</option></select>
+                                    </div>
+                                </div>
+                                <div class="form-group"><label class="form-label">Fichier PDF *</label><input type="file" id="doc-file" class="form-control" accept=".pdf" required></div>
+                                <button type="submit" id="btn-submit-doc" class="btn btn-primary" style="width:100%;background:linear-gradient(135deg,#16a34a,#15803d);">✅ Mettre en ligne</button>
+                            </form>
+                        </div>
+                        <div class="card">
+                            <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;">🔔 Publier une Information</h2>
+                            <form id="form-add-info">
+                                <div class="form-group"><label class="form-label">Titre *</label><input type="text" id="info-titre" class="form-control" required placeholder="ex: Rentrée 2025"></div>
+                                <div class="form-group"><label class="form-label">Cible *</label>
+                                    <select class="form-control" id="admin-cycle-info"><option value="Général">Général (Tous les cycles)</option></select>
+                                </div>
+                                <div class="form-group"><label class="form-label">Contenu *</label><textarea class="form-control" id="info-contenu" required placeholder="Décrivez l'annonce ici..."></textarea></div>
+                                <div class="form-group"><label class="form-label">Pièce jointe (Optionnel)</label><input type="file" id="info-file" class="form-control" accept=".pdf,.jpg,.jpeg,.png"><small class="text-muted" style="font-size:.8rem;">JPG, PNG ou PDF.</small></div>
+                                <button type="submit" id="btn-submit-info" class="btn btn-primary" style="width:100%;">📢 Publier</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab Gérer contenu -->
+                <div id="tab-manage" class="tab-panel">
+                    <div class="card">
+                        <div style="display:flex;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+                            <button class="btn btn-outline" id="btn-manage-docs">📄 Documents</button>
+                            <button class="btn btn-outline" id="btn-manage-infos">🔔 Informations</button>
+                        </div>
+                        <div id="manage-docs-section" style="display:none;">
+                            <h3 style="font-size:1rem;margin-bottom:1rem;">Documents publiés</h3>
+                            <div class="table-wrap"><table class="data-table"><thead><tr><th>Titre</th><th>Type</th><th>Cycle</th><th style="text-align:right;">Actions</th></tr></thead><tbody id="manage-docs-list"></tbody></table></div>
+                        </div>
+                        <div id="manage-infos-section" style="display:none;">
+                            <h3 style="font-size:1rem;margin-bottom:1rem;">Informations publiées</h3>
+                            <div class="table-wrap"><table class="data-table"><thead><tr><th>Titre</th><th>Cycle</th><th style="text-align:right;">Actions</th></tr></thead><tbody id="manage-infos-list"></tbody></table></div>
+                        </div>
+                        <div id="manage-empty" style="text-align:center;padding:2rem;color:var(--text-muted);">Cliquez sur un bouton pour charger le contenu.</div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <footer class="footer">
+            <img src="../assets/img/logo.jpg" alt="LEFAXEUR" class="footer-logo">
+            <span>© 2026 LEFAXEUR — Fait par AYENA Gedeon Assekampa.</span>
+        </footer>
+    </div>
+
+    <!-- ======= MODAL EDIT INFORMATION ======= -->
+    <div id="modal-edit-info" class="edit-modal-bg">
+        <div class="edit-modal-box">
+            <button class="edit-modal-close" onclick="document.getElementById('modal-edit-info').classList.remove('open')">&times;</button>
+            <h3>✏️ Modifier l’annonce</h3>
+            <form id="form-edit-info">
+                <input type="hidden" id="edit-info-id">
+                <div class="form-group"><label class="form-label">Titre *</label><input type="text" id="edit-info-titre" class="form-control" required></div>
+                <div class="form-group"><label class="form-label">Cycle cible</label>
+                    <select class="form-control" id="edit-info-cycle">
+                        <option value="Général">Général (Tous)</option>
+                    </select>
+                </div>
+                <div class="form-group"><label class="form-label">Contenu *</label><textarea class="form-control" id="edit-info-contenu" required></textarea></div>
+                <div class="form-group"><label class="form-label">Nouvelle pièce jointe (optionnel)</label><input type="file" id="edit-info-file" class="form-control" accept=".pdf,.jpg,.jpeg,.png"></div>
+                <button type="submit" id="btn-edit-info-submit" class="btn btn-primary" style="width:100%;">Sauvegarder</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ======= MODAL EDIT DOCUMENT ======= -->
+    <div id="modal-edit-doc" class="edit-modal-bg">
+        <div class="edit-modal-box">
+            <button class="edit-modal-close" onclick="document.getElementById('modal-edit-doc').classList.remove('open')">&times;</button>
+            <h3>✏️ Modifier le document</h3>
+            <form id="form-edit-doc">
+                <input type="hidden" id="edit-doc-id">
+                <div class="form-group"><label class="form-label">Titre *</label><input type="text" id="edit-doc-titre" class="form-control" required></div>
+                <div class="form-grid-2">
+                    <div class="form-group"><label class="form-label">Type</label>
+                        <select class="form-control" id="edit-doc-type"><option value="cours">Cours</option><option value="tp">TP / TD</option><option value="evaluation">Évaluation</option></select>
+                    </div>
+                    <div class="form-group"><label class="form-label">Catégorie éval</label>
+                        <select class="form-control" id="edit-doc-cat"><option value="">Aucune</option><option value="interro">Interrogation</option><option value="compo">Composition</option><option value="examen">Examen</option></select>
+                    </div>
+                </div>
+                <div class="form-group"><label class="form-label">Matière</label><input type="text" id="edit-doc-matiere" class="form-control"></div>
+                <div class="form-group"><label class="form-label">Nouveau PDF (optionnel)</label><input type="file" id="edit-doc-file" class="form-control" accept=".pdf"></div>
+                <button type="submit" id="btn-edit-doc-submit" class="btn btn-primary" style="width:100%;">Sauvegarder</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/main.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        // Guard
+        const stored = JSON.parse(localStorage.getItem('LEFAXEUR_user') || 'null');
+        const user = stored?.user || null;
+        const content = document.getElementById('admin-content');
+        const protection = document.getElementById('admin-protection');
+
+        if (user && user.role === 'admin') {
+            content.style.display = 'block';
+            protection.classList.add('hidden');
+        } else {
+            content.style.display = 'none';
+            protection.classList.remove('hidden');
+            setTimeout(() => window.location.href = '../index.html', 3000);
+            return;
+        }
+
+        // Populate cycles
+        if (typeof SUBJECTS_DATA !== 'undefined') {
+            SUBJECTS_DATA.forEach(s => {
+                ['doc-cycle', 'admin-cycle-info'].forEach(id => {
+                    const sel = document.getElementById(id);
+                    if (!sel) return;
+                    const opt = document.createElement('option');
+                    opt.value = s.cycle; opt.textContent = s.label;
+                    sel.appendChild(opt);
+                });
+            });
+        }
+
+        // Tabs
+        document.querySelectorAll('.admin-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab).classList.add('active');
+                if (tab.dataset.tab === 'tab-users') loadUsers();
+                if (tab.dataset.tab === 'tab-cycles') loadCycleStats();
+            });
+        });
+
+        // Stats
+        async function loadStats() {
+            const stats = await api.getAdminStats();
+            if (!stats) return stats;
+            document.getElementById('stat-users').textContent = stats.total_users;
+            document.getElementById('stat-students').textContent = stats.total_students;
+            document.getElementById('stat-online').textContent = stats.total_online;
+            document.getElementById('stat-docs').textContent = stats.total_documents;
+            document.getElementById('stat-infos').textContent = stats.total_infos;
+            return stats;
+        }
+
+        // Users
+        let allUsers = [];
+        async function loadUsers() {
+            const tbody = document.getElementById('users-table-body');
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:1.5rem;color:var(--text-muted);">Chargement...</td></tr>';
+            allUsers = await api.getAdminUsers();
+            renderUsers(allUsers);
+        }
+
+        function renderUsers(users) {
+            const tbody = document.getElementById('users-table-body');
+            if (!users.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:1.5rem;color:var(--text-muted);">Aucun utilisateur.</td></tr>'; return; }
+            tbody.innerHTML = users.map(u => {
+                const isOnline = u.is_online ? '<span style="color:#16a34a;" title="En ligne">🟢</span>' : '<span style="color:#9ca3af;" title="Hors ligne">⚪</span>';
+                let lastActiveStr = 'Jamais';
+                if (u.last_active) {
+                    const d = new Date(u.last_active);
+                    lastActiveStr = d.toLocaleDateString('fr-FR') + ' ' + d.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'});
+                }
+                
+                return `
+                <tr>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:0.4rem;">
+                            ${isOnline}
+                            <strong>${u.prenom} ${u.nom}</strong>
+                        </div>
+                    </td>
+                    <td style="color:var(--text-muted);">${u.email}</td>
+                    <td>${u.cycle || '—'} ${u.annee ? '(' + u.annee + ')' : ''}</td>
+                    <td style="font-size:0.8rem;color:var(--text-muted);">${lastActiveStr}</td>
+                    <td><span class="role-badge ${u.role}">${u.role === 'admin' ? '⚙️ Admin' : '🎓 Étudiant'}</span></td>
+                    <td style="text-align:right;white-space:nowrap;">
+                        ${u.role === 'student'
+                            ? `<button class="action-btn promote" onclick="promoteUser('${u.id}','admin')">↑ Admin</button>`
+                            : `<button class="action-btn" style="border-color:#f59e0b;color:#f59e0b;" onclick="promoteUser('${u.id}','student')">↓ Étudiant</button>`
+                        }
+                        <button class="action-btn danger" onclick="deleteUser('${u.id}')">🗑️</button>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        document.getElementById('user-search')?.addEventListener('input', e => {
+            const q = e.target.value.toLowerCase();
+            renderUsers(allUsers.filter(u => `${u.prenom} ${u.nom} ${u.email} ${u.cycle}`.toLowerCase().includes(q)));
+        });
+        document.getElementById('btn-refresh-users')?.addEventListener('click', loadUsers);
+
+        // Cycle stats
+        async function loadCycleStats() {
+            const stats = await api.getAdminStats();
+            if (!stats) return;
+            const maxCount = Math.max(...stats.cycle_stats.map(c => c.count), 1);
+            document.getElementById('cycle-bars').innerHTML = stats.cycle_stats.length
+                ? stats.cycle_stats.map(c => `
+                    <div class="cycle-bar-wrap">
+                        <div class="cycle-bar-label"><span>${c.cycle}</span><strong>${c.count} étudiant${c.count > 1 ? 's' : ''}</strong></div>
+                        <div class="cycle-bar-track"><div class="cycle-bar-fill" style="width:${Math.round(c.count/maxCount*100)}%"></div></div>
+                    </div>`).join('')
+                : '<p class="text-muted">Aucune donnée.</p>';
+
+            document.getElementById('recent-users-body').innerHTML = stats.recent_users.length
+                ? stats.recent_users.map(u => `<tr><td><strong>${u.prenom} ${u.nom}</strong></td><td style="color:var(--text-muted);">${u.email}</td><td>${u.cycle || '—'}</td></tr>`).join('')
+                : '<tr><td colspan="3" style="text-align:center;padding:1rem;color:var(--text-muted);">Aucune inscription récente.</td></tr>';
+        }
+
+        // User actions
+        window.promoteUser = async (id, role) => {
+            if (!confirm(`Changer le rôle en ${role} ?`)) return;
+            try { await api.updateUserRole(id, role); await Promise.all([loadUsers(), loadStats()]); }
+            catch(e) { alert(e.message); }
+        };
+        window.deleteUser = async (id) => {
+            if (!confirm('Supprimer définitivement cet utilisateur ?')) return;
+            try { await api.deleteAdminUser(id); await Promise.all([loadUsers(), loadStats()]); }
+            catch(e) { alert(e.message); }
+        };
+
+        // Form: Document
+        document.getElementById('doc-type')?.addEventListener('change', e => {
+            const grp = document.getElementById('group-categorie-eval');
+            const cat = document.getElementById('doc-categorie-eval');
+            if (e.target.value === 'evaluation') { grp.classList.remove('hidden'); cat.required = true; }
+            else { grp.classList.add('hidden'); cat.required = false; }
+        });
+
+        document.getElementById('form-add-document')?.addEventListener('submit', async e => {
+            e.preventDefault();
+            const btn = document.getElementById('btn-submit-doc');
+            btn.disabled = true; btn.textContent = 'Envoi...';
+            const fd = new FormData();
+            fd.append('titre', document.getElementById('doc-titre').value);
+            const type = document.getElementById('doc-type').value;
+            fd.append('type', type);
+            if (type === 'evaluation') fd.append('categorie_eval', document.getElementById('doc-categorie-eval').value);
+            fd.append('matiere', document.getElementById('doc-matiere').value);
+            fd.append('cycle', document.getElementById('doc-cycle').value);
+            fd.append('annee', document.getElementById('doc-annee').value);
+            fd.append('file', document.getElementById('doc-file').files[0]);
+            try { await api.addDocument(fd); alert('✅ Document ajouté !'); e.target.reset(); document.getElementById('group-categorie-eval').classList.add('hidden'); await loadStats(); }
+            catch(err) { alert('❌ ' + err.message); }
+            finally { btn.disabled = false; btn.textContent = '✅ Mettre en ligne'; }
+        });
+
+        document.getElementById('form-add-info')?.addEventListener('submit', async e => {
+            e.preventDefault();
+            const btn = document.getElementById('btn-submit-info');
+            btn.disabled = true; btn.textContent = 'Publication...';
+            const fd = new FormData();
+            fd.append('titre', document.getElementById('info-titre').value);
+            fd.append('contenu', document.getElementById('info-contenu').value);
+            fd.append('cycle', document.getElementById('admin-cycle-info').value);
+            const file = document.getElementById('info-file').files[0];
+            if (file) fd.append('file', file);
+            try { await api.addInfo(fd); alert('📢 Information publiée !'); e.target.reset(); await loadStats(); }
+            catch(err) { alert('❌ ' + err.message); }
+            finally { btn.disabled = false; btn.textContent = '📢 Publier'; }
+        });
+
+        // Manage Content
+        document.getElementById('btn-manage-docs')?.addEventListener('click', async () => {
+            document.getElementById('manage-docs-section').style.display = 'block';
+            document.getElementById('manage-infos-section').style.display = 'none';
+            document.getElementById('manage-empty').style.display = 'none';
+            const docs = await api.getDocuments();
+            document.getElementById('manage-docs-list').innerHTML = docs.length
+                ? docs.map(d => `<tr><td>${d.titre}</td><td><span class="role-badge student">${d.type}</span></td><td>${d.cycle}</td><td style="text-align:right;white-space:nowrap;"><button class="action-btn edit" onclick="editDocument('${d.id}','${d.titre.replace(/'/g,"&apos;")}','${d.type}','${d.matiere?.replace(/'/g,"&apos;")}','${d.categorie_eval||''}')">✏️ Modifier</button><button class="action-btn danger" onclick="deleteDocument('${d.id}')">🗑️ Supprimer</button></td></tr>`).join('')
+                : '<tr><td colspan="4" style="text-align:center;padding:1.5rem;color:var(--text-muted);">Aucun document.</td></tr>';
+        });
+
+        document.getElementById('btn-manage-infos')?.addEventListener('click', async () => {
+            document.getElementById('manage-infos-section').style.display = 'block';
+            document.getElementById('manage-docs-section').style.display = 'none';
+            document.getElementById('manage-empty').style.display = 'none';
+            const infos = await api.getInfos();
+            document.getElementById('manage-infos-list').innerHTML = infos.length
+                ? infos.map(i => `<tr><td>${i.titre}</td><td>${i.cycle}</td><td style="text-align:right;white-space:nowrap;"><button class="action-btn edit" onclick="editInfo('${i.id}','${i.titre.replace(/'/g,"&apos;")}','${(i.cycle||'Général')}','${i.contenu?.replace(/'/g,"&apos;").replace(/\n/g,' ')||''}')">✏️ Modifier</button><button class="action-btn danger" onclick="deleteInfo('${i.id}')">🗑️ Supprimer</button></td></tr>`).join('')
+                : '<tr><td colspan="3" style="text-align:center;padding:1.5rem;color:var(--text-muted);">Aucune information.</td></tr>';
+        });
+
+        window.deleteDocument = async (id) => {
+            if (!confirm('Supprimer ce document ?')) return;
+            try { await api.deleteDocument(id); document.getElementById('btn-manage-docs').click(); await loadStats(); }
+            catch(e) { alert(e.message); }
+        };
+        window.deleteInfo = async (id) => {
+            if (!confirm('Supprimer cette information ?')) return;
+            try { await api.deleteInfo(id); document.getElementById('btn-manage-infos').click(); await loadStats(); }
+            catch(e) { alert(e.message); }
+        };
+
+        // ── Édition Information ────────────────────────────────────────────
+        window.editInfo = (id, titre, cycle, contenu) => {
+            document.getElementById('edit-info-id').value = id;
+            document.getElementById('edit-info-titre').value = titre;
+            document.getElementById('edit-info-contenu').value = contenu;
+            // Set cycle select
+            const sel = document.getElementById('edit-info-cycle');
+            if ([...sel.options].some(o => o.value === cycle)) sel.value = cycle;
+            document.getElementById('modal-edit-info').classList.add('open');
+        };
+
+        // Populate cycle selects in edit modal
+        if (typeof SUBJECTS_DATA !== 'undefined') {
+            SUBJECTS_DATA.forEach(s => {
+                const sel = document.getElementById('edit-info-cycle');
+                if (sel) { const opt = document.createElement('option'); opt.value = s.cycle; opt.textContent = s.label; sel.appendChild(opt); }
+            });
+        }
+
+        document.getElementById('form-edit-info')?.addEventListener('submit', async e => {
+            e.preventDefault();
+            const btn = document.getElementById('btn-edit-info-submit');
+            btn.disabled = true; btn.textContent = 'Sauvegarde...';
+            const fd = new FormData();
+            fd.append('titre', document.getElementById('edit-info-titre').value);
+            fd.append('contenu', document.getElementById('edit-info-contenu').value);
+            fd.append('cycle', document.getElementById('edit-info-cycle').value);
+            const file = document.getElementById('edit-info-file').files[0];
+            if (file) fd.append('file', file);
+            try {
+                await api.updateInfo(document.getElementById('edit-info-id').value, fd);
+                document.getElementById('modal-edit-info').classList.remove('open');
+                e.target.reset();
+                document.getElementById('btn-manage-infos').click();
+            } catch(err) { alert('❌ ' + err.message); }
+            finally { btn.disabled = false; btn.textContent = 'Sauvegarder'; }
+        });
+
+        // ── Édition Document ───────────────────────────────────────────────
+        window.editDocument = (id, titre, type, matiere, cat) => {
+            document.getElementById('edit-doc-id').value = id;
+            document.getElementById('edit-doc-titre').value = titre;
+            document.getElementById('edit-doc-type').value = type || 'cours';
+            document.getElementById('edit-doc-matiere').value = matiere || '';
+            document.getElementById('edit-doc-cat').value = cat || '';
+            document.getElementById('modal-edit-doc').classList.add('open');
+        };
+
+        document.getElementById('form-edit-doc')?.addEventListener('submit', async e => {
+            e.preventDefault();
+            const btn = document.getElementById('btn-edit-doc-submit');
+            btn.disabled = true; btn.textContent = 'Sauvegarde...';
+            const fd = new FormData();
+            fd.append('titre', document.getElementById('edit-doc-titre').value);
+            fd.append('type', document.getElementById('edit-doc-type').value);
+            const cat = document.getElementById('edit-doc-cat').value;
+            if (cat) fd.append('categorie_eval', cat);
+            const matiere = document.getElementById('edit-doc-matiere').value;
+            if (matiere) fd.append('matiere', matiere);
+            const file = document.getElementById('edit-doc-file').files[0];
+            if (file) fd.append('file', file);
+            try {
+                await api.updateDocument(document.getElementById('edit-doc-id').value, fd);
+                document.getElementById('modal-edit-doc').classList.remove('open');
+                e.target.reset();
+                document.getElementById('btn-manage-docs').click();
+            } catch(err) { alert('❌ ' + err.message); }
+            finally { btn.disabled = false; btn.textContent = 'Sauvegarder'; }
+        });
+
+        // Init
+        await Promise.all([loadStats(), loadUsers()]);
+    });
+    </script>
+</body>
+</html>

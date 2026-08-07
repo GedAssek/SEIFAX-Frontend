@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentification — LEFAXEUR</title>
+    <meta name="description" content="Connectez-vous ou créez votre compte LEFAXEUR pour accéder aux ressources étudiantes.">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+
+        /* ── Auth wrapper ── */
+        .auth-wrapper { width: 100%; max-width: 480px; }
+
+        /* ── Auth logo centered ── */
+        .auth-logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .auth-logo img {
+            height: 80px;
+            width: auto;
+            border-radius: 12px;
+            object-fit: contain;
+            background: #fff;
+            padding: 6px;
+            box-shadow: 0 4px 20px rgba(26,86,219,0.15);
+        }
+        .auth-logo p {
+            color: var(--text-muted);
+            font-size: 0.88rem;
+            margin-top: 0.6rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        /* ── Card override ── */
+        .auth-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-xl);
+            box-shadow: 0 16px 64px rgba(26,86,219,0.12);
+            padding: 2.5rem;
+        }
+
+        .auth-card h2 {
+            font-size: 1.7rem;
+            font-weight: 800;
+            margin-bottom: 0.4rem;
+        }
+
+        /* ── 2-col form grid ── */
+        .form-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.85rem;
+        }
+        @media (max-width: 480px) {
+            .form-grid-2 { grid-template-columns: 1fr; }
+        }
+
+        /* ── Toggle link ── */
+        .auth-toggle {
+            text-align: center;
+            margin-top: 1.25rem;
+            font-size: 0.92rem;
+            color: var(--text-muted);
+        }
+        .auth-toggle a {
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .auth-toggle a:hover { text-decoration: underline; }
+
+        /* ── Password eye toggle ── */
+        .input-icon-wrap { position: relative; }
+        .input-icon-wrap .form-control { padding-right: 3rem; }
+        .eye-toggle {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.05rem;
+            color: var(--text-muted);
+            transition: color 0.2s;
+        }
+        .eye-toggle:hover { color: var(--primary); }
+
+        /* ── Submit btn ── */
+        .btn-submit {
+            width: 100%;
+            padding: 0.95rem;
+            font-size: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        /* ── Slide animation ── */
+        .auth-view { animation: fadeInUp 0.4s ease forwards; }
+    </style>
+</head>
+<body class="animate-fade-in">
+
+    <div class="auth-wrapper">
+
+        <!-- Logo -->
+        <div class="auth-logo">
+            <a href="../index.html">
+                <img src="../assets/img/logo.jpg" alt="LEFAXEUR">
+            </a>
+            <p>Portail d'apprentissage</p>
+        </div>
+
+        <!-- ═══ Vue : CONNEXION ═══════════════════════════════════════ -->
+        <div class="auth-card auth-view" id="login-view">
+            <h2 class="text-center">Connexion</h2>
+            <p class="text-center text-muted mb-2" style="font-size:0.92rem;">
+                Entrez votre email et mot de passe pour accéder à la plateforme.
+            </p>
+
+            <form id="form-login" autocomplete="off">
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" name="email" id="login-email" class="form-control"
+                           required placeholder="votre@email.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Mot de passe</label>
+                    <div class="input-icon-wrap">
+                        <input type="password" name="password" id="login-password" class="form-control"
+                               required placeholder="••••••••">
+                        <button type="button" id="toggle-pw" class="eye-toggle" title="Afficher/Masquer">👁</button>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-submit">Se connecter</button>
+            </form>
+
+            <p class="auth-toggle">
+                Pas encore de compte ? <a href="#" id="btn-to-register">S'inscrire</a>
+            </p>
+        </div>
+
+        <!-- ═══ Vue : INSCRIPTION ════════════════════════════════════ -->
+        <div class="auth-card auth-view hidden" id="register-view">
+            <h2 class="text-center">Créer un compte</h2>
+            <p class="text-center text-muted mb-2" style="font-size:0.92rem;">
+                Rejoignez la communauté LEFAXEUR.
+            </p>
+
+            <form id="form-register" autocomplete="off">
+
+                <!-- Nom & Prénom -->
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Nom</label>
+                        <input type="text" name="nom" class="form-control" required placeholder="AYENA">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Prénom</label>
+                        <input type="text" name="prenom" class="form-control" required placeholder="Gédéon">
+                    </div>
+                </div>
+
+                <!-- Cycle & Année -->
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Cycle</label>
+                        <select name="cycle" class="form-control" required id="reg-cycle">
+                            <option value="">Choisir...</option>
+                            <!-- Populated by JS from SUBJECTS_DATA -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Année d'études</label>
+                        <select name="annee" class="form-control" required>
+                            <option value="">Choisir...</option>
+                            <option value="1">1ère Année</option>
+                            <option value="2">2ème Année</option>
+                            <option value="3">3ème Année</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" name="email" class="form-control" required placeholder="nom@eamac.aero">
+                </div>
+
+                <!-- Passwords -->
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Mot de passe</label>
+                        <input type="password" name="password" id="reg-password" class="form-control"
+                               required placeholder="≥ 8 caractères">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Confirmer</label>
+                        <input type="password" name="password_confirm" id="reg-password-confirm"
+                               class="form-control" required placeholder="Répéter">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-submit">Créer mon compte</button>
+            </form>
+
+            <p class="auth-toggle">
+                Déjà un compte ? <a href="#" id="btn-to-login">Se connecter</a>
+            </p>
+        </div>
+
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // ── Populate cycles from SUBJECTS_DATA ──────────────────────
+            const cycleSelect = document.getElementById('reg-cycle');
+            if (cycleSelect && typeof SUBJECTS_DATA !== 'undefined') {
+                SUBJECTS_DATA.forEach(s => {
+                    const opt = document.createElement('option');
+                    opt.value = s.cycle;
+                    opt.textContent = s.label;    // Juste le label propre, sans le code
+                    cycleSelect.appendChild(opt);
+                });
+            }
+
+            // ── Eye toggle ───────────────────────────────────────────────
+            const toggleBtn = document.getElementById('toggle-pw');
+            const pwInput   = document.getElementById('login-password');
+            if (toggleBtn && pwInput) {
+                toggleBtn.addEventListener('click', () => {
+                    const isHidden = pwInput.type === 'password';
+                    pwInput.type       = isHidden ? 'text' : 'password';
+                    toggleBtn.textContent = isHidden ? '🙈' : '👁';
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documents — LEFAXEUR</title>
+    <meta name="description" content="Consultez les cours, TP et évaluations sur LEFAXEUR.">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/layout.css">
+</head>
+
+<body class="animate-fade-in">
+    <div class="app-container">
+
+        <!-- ═══ NAVBAR ══════════════════════════════════════════════════ -->
+        <nav class="navbar">
+            <a href="../index.html" class="navbar-brand">
+                <img src="../assets/img/logo.jpg" alt="LEFAXEUR" class="navbar-logo">
+            </a>
+
+            <ul class="navbar-nav">
+                <li><a href="../index.html" class="nav-link">Accueil</a></li>
+                <li><a href="documents.html" class="nav-link active">Documents</a></li>
+                <li><a href="notes.html" class="nav-link">Notes</a></li>
+                <li><a href="infos.html" class="nav-link">Informations</a></li>
+                <li><a href="admin.html" class="nav-link" id="nav-admin" style="display:none;">Administration</a></li>
+            </ul>
+
+            <div class="navbar-actions">
+                <button id="theme-toggle" class="btn-icon" title="Thème">🌙</button>
+                <span id="user-badge" class="user-badge" style="display:none;"></span>
+                <a href="login.html" class="btn btn-primary" id="nav-auth">Se connecter</a>
+                <a href="#" class="btn btn-outline" id="nav-logout" style="display:none;">Déconnexion</a>
+            </div>
+        </nav>
+
+        <!-- ═══ MAIN ═════════════════════════════════════════════════════ -->
+        <main class="main-content">
+
+            <header class="page-header">
+                <h1 class="page-title">📚 Centre de Documents</h1>
+                <p class="page-subtitle">Consultez les supports de cours, les travaux pratiques et les épreuves
+                    d'évaluation.</p>
+            </header>
+
+            <!-- ── Tabs ───────────────────────────────────────────────── -->
+            <div class="tabs-container">
+                <button class="tab-btn active" data-tab="cours">📖 Cours</button>
+                <button class="tab-btn" data-tab="tp">💻 TP / TD</button>
+                <button class="tab-btn" data-tab="evaluation">📝 Évaluations</button>
+            </div>
+
+            <!-- ── Sous-filtres Évaluations (cachés par défaut) ────────── -->
+            <div class="chips-container hidden" id="eval-filters">
+                <button class="chip active" data-filter="">Toutes</button>
+                <button class="chip" data-filter="interro">Interrogations</button>
+                <button class="chip" data-filter="compo">Compositions</button>
+                <button class="chip" data-filter="examen">Examens</button>
+            </div>
+
+            <!-- ── Filter Bar ─────────────────────────────────────────── -->
+            <div class="filter-bar">
+                <input type="text" id="search-matiere" class="form-control"
+                    placeholder="🔍 Rechercher une matière ou un titre..." style="flex:2; min-width:200px;">
+
+                <select id="filter-cycle" class="form-control" style="flex:1; min-width:180px;">
+                    <option value="">Tous les cycles</option>
+                </select>
+
+                <select id="filter-annee" class="form-control" style="min-width:130px;">
+                    <option value="">Toutes les années</option>
+                    <option value="2026">2026</option>
+                    <option value="2025">2025</option>
+                    <option value="2024">2024</option>
+                    <option value="2023">2023</option>
+                    <option value="2022">2022</option>
+                    <option value="2021">2021</option>
+                    <option value="2020">2020</option>
+                </select>
+
+                <div id="locked-filters-badge" class="hidden"
+                    style="display:flex; align-items:center; gap:0.5rem; padding:0.5rem 1rem; background:rgba(26,86,219,0.1); border:1px solid var(--primary); border-radius:var(--radius-md); color:var(--primary); font-size:0.9rem; font-weight:600; white-space:nowrap;">
+                    <!-- Rempli par JS -->
+                </div>
+
+                <button class="btn btn-primary" id="btn-filter">Filtrer</button>
+            </div>
+
+            <!-- ── Results grid ───────────────────────────────────────── -->
+            <div class="grid-cards" id="documents-list">
+                <!-- Cards populated by JS -->
+            </div>
+
+            <!-- Empty state -->
+            <div id="empty-state" class="hidden text-center" style="padding:4rem 0;">
+                <div style="font-size:4rem; margin-bottom:1rem;">🗂️</div>
+                <h3>Aucun document n'est publié</h3>
+                <p class="text-muted">Revenez plus tard pour consulter de nouveaux documents.</p>
+            </div>
+
+        </main>
+
+        <!-- ═══ FOOTER ════════════════════════════════════════════════════ -->
+        <footer class="footer">
+            <img src="../assets/img/logo.jpg" alt="LEFAXEUR" class="footer-logo">
+            <span>© 2026 LEFAXEUR — Fait par AYENA Gedeon Assekampa.</span>
+        </footer>
+
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/main.js"></script>
+    <script>
+        let allDocuments = [];
+        let currentTab = 'cours';
+        let currentEvalFilter = '';
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const stored = JSON.parse(localStorage.getItem('LEFAXEUR_user'));
+            const user = stored?.user || null;
+
+            // Populate cycle filter
+            const cycleFilter = document.getElementById('filter-cycle');
+            if (cycleFilter && typeof SUBJECTS_DATA !== 'undefined') {
+                SUBJECTS_DATA.forEach(s => {
+                    const opt = document.createElement('option');
+                    opt.value = s.cycle;
+                    opt.textContent = s.label;
+                    cycleFilter.appendChild(opt);
+                });
+            }
+
+            // Pré-remplir et verrouiller les filtres si l'utilisateur est connecté et non admin
+            const anneeFilter = document.getElementById('filter-annee');
+            const lockedBadge = document.getElementById('locked-filters-badge');
+
+            if (user) {
+                if (user.role !== 'admin') {
+                    // Verrouiller
+                    if (cycleFilter) cycleFilter.style.display = 'none';
+                    if (anneeFilter) anneeFilter.style.display = 'none';
+                    lockedBadge.classList.remove('hidden');
+                    lockedBadge.innerHTML = `🔒 Profil: ${user.cycle} - Année ${user.annee}`;
+
+                    // Forcer les valeurs pour le JS local si nécessaire (l'API va forcer aussi)
+                    if (cycleFilter) cycleFilter.value = user.cycle;
+                    if (anneeFilter) anneeFilter.value = user.annee;
+                } else {
+                    // Admin: juste pré-remplir
+                    if (user.cycle && cycleFilter) cycleFilter.value = user.cycle;
+                    if (user.annee && anneeFilter) anneeFilter.value = user.annee;
+                }
+            }
+
+            // Tabs events
+            const tabs = document.querySelectorAll('.tab-btn');
+            const evalFilters = document.getElementById('eval-filters');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    currentTab = tab.getAttribute('data-tab');
+
+                    if (currentTab === 'evaluation') {
+                        evalFilters.classList.remove('hidden');
+                    } else {
+                        evalFilters.classList.add('hidden');
+                        currentEvalFilter = ''; // reset eval filter
+                    }
+                    filterDocuments();
+                });
+            });
+
+            // Chips events (Évaluations sub-filters)
+            const chips = document.querySelectorAll('.chip');
+            chips.forEach(chip => {
+                chip.addEventListener('click', () => {
+                    chips.forEach(c => c.classList.remove('active'));
+                    chip.classList.add('active');
+                    currentEvalFilter = chip.getAttribute('data-filter');
+                    filterDocuments();
+                });
+            });
+
+            // Bouton filtrer
+            document.getElementById('btn-filter').addEventListener('click', filterDocuments);
+
+            // Fetch data
+            allDocuments = await api.getDocuments();
+            filterDocuments();
+        });
+
+        function renderDocuments(list) {
+            const grid = document.getElementById('documents-list');
+            const empty = document.getElementById('empty-state');
+            grid.innerHTML = '';
+
+            if (!list || list.length === 0) {
+                empty.classList.remove('hidden');
+                return;
+            }
+            empty.classList.add('hidden');
+
+            list.forEach(doc => {
+                let icon = '📖';
+                if (doc.type === 'tp') icon = '💻';
+                if (doc.type === 'evaluation') icon = '📝';
+
+                let evalBadge = '';
+                if (doc.type === 'evaluation' && doc.categorie_eval) {
+                    evalBadge = `<span class="badge badge-green" style="margin-left: 0.5rem; text-transform: capitalize;">${doc.categorie_eval}</span>`;
+                }
+
+                grid.innerHTML += `
+            <div class="doc-card">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;">
+                    <div>
+                        <span class="badge badge-blue" style="text-transform: capitalize;">${doc.type}</span>
+                        ${evalBadge}
+                    </div>
+                    <span class="badge" style="background:rgba(17,24,39,0.08);color:var(--text-muted);">📅 ${doc.annee}</span>
+                </div>
+                
+                <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1rem;">
+                    <div class="doc-icon">${icon}</div>
+                    <div>
+                        <h3 style="color:var(--primary);margin-bottom:0.2rem;font-size:1.1rem;line-height:1.2;">${doc.titre}</h3>
+                        <p class="text-muted" style="font-size:0.9rem;">${doc.matiere}</p>
+                    </div>
+                </div>
+                
+                <p class="text-muted" style="font-size:0.85rem;margin-bottom:1.25rem;">🎓 ${doc.cycle}</p>
+                <a href="${doc.file_url || '#'}" target="_blank" class="btn btn-outline" style="width:100%;font-size:0.9rem;">📥 Télécharger PDF</a>
+            </div>`;
+            });
+        }
+
+        function filterDocuments() {
+            const search = document.getElementById('search-matiere').value.toLowerCase();
+            const cycle = document.getElementById('filter-cycle').value;
+            const annee = document.getElementById('filter-annee').value;
+
+            const filtered = allDocuments.filter(doc => {
+                // Filtre d'onglet
+                if (doc.type !== currentTab) return false;
+
+                // Sous-filtre d'évaluation
+                if (currentTab === 'evaluation' && currentEvalFilter) {
+                    if (doc.categorie_eval !== currentEvalFilter) return false;
+                }
+
+                // Recherche texte (titre ou matiere)
+                const matchSearch = !search ||
+                    doc.matiere.toLowerCase().includes(search) ||
+                    (doc.titre && doc.titre.toLowerCase().includes(search));
+
+                const matchCycle = !cycle || doc.cycle === cycle;
+                const matchAnnee = !annee || String(doc.annee) === annee;
+
+                return matchSearch && matchCycle && matchAnnee;
+            });
+
+            renderDocuments(filtered);
+        }
+    </script>
+</body>
+
+</html>

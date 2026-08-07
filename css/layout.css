@@ -1,0 +1,229 @@
+/* ============================================================
+   LEFAXEUR — Layout
+   Navbar, Hero, Grid, Footer, Responsive
+   ============================================================ */
+
+/* ─── App Shell ──────────────────────────────────────────── */
+.app-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* ─── Navbar ─────────────────────────────────────────────── */
+.navbar {
+    position: sticky;
+    top: 1rem;
+    z-index: 100;
+    background: var(--glass-bg);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid var(--glass-border);
+    border-radius: 9999px;
+    padding: 0.5rem 1.5rem;
+    margin: 0 4%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 24px rgba(26, 86, 219, 0.1);
+    transition: var(--transition);
+}
+
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    flex-shrink: 0;
+}
+
+.navbar-logo {
+    height: 42px;
+    width: auto;
+    /* logo a fond blanc, on le mixe proprement */
+    border-radius: 8px;
+    object-fit: contain;
+}
+
+.navbar-nav {
+    display: flex;
+    align-items: center;
+    gap: 2.5rem;
+    list-style: none;
+}
+
+.nav-link {
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.92rem;
+    position: relative;
+    padding: 0.4rem 0;
+    transition: color 0.25s;
+}
+.nav-link:hover,
+.nav-link.active { color: var(--primary); }
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 2px;
+    background: var(--primary);
+    border-radius: 2px;
+    transition: width 0.3s ease;
+}
+.nav-link:hover::after,
+.nav-link.active::after { width: 100%; }
+
+.navbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* ─── User Badge ─────────────────────────────────────────── */
+.user-badge {
+    font-family: 'Fira Code', monospace;
+    background: rgba(26, 86, 219, 0.1);
+    color: var(--primary);
+    padding: 0.35rem 1rem;
+    border-radius: 9999px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    border: 1px solid rgba(26, 86, 219, 0.2);
+}
+.admin-badge {
+    background: rgba(220, 38, 38, 0.1);
+    color: var(--danger);
+    border-color: rgba(220, 38, 38, 0.2);
+}
+
+/* ─── Theme Toggle ────────────────────────────────────────── */
+.btn-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    background: var(--glass-bg);
+    border: 1.5px solid var(--glass-border);
+    cursor: pointer;
+    transition: var(--transition);
+    color: var(--text-muted);
+    flex-shrink: 0;
+}
+.btn-icon:hover { border-color: var(--primary); color: var(--primary); transform: rotate(15deg); }
+
+/* ─── Main Content ───────────────────────────────────────── */
+.main-content {
+    flex: 1;
+    padding: 3.5rem 5% 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* ─── Page Header ────────────────────────────────────────── */
+.page-header {
+    margin-bottom: 2.5rem;
+}
+.page-title {
+    font-size: 2.4rem;
+    font-weight: 800;
+}
+.page-subtitle {
+    color: var(--text-muted);
+    font-size: 1.05rem;
+    margin-top: 0.5rem;
+}
+
+/* ─── Hero ───────────────────────────────────────────────── */
+.hero-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4rem;
+    min-height: 72vh;
+}
+.hero-text {
+    flex: 1;
+    max-width: 580px;
+}
+.hero-title {
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+}
+.hero-subtitle {
+    font-size: 1.15rem;
+    color: var(--text-muted);
+    margin-bottom: 2.5rem;
+    line-height: 1.7;
+}
+.hero-image {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* ─── Grid Cards ─────────────────────────────────────────── */
+.grid-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.75rem;
+}
+.grid-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+
+/* ─── Filter Bar ─────────────────────────────────────────── */
+.filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding: 1.25rem;
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--glass-shadow);
+}
+.filter-bar .form-control { flex: 1; min-width: 180px; }
+
+/* ─── Footer ─────────────────────────────────────────────── */
+.footer {
+    text-align: center;
+    padding: 2rem 5%;
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    border-top: 1px solid var(--glass-border);
+    margin-top: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+.footer-logo { height: 28px; width: auto; opacity: 0.7; border-radius: 5px; }
+
+/* ─── Responsive ─────────────────────────────────────────── */
+@media (max-width: 900px) {
+    .navbar { margin: 0 2%; padding: 0.5rem 1rem; }
+    .navbar-nav { gap: 1.5rem; }
+    .hero-section { flex-direction: column; min-height: auto; gap: 2rem; text-align: center; }
+    .hero-text { max-width: 100%; }
+    .hero-image { display: none; }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+    .navbar-nav { display: none; }
+    .main-content { padding: 2.5rem 4% 2rem; }
+    .page-title { font-size: 1.8rem; }
+}
