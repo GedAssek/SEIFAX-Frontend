@@ -168,6 +168,7 @@
                     <button class="admin-tab" data-tab="tab-cycles">📊 Cycles</button>
                     <button class="admin-tab" data-tab="tab-publish">📚 Publier</button>
                     <button class="admin-tab" data-tab="tab-manage">🗂️ Gérer contenu</button>
+                    <button class="admin-tab" data-tab="tab-heures">⏱️ Suivi Horaire</button>
                 </div>
 
                 <!-- Tab Utilisateurs -->
@@ -241,6 +242,51 @@
                                 <div class="form-group"><label class="form-label">Pièce jointe (Optionnel)</label><input type="file" id="info-file" class="form-control" accept=".pdf,.jpg,.jpeg,.png"><small class="text-muted" style="font-size:.8rem;">JPG, PNG ou PDF.</small></div>
                                 <button type="submit" id="btn-submit-info" class="btn btn-primary" style="width:100%;">📢 Publier</button>
                             </form>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <!-- Tab Suivi Horaire -->
+                <div id="tab-heures" class="tab-panel">
+                    <div class="publish-grid">
+                        <div class="card">
+                            <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;">⏱️ Enregistrer des heures (Semaine)</h2>
+                            <form id="form-add-heures">
+                                <div class="form-grid-2">
+                                    <div class="form-group"><label class="form-label">Année *</label>
+                                        <select class="form-control" required id="heures-annee">
+                                            <option value="1">EAC SEI 1ère année</option>
+                                            <option value="2">EAC SEI 2ème année</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group"><label class="form-label">Semaine *</label>
+                                        <input type="week" id="heures-semaine" class="form-control" required>
+                                    </div>
+                                </div>
+                                <div class="form-group"><label class="form-label">Heures effectuées (total semaine) *</label>
+                                    <input type="number" id="heures-totales" class="form-control" required min="0" max="100" step="0.5" placeholder="ex: 35">
+                                </div>
+                                <div class="form-group"><label class="form-label">Commentaire (optionnel)</label>
+                                    <textarea id="heures-commentaire" class="form-control" style="min-height:60px;" placeholder="ex: Semaine normale..."></textarea>
+                                </div>
+                                <button type="submit" id="btn-submit-heures" class="btn btn-primary" style="width:100%;">Enregistrer les heures</button>
+                            </form>
+                        </div>
+                        <div class="card">
+                            <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;">📅 Historique des enregistrements</h2>
+                            <div class="form-group" style="margin-bottom: 1rem;">
+                                <select class="form-control" id="heures-history-annee">
+                                    <option value="1">EAC SEI 1ère année</option>
+                                    <option value="2">EAC SEI 2ème année</option>
+                                </select>
+                            </div>
+                            <div class="table-wrap">
+                                <table class="data-table">
+                                    <thead><tr><th>Semaine</th><th>Heures</th><th>Enregistré par</th><th style="text-align:right;">Actions</th></tr></thead>
+                                    <tbody id="heures-history-list"><tr><td colspan="4" style="text-align:center;padding:1.5rem;color:var(--text-muted);">Chargement...</td></tr></tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -593,6 +639,80 @@
                 document.getElementById('btn-manage-docs').click();
             } catch(err) { alert('❌ ' + err.message); }
             finally { btn.disabled = false; btn.textContent = 'Sauvegarder'; }
+        });
+
+        
+        // Tab Heures Logic
+        document.querySelectorAll('.admin-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                if (tab.dataset.tab === 'tab-heures') {
+                    loadHeuresHistory(document.getElementById('heures-history-annee').value);
+                }
+            });
+        });
+
+        document.getElementById('heures-history-annee')?.addEventListener('change', (e) => {
+            loadHeuresHistory(e.target.value);
+        });
+
+        async function loadHeuresHistory(annee) {
+            const tbody = document.getElementById('heures-history-list');
+            if(!tbody) return;
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:1.5rem;color:var(--text-muted);">Chargement...</td></tr>';
+            try {
+                const semaines = await api.getHeuresSemaines(annee);
+                if (!semaines || !semaines.length) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:1.5rem;color:var(--text-muted);">Aucun historique pour cette année.</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = semaines.map(s => {
+                    return `<tr>
+                        <td><strong>${s.semaine}</strong></td>
+                        <td><span class="badge badge-blue">${s.heures_totales}h</span></td>
+                        <td>${s.enregistre_par}</td>
+                        <td style="text-align:right;"><button class="action-btn danger" onclick="deleteHeuresSemaine('${s.id}', ${annee})">🗑️</button></td>
+                    </tr>`;
+                }).join('');
+            } catch (error) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:1.5rem;color:var(--danger);">Erreur de chargement.</td></tr>';
+            }
+        }
+
+        window.deleteHeuresSemaine = async (id, annee) => {
+            if (!confirm('Voulez-vous vraiment supprimer cet enregistrement ?')) return;
+            try {
+                await api.deleteSemaine(id);
+                loadHeuresHistory(annee);
+            } catch (err) { alert('❌ ' + err.message); }
+        };
+
+        document.getElementById('form-add-heures')?.addEventListener('submit', async e => {
+            e.preventDefault();
+            const btn = document.getElementById('btn-submit-heures');
+            btn.disabled = true; btn.textContent = 'Enregistrement...';
+            
+            const annee = parseInt(document.getElementById('heures-annee').value);
+            const semaineInput = document.getElementById('heures-semaine').value; // Format: "2026-W32"
+            const heures = parseFloat(document.getElementById('heures-totales').value);
+            const commentaire = document.getElementById('heures-commentaire').value;
+            
+            try {
+                await api.sauvegarderSemaine({
+                    annee: annee,
+                    semaine: semaineInput,
+                    heures_totales: heures,
+                    commentaire: commentaire
+                });
+                alert('✅ Heures enregistrées !');
+                e.target.reset();
+                if (document.getElementById('heures-history-annee').value == annee) {
+                    loadHeuresHistory(annee);
+                }
+            } catch(err) {
+                alert('❌ ' + err.message);
+            } finally {
+                btn.disabled = false; btn.textContent = 'Enregistrer les heures';
+            }
         });
 
         // Init

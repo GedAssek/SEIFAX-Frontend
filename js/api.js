@@ -264,6 +264,64 @@ const api = {
             throw new Error(err.detail || 'Erreur lors de la suppression');
         }
         return res.json();
+    },
+
+    // ─── Suivi des Heures ─────────────────────────────────────────
+    getHeures: async (annee) => {
+        const token = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.access_token;
+        const res = await fetch(`${API_BASE_URL}/heures/${annee}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) return [];
+        return res.json();
+    },
+
+    getVolumes: async (annee) => {
+        const token = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.access_token;
+        const res = await fetch(`${API_BASE_URL}/heures/volumes/${annee}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) return [];
+        return res.json();
+    },
+
+    sauvegarderSemaine: async (data) => {
+        const token = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.access_token;
+        const res = await fetch(`${API_BASE_URL}/heures/semaine`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+        if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.detail || "Erreur lors de l'enregistrement des heures");
+        }
+        return res.json();
+    },
+
+    getHeuresSemaines: async (annee) => {
+        const token = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.access_token;
+        const res = await fetch(`${API_BASE_URL}/heures/semaines/${annee}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) return [];
+        return res.json();
+    },
+
+    deleteSemaine: async (id) => {
+        const token = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.access_token;
+        const res = await fetch(`${API_BASE_URL}/heures/semaine/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.detail || "Erreur lors de la suppression de la semaine");
+        }
+        return res.json();
     }
 };
 

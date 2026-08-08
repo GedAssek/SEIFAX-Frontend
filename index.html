@@ -24,6 +24,7 @@
                 <li><a href="index.html" class="nav-link active">Accueil</a></li>
                 <li><a href="pages/documents.html" class="nav-link">Documents</a></li>
                 <li><a href="pages/notes.html" class="nav-link">Notes</a></li>
+                <li><a href="pages/heures.html" class="nav-link">Heures</a></li>
                 <li><a href="pages/infos.html" class="nav-link">Informations</a></li>
                 <li><a href="pages/admin.html" class="nav-link" id="nav-admin" style="display:none;">Administration</a>
                 </li>
@@ -183,6 +184,7 @@
         <a href="index.html" class="nav-link active" id="mm-home">🏠 Accueil</a>
         <a href="pages/documents.html" class="nav-link" id="mm-docs" style="display:none;">📚 Documents</a>
         <a href="pages/notes.html" class="nav-link" id="mm-notes" style="display:none;">📊 Notes</a>
+        <a href="pages/heures.html" class="nav-link" id="mm-heures" style="display:none;">⏱️ Heures</a>
         <a href="pages/infos.html" class="nav-link" id="mm-infos" style="display:none;">🔔 Informations</a>
         <a href="pages/admin.html" class="nav-link" id="mm-admin" style="display:none;">⚙️ Administration</a>
         <div class="mobile-menu-footer">
@@ -200,6 +202,7 @@
             const user = stored?.user || null;
             const mmDocs = document.getElementById('mm-docs');
             const mmNotes = document.getElementById('mm-notes');
+            const mmHeures = document.getElementById('mm-heures');
             const mmInfos = document.getElementById('mm-infos');
             const mmAdmin = document.getElementById('mm-admin');
             const mmAuth = document.getElementById('mm-auth');
@@ -207,6 +210,7 @@
             if (user) {
                 if (mmDocs) mmDocs.style.display = '';
                 if (mmNotes) mmNotes.style.display = '';
+                if (mmHeures) mmHeures.style.display = '';
                 if (mmInfos) mmInfos.style.display = '';
                 if (mmAdmin) mmAdmin.style.display = (user.role === 'admin') ? '' : 'none';
                 if (mmAuth) mmAuth.style.display = 'none';

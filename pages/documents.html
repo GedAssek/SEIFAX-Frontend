@@ -22,8 +22,9 @@
             <ul class="navbar-nav">
                 <li><a href="../index.html" class="nav-link">Accueil</a></li>
                 <li><a href="documents.html" class="nav-link active">Documents</a></li>
-                <li><a href="notes.html" class="nav-link">Notes</a></li>
-                <li><a href="infos.html" class="nav-link">Informations</a></li>
+                <li><a href="notes.html" class="nav-link" id="mm-notes" style="display:none;">📊 Notes</a></li>
+                <li><a href="heures.html" class="nav-link" id="mm-heures" style="display:none;">⏱️ Heures</a></li>
+                <li><a href="infos.html" class="nav-link" id="mm-infos" style="display:none;">🔔 Informations</a></li>
                 <li><a href="admin.html" class="nav-link" id="nav-admin" style="display:none;">Administration</a></li>
             </ul>
 
@@ -119,6 +120,16 @@
         document.addEventListener('DOMContentLoaded', async () => {
             const stored = JSON.parse(localStorage.getItem('LEFAXEUR_user'));
             const user = stored?.user || null;
+            
+            const mmNotes = document.getElementById('mm-notes');
+            const mmHeures = document.getElementById('mm-heures');
+            const mmInfos = document.getElementById('mm-infos');
+
+            if (user) {
+                if (mmNotes) mmNotes.style.display = 'block';
+                if (mmHeures) mmHeures.style.display = 'block';
+                if (mmInfos) mmInfos.style.display = 'block';
+            }
 
             // Populate cycle filter
             const cycleFilter = document.getElementById('filter-cycle');

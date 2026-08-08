@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suivi des Volumes Horaires — LEFAXEUR</title>
+    <meta name="description" content="Consultez le suivi des heures de cours par matière.">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <style>
+        .progress-card {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .progress-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .progress-icon {
+            font-size: 2rem;
+            background: rgba(26, 86, 219, 0.1);
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 12px;
+            background: var(--border-color);
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--primary);
+            transition: width 0.5s ease-out;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .stat-box {
+            background: rgba(17, 24, 39, 0.03);
+            padding: 0.75rem;
+            border-radius: var(--radius-md);
+        }
+
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .week-entry {
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            align-items: center;
+        }
+        .week-entry:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+
+<body class="animate-fade-in">
+    <div class="app-container">
+
+        <!-- ═══ NAVBAR ══════════════════════════════════════════════════ -->
+        <nav class="navbar">
+            <a href="../index.html" class="navbar-brand">
+                <img src="../assets/img/logo.jpg" alt="LEFAXEUR" class="navbar-logo">
+            </a>
+
+            <ul class="navbar-nav">
+                <li><a href="../index.html" class="nav-link">Accueil</a></li>
+                <li><a href="documents.html" class="nav-link">Documents</a></li>
+                <li><a href="notes.html" class="nav-link">Notes</a></li>
+                <li><a href="heures.html" class="nav-link active">Heures</a></li>
+                <li><a href="infos.html" class="nav-link">Informations</a></li>
+                <li><a href="admin.html" class="nav-link" id="nav-admin" style="display:none;">Administration</a></li>
+            </ul>
+
+            <div class="navbar-actions">
+                <button id="theme-toggle" class="btn-icon" title="Thème">🌙</button>
+                <span id="user-badge" class="user-badge" style="display:none;"></span>
+                <a href="login.html" class="btn btn-primary" id="nav-auth">Se connecter</a>
+                <a href="#" class="btn btn-outline" id="nav-logout" style="display:none;">Déconnexion</a>
+            </div>
+        </nav>
+
+        <!-- ═══ MAIN ═════════════════════════════════════════════════════ -->
+        <main class="main-content">
+
+            <header class="page-header" style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <h1 class="page-title">⏱️ Suivi des Heures</h1>
+                    <p class="page-subtitle">Consultez l'avancement global des volumes horaires de votre année.</p>
+                </div>
+                <div id="cycle-selector-container" style="display:none; text-align:right;">
+                    <label for="heures-select" style="font-weight:600; margin-right:0.5rem;">Année :</label>
+                    <select id="heures-select" class="form-control" style="display:inline-block; width:200px;">
+                        <option value="1">EAC SEI 1ère année</option>
+                        <option value="2">EAC SEI 2ème année</option>
+                    </select>
+                </div>
+            </header>
+
+            <div id="loading-state" class="text-center" style="padding:4rem 0;">
+                <div class="spinner"></div>
+                <p class="text-muted" style="margin-top:1rem;">Chargement des volumes horaires...</p>
+            </div>
+
+            <div id="error-state" class="hidden text-center" style="padding:4rem 0;">
+                <div style="font-size:4rem; margin-bottom:1rem;">🚧</div>
+                <h3>Non disponible</h3>
+                <p class="text-muted" id="error-msg">Connectez-vous pour voir le suivi des heures.</p>
+            </div>
+
+            <div id="data-container" class="hidden">
+                <!-- Vue d'ensemble globale -->
+                <div class="card" style="padding: 1.5rem; margin-bottom: 2rem; background: linear-gradient(135deg, rgba(26,86,219,0.1), rgba(16,185,129,0.1)); border: 1px solid rgba(26,86,219,0.2);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem;">
+                        <h2 style="color:var(--primary); font-size: 1.5rem;">📊 Progression de l'Année</h2>
+                        <span class="badge badge-blue" style="font-size:1.1rem; padding:0.5rem 1rem;" id="global-pct">0%</span>
+                    </div>
+                    <div class="progress-bar-container" style="height: 20px;">
+                        <div class="progress-bar-fill" id="global-bar" style="width: 0%; background: linear-gradient(90deg, var(--primary), #10b981);"></div>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-value" id="global-total">0h</div>
+                            <div class="stat-label">Total Prévu</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" style="color: var(--primary);" id="global-done">0h</div>
+                            <div class="stat-label">Heures Effectuées</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="global-left">0h</div>
+                            <div class="stat-label">Heures Restantes</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1.5rem;" id="categories-list">
+                    <!-- Généré par JS -->
+                </div>
+                
+                <h3 style="margin-top: 3rem; margin-bottom: 1rem; color: var(--primary);">📅 Historique des Semaines</h3>
+                <div class="card" style="padding:0;">
+                    <div id="semaines-list">
+                        <!-- Généré par JS -->
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- ═══ FOOTER ════════════════════════════════════════════════════ -->
+        <footer class="footer">
+            <img src="../assets/img/logo.jpg" alt="LEFAXEUR" class="footer-logo">
+            <span>© 2026 LEFAXEUR — Fait par AYENA Gedeon Assekampa.</span>
+        </footer>
+
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const stored = JSON.parse(localStorage.getItem('LEFAXEUR_user'));
+            const user = stored?.user || null;
+            
+            const mmNotes = document.getElementById('mm-notes');
+            const mmHeures = document.getElementById('mm-heures');
+            const mmInfos = document.getElementById('mm-infos');
+
+            if (user) {
+                if (mmNotes) mmNotes.style.display = 'block';
+                if (mmHeures) mmHeures.style.display = 'block';
+                if (mmInfos) mmInfos.style.display = 'block';
+            }
+
+            const loadingState = document.getElementById('loading-state');
+            const errorState = document.getElementById('error-state');
+            const dataContainer = document.getElementById('data-container');
+            const cycleSelector = document.getElementById('cycle-selector-container');
+            const heuresSelect = document.getElementById('heures-select');
+            const errorMsg = document.getElementById('error-msg');
+
+            if (!user) {
+                loadingState.classList.add('hidden');
+                errorState.classList.remove('hidden');
+                errorMsg.innerHTML = 'Veuillez vous <a href="login.html" style="color:var(--primary);text-decoration:underline;">connecter</a> pour accéder au suivi des heures.';
+                return;
+            }
+
+            if (user.cycle !== "EAC-SEI") {
+                loadingState.classList.add('hidden');
+                errorState.classList.remove('hidden');
+                errorMsg.innerHTML = `Le suivi horaire n'est pas encore disponible pour le cycle <strong>${user.cycle}</strong>.`;
+                return;
+            }
+
+            let currentAnnee = String(user.annee);
+
+            if (user.role === 'admin') {
+                cycleSelector.style.display = 'block';
+                heuresSelect.value = currentAnnee;
+                heuresSelect.addEventListener('change', (e) => {
+                    currentAnnee = e.target.value;
+                    loadHeuresData();
+                });
+            }
+
+            async function loadHeuresData() {
+                loadingState.classList.remove('hidden');
+                dataContainer.classList.add('hidden');
+                errorState.classList.add('hidden');
+
+                try {
+                    const data = await api.getHeures(parseInt(currentAnnee));
+                    
+                    if (data && data.total_prevu_h) {
+                        renderHeuresData(data);
+                        dataContainer.classList.remove('hidden');
+                    } else {
+                        throw new Error('Données non disponibles');
+                    }
+                } catch (error) {
+                    console.error("Erreur de chargement:", error);
+                    errorState.classList.remove('hidden');
+                    errorMsg.innerHTML = "Impossible de charger les données ou le serveur est indisponible.";
+                } finally {
+                    loadingState.classList.add('hidden');
+                }
+            }
+
+            function renderHeuresData(data) {
+                // Global
+                document.getElementById('global-pct').textContent = `${data.progression_pct}%`;
+                document.getElementById('global-bar').style.width = `${data.progression_pct}%`;
+                document.getElementById('global-total').textContent = `${data.total_prevu_h}h`;
+                document.getElementById('global-done').textContent = `${data.heures_effectuees}h`;
+                document.getElementById('global-left').textContent = `${data.heures_restantes}h`;
+
+                // Catégories (Estimation)
+                const catList = document.getElementById('categories-list');
+                catList.innerHTML = '';
+                
+                if (data.categories && data.categories.length > 0) {
+                    data.categories.forEach(cat => {
+                        catList.innerHTML += `
+                        <div class="progress-card">
+                            <div class="progress-header">
+                                <div class="progress-icon">${cat.icon}</div>
+                                <div>
+                                    <h4 style="margin:0; font-size:1.1rem; line-height:1.2;">${cat.label}</h4>
+                                </div>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; font-size:0.85rem; font-weight:600; color:var(--text-muted);">
+                                <span>Progression (Estimation)</span>
+                                <span>${cat.pct}%</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar-fill" style="width: ${cat.pct}%;"></div>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; font-size:0.85rem;">
+                                <span><span style="color:var(--text-color); font-weight:600;">${cat.effectuees_h}h</span> faites</span>
+                                <span><span style="color:var(--text-color); font-weight:600;">${cat.total_h}h</span> prévues</span>
+                            </div>
+                        </div>`;
+                    });
+                } else {
+                    catList.innerHTML = '<p class="text-muted">Aucune catégorie disponible.</p>';
+                }
+
+                // Semaines
+                const semList = document.getElementById('semaines-list');
+                semList.innerHTML = '';
+                
+                if (data.semaines && data.semaines.length > 0) {
+                    data.semaines.forEach(sem => {
+                        const dateObj = new Date(sem.created_at);
+                        const dateStr = !isNaN(dateObj) ? dateObj.toLocaleDateString('fr-FR') : '';
+                        
+                        semList.innerHTML += `
+                        <div class="week-entry">
+                            <div>
+                                <h4 style="margin:0; color:var(--primary); display:flex; align-items:center; gap:0.5rem;">
+                                    📅 ${sem.semaine}
+                                    <span class="badge" style="background:rgba(16,185,129,0.1); color:#10b981;">+${sem.heures_totales}h</span>
+                                </h4>
+                                <div style="font-size:0.85rem; color:var(--text-muted); margin-top:0.25rem;">
+                                    Enregistré le ${dateStr} par ${sem.enregistre_par}
+                                </div>
+                            </div>
+                        </div>`;
+                    });
+                } else {
+                    semList.innerHTML = '<div style="padding:2rem; text-align:center; color:var(--text-muted);">Aucune semaine enregistrée pour le moment.</div>';
+                }
+            }
+
+            loadHeuresData();
+        });
+    </script>
+</body>
+</html>
