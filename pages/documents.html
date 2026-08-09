@@ -159,6 +159,11 @@
                 <!-- Cards populated by JS -->
             </div>
 
+            <!-- Load More button -->
+            <div id="load-more-container" class="text-center" style="display:none; padding: 2rem 0;">
+                <button id="btn-load-more" class="btn btn-outline" style="padding: 0.75rem 2rem; font-weight:bold;">Voir plus de documents</button>
+            </div>
+
             <!-- Empty state -->
             <div id="empty-state" class="hidden text-center" style="padding:4rem 0;">
                 <div style="font-size:4rem; margin-bottom:1rem;">🗂️</div>
@@ -180,6 +185,9 @@
     <script src="../js/main.js"></script>
     <script>
         let allDocuments = [];
+        let filteredDocuments = [];
+        let displayedCount = 0;
+        const ITEMS_PER_CHUNK = 24;
         let currentTab = 'cours';
         let currentEvalFilter = '';
 
@@ -260,6 +268,14 @@
             // Bouton filtrer
             document.getElementById('btn-filter').addEventListener('click', filterDocuments);
 
+            // Bouton voir plus
+            const loadMoreBtn = document.getElementById('btn-load-more');
+            if(loadMoreBtn) {
+                loadMoreBtn.addEventListener('click', () => {
+                    renderDocuments(true);
+                });
+            }
+
             // Afficher le spinner de chargement
             document.getElementById('docs-loading').style.display = 'flex';
             document.getElementById('documents-list').style.display = 'none';
@@ -306,22 +322,31 @@
             filterDocuments();
         });
 
-        function renderDocuments(list) {
+        function renderDocuments(append = false) {
             const grid = document.getElementById('documents-list');
             const empty = document.getElementById('empty-state');
-            grid.innerHTML = '';
+            const loadMoreContainer = document.getElementById('load-more-container');
 
-            if (!list || list.length === 0) {
+            if (!append) {
+                grid.innerHTML = '';
+                displayedCount = 0;
+            }
+
+            if (!filteredDocuments || filteredDocuments.length === 0) {
                 empty.classList.remove('hidden');
+                if (loadMoreContainer) loadMoreContainer.style.display = 'none';
                 return;
             }
             empty.classList.add('hidden');
+
+            const docsToRender = filteredDocuments.slice(displayedCount, displayedCount + ITEMS_PER_CHUNK);
+            if (docsToRender.length === 0) return;
 
             // Récupérer les IDs de nouveaux documents pour le badge "Nouveau"
             const seenSet = NotifSystem.getSeenDocs();
 
             let htmlContent = '';
-            list.forEach(doc => {
+            docsToRender.forEach(doc => {
                 let icon = '📖';
                 if (doc.type === 'tp') icon = '💻';
                 if (doc.type === 'evaluation') icon = '📝';
@@ -365,7 +390,20 @@
                 }
             </div>`;
             });
-            grid.innerHTML = htmlContent;
+            
+            if (append) {
+                grid.insertAdjacentHTML('beforeend', htmlContent);
+            } else {
+                grid.innerHTML = htmlContent;
+            }
+
+            displayedCount += docsToRender.length;
+
+            if (displayedCount < filteredDocuments.length) {
+                if (loadMoreContainer) loadMoreContainer.style.display = 'block';
+            } else {
+                if (loadMoreContainer) loadMoreContainer.style.display = 'none';
+            }
         }
 
         // Marquer un document comme vu quand on clique "Télécharger"
@@ -380,7 +418,7 @@
             const cycle = document.getElementById('filter-cycle').value;
             const annee = document.getElementById('filter-annee').value;
 
-            const filtered = allDocuments.filter(doc => {
+            filteredDocuments = allDocuments.filter(doc => {
                 // Filtre d'onglet
                 if (doc.type !== currentTab) return false;
 
@@ -401,7 +439,7 @@
                 return matchSearch && matchCycle && matchAnnee;
             });
 
-            renderDocuments(filtered);
+            renderDocuments(false);
         }
     </script>
 </body>
