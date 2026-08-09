@@ -85,6 +85,7 @@ const api = {
             }
             if (filters.matiere) params.append('matiere', filters.matiere);
             if (filters.categorie_eval) params.append('categorie_eval', filters.categorie_eval);
+            if (filters.q) params.append('q', filters.q);  // Recherche textuelle libre
 
             const queryStr = params.toString();
             const url = `${API_BASE_URL}/documents/${queryStr ? '?' + queryStr : ''}`;
