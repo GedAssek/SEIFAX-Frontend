@@ -238,8 +238,21 @@
                                 <div class="form-group"><label class="form-label">Matière *</label><input type="text" id="doc-matiere" class="form-control" required placeholder="ex: Navigation aérienne"></div>
                                 <div class="form-grid-2">
                                     <div class="form-group"><label class="form-label">Cycle *</label><select class="form-control" required id="doc-cycle"><option value="">Choisir...</option></select></div>
-                                    <div class="form-group"><label class="form-label">Année *</label>
+                                    <div class="form-group"><label class="form-label">Année calendaire *</label>
                                         <select class="form-control" required id="doc-annee"><option value="">Choisir...</option><option>2025</option><option>2024</option><option>2023</option><option>2022</option></select>
+                                    </div>
+                                </div>
+                                <div class="form-grid-2">
+                                    <div class="form-group"><label class="form-label">Année d'étude *</label>
+                                        <select class="form-control" required id="doc-annee-etude">
+                                            <option value="">Choisir...</option>
+                                            <option value="1">1ère Année</option>
+                                            <option value="2">2ème Année</option>
+                                            <option value="3">3ème Année</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group"><label class="form-label" style="opacity:0">-</label>
+                                        <p class="text-muted" style="font-size:.8rem; padding-top:.4rem;">Laissez "Tous" pour que tous les niveaux voient ce document.</p>
                                     </div>
                                 </div>
                                 <div class="form-group"><label class="form-label">Fichier PDF *</label><input type="file" id="doc-file" class="form-control" accept=".pdf" required></div>
@@ -381,6 +394,14 @@
                     </div>
                 </div>
                 <div class="form-group"><label class="form-label">Matière</label><input type="text" id="edit-doc-matiere" class="form-control"></div>
+                <div class="form-group"><label class="form-label">Année d'étude</label>
+                    <select class="form-control" id="edit-doc-annee-etude">
+                        <option value="">Tous les niveaux</option>
+                        <option value="1">1ère Année</option>
+                        <option value="2">2ème Année</option>
+                        <option value="3">3ème Année</option>
+                    </select>
+                </div>
                 <div class="form-group"><label class="form-label">Nouveau PDF (optionnel)</label><input type="file" id="edit-doc-file" class="form-control" accept=".pdf"></div>
                 <button type="submit" id="btn-edit-doc-submit" class="btn btn-primary" style="width:100%;">Sauvegarder</button>
             </form>
@@ -561,6 +582,7 @@
             const titre = document.getElementById('doc-titre').value;
             const cycle = document.getElementById('doc-cycle').value;
             const annee = document.getElementById('doc-annee').value;
+            const anneeEtude = document.getElementById('doc-annee-etude').value;
             fd.append('titre', titre);
             const type = document.getElementById('doc-type').value;
             fd.append('type', type);
@@ -568,6 +590,7 @@
             fd.append('matiere', document.getElementById('doc-matiere').value);
             fd.append('cycle', cycle);
             fd.append('annee', annee);
+            if (anneeEtude) fd.append('annee_etude', anneeEtude);
             fd.append('file', document.getElementById('doc-file').files[0]);
 
             try {
@@ -697,7 +720,7 @@
             const allDocs = await api.getDocuments();
             const docs = allDocs.filter(d => d.source === 'admin');
             document.getElementById('manage-docs-list').innerHTML = docs.length
-                ? docs.map(d => `<tr><td>${d.titre}</td><td><span class="role-badge student">${d.type}</span></td><td>${d.cycle}</td><td style="text-align:right;white-space:nowrap;"><button class="action-btn edit" onclick="editDocument('${d.id}','${d.titre.replace(/'/g,"&apos;")}','${d.type}','${d.matiere?.replace(/'/g,"&apos;")}','${d.categorie_eval||''}')">✏️ Modifier</button><button class="action-btn danger" onclick="deleteDocument('${d.id}')">🗑️ Supprimer</button></td></tr>`).join('')
+                ? docs.map(d => `<tr><td>${d.titre}</td><td><span class="role-badge student">${d.type}</span></td><td>${d.cycle}</td><td style="text-align:right;white-space:nowrap;"><button class="action-btn edit" onclick="editDocument('${d.id}','${d.titre.replace(/'/g,"&apos;")}','${d.type}','${d.matiere?.replace(/'/g,"&apos;")}','${d.categorie_eval||''}','${d.annee_etude||''}')">✏️ Modifier</button><button class="action-btn danger" onclick="deleteDocument('${d.id}')">🗑️ Supprimer</button></td></tr>`).join('')
                 : '<tr><td colspan="4" style="text-align:center;padding:1.5rem;color:var(--text-muted);">Aucun document publié manuellement.</td></tr>';
         });
 
@@ -763,12 +786,14 @@
 
 
         // ── Édition Document ───────────────────────────────────────────────
-        window.editDocument = (id, titre, type, matiere, cat) => {
+        window.editDocument = (id, titre, type, matiere, cat, anneeEtude) => {
             document.getElementById('edit-doc-id').value = id;
             document.getElementById('edit-doc-titre').value = titre;
             document.getElementById('edit-doc-type').value = type || 'cours';
             document.getElementById('edit-doc-matiere').value = matiere || '';
             document.getElementById('edit-doc-cat').value = cat || '';
+            const aeSelect = document.getElementById('edit-doc-annee-etude');
+            if (aeSelect) aeSelect.value = anneeEtude || '';
             document.getElementById('modal-edit-doc').classList.add('open');
         };
 
@@ -783,6 +808,8 @@
             if (cat) fd.append('categorie_eval', cat);
             const matiere = document.getElementById('edit-doc-matiere').value;
             if (matiere) fd.append('matiere', matiere);
+            const anneeEtude = document.getElementById('edit-doc-annee-etude').value;
+            if (anneeEtude) fd.append('annee_etude', parseInt(anneeEtude));
             const file = document.getElementById('edit-doc-file').files[0];
             if (file) fd.append('file', file);
             try {

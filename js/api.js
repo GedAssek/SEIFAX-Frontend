@@ -69,20 +69,24 @@ const api = {
             const token = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.access_token;
             const user = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.user;
 
-            // Filtrage par cycle si l'utilisateur n'est pas admin
+            // Filtrage automatique par cycle ET année d'étude pour les étudiants
             if (user && user.role !== 'admin') {
                 filters.cycle = user.cycle;
-                // NOTE : on ne filtre PAS par annee ici car user.annee (1 ou 2)
-                // ne correspond pas aux années calendaires des documents (2024, 2025…)
+                // user.annee est le niveau d'étude (1, 2, 3) → envoyé comme annee_etude au backend
+                if (user.annee) {
+                    filters.annee_etude = user.annee;
+                }
             }
 
             const params = new URLSearchParams();
             if (filters.type) params.append('type', filters.type);
             if (filters.cycle) params.append('cycle', filters.cycle);
-            // Filtre annee seulement si c'est une année calendaire (>= 2020)
+            // Filtre annee calendaire seulement si c'est une année calendaire (>= 2020)
             if (filters.annee && parseInt(filters.annee) >= 2020) {
                 params.append('annee', filters.annee);
             }
+            // Filtre année d'étude (1, 2, 3)
+            if (filters.annee_etude) params.append('annee_etude', filters.annee_etude);
             if (filters.matiere) params.append('matiere', filters.matiere);
             if (filters.categorie_eval) params.append('categorie_eval', filters.categorie_eval);
             if (filters.q) params.append('q', filters.q);  // Recherche textuelle libre
