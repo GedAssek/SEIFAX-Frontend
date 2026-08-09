@@ -330,7 +330,7 @@ const api = {
         });
         if (!res.ok) {
             const err = await res.json();
-            throw new Error(err.detail || 'Erreur lors de la correction des années d\''étude');
+            throw new Error(err.detail || 'Erreur lors de la correction des années d\'étude');
         }
         return res.json();
     },
