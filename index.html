@@ -138,18 +138,24 @@
                         <a href="pages/documents.html" class="btn btn-primary">Explorer les Documents</a>
                         <a href="pages/infos.html" class="btn btn-outline">Dernières Infos</a>
                     </div>
+                    <!-- Notification summary -->
+                    <div id="dashboard-notif-summary" style="display:none; margin-top:1.25rem; padding:0.75rem 1rem; background:rgba(26,86,219,0.06); border:1.5px solid rgba(26,86,219,0.2); border-radius:12px; font-size:0.9rem; color:var(--primary); display:flex; align-items:center; gap:0.6rem;">
+                        🔔 <span id="dashboard-notif-text"></span>
+                    </div>
                 </header>
 
                 <div class="grid-cards">
-                    <div class="card text-center" style="cursor:pointer;"
+                    <div class="card text-center" style="cursor:pointer; position:relative;"
                         onclick="window.location='pages/documents.html'">
+                        <span id="home-doc-badge" style="display:none; position:absolute; top:12px; right:12px; background:#ef4444; color:#fff; font-size:0.65rem; font-weight:800; border-radius:9999px; padding:2px 7px;"></span>
                         <div style="font-size:2.8rem; margin-bottom:1rem; display:block;">📚</div>
                         <h3 style="margin-bottom:0.6rem;">Centre de Documents</h3>
                         <p class="text-muted" style="font-size:0.92rem;">Cours, TP, et évaluations des années
                             précédentes
                             pour un entraînement ciblé.</p>
                     </div>
-                    <div class="card text-center" style="cursor:pointer;" onclick="window.location='pages/infos.html'">
+                    <div class="card text-center" style="cursor:pointer; position:relative;" onclick="window.location='pages/infos.html'">
+                        <span id="home-info-badge" style="display:none; position:absolute; top:12px; right:12px; background:#ef4444; color:#fff; font-size:0.65rem; font-weight:800; border-radius:9999px; padding:2px 7px;"></span>
                         <div style="font-size:2.8rem; margin-bottom:1rem; display:block;">🔔</div>
                         <h3 style="margin-bottom:0.6rem;">Actualités</h3>
                         <p class="text-muted" style="font-size:0.92rem;">Ne manquez plus aucun événement, changement de
@@ -197,7 +203,7 @@
     <script src="js/main.js"></script>
     <script>
         // Synchronise le menu mobile avec l'état d'authentification
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             const stored = JSON.parse(localStorage.getItem('LEFAXEUR_user'));
             const user = stored?.user || null;
             const mmDocs = document.getElementById('mm-docs');
@@ -215,6 +221,50 @@
                 if (mmAdmin) mmAdmin.style.display = (user.role === 'admin') ? '' : 'none';
                 if (mmAuth) mmAuth.style.display = 'none';
                 if (mmLogout) { mmLogout.style.display = ''; mmLogout.addEventListener('click', e => { e.preventDefault(); localStorage.removeItem('LEFAXEUR_user'); window.location.reload(); }); }
+
+                // ── Vérification des nouvelles notifications ────────────────────
+                // Charge les documents/infos en arrière-plan pour afficher les badges
+                try {
+                    const [docs, infos] = await Promise.all([
+                        api.getDocuments(),
+                        api.getInfos(user.cycle)
+                    ]);
+
+                    const newDocs = NotifSystem.getNewDocs(docs);
+                    const newInfos = NotifSystem.getNewInfos(infos);
+
+                    const docBadge = document.getElementById('home-doc-badge');
+                    const infoBadge = document.getElementById('home-info-badge');
+                    const notifSummary = document.getElementById('dashboard-notif-summary');
+                    const notifText = document.getElementById('dashboard-notif-text');
+
+                    if (newDocs.length > 0 && docBadge) {
+                        docBadge.textContent = `${newDocs.length} nouveau${newDocs.length > 1 ? 'x' : ''}`;
+                        docBadge.style.display = 'inline-block';
+                    }
+                    if (newInfos.length > 0 && infoBadge) {
+                        infoBadge.textContent = `${newInfos.length} nouvelle${newInfos.length > 1 ? 's' : ''}`;
+                        infoBadge.style.display = 'inline-block';
+                    }
+
+                    const totalNew = newDocs.length + newInfos.length;
+                    if (totalNew > 0 && notifSummary && notifText) {
+                        const parts = [];
+                        if (newDocs.length > 0) parts.push(`${newDocs.length} nouveau(x) document(s)`);
+                        if (newInfos.length > 0) parts.push(`${newInfos.length} nouvelle(s) annonce(s)`);
+                        notifText.textContent = parts.join(' et ') + ' depuis votre dernière visite.';
+                        notifSummary.style.display = 'flex';
+
+                        // Toast général sur l'accueil
+                        NotifSystem.showToast(
+                            parts.join(' + ') + ' disponible(s) !',
+                            'info',
+                            'pages/documents.html'
+                        );
+                    }
+                } catch (e) {
+                    // Silencieux si hors-ligne
+                }
             }
         });
     </script>

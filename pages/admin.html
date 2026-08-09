@@ -8,6 +8,8 @@
     <meta name="description" content="Tableau de bord administrateur LEFAXEUR.">
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/layout.css">
+    <!-- EmailJS SDK : envoi d'emails côté frontend sans serveur -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <style>
         .stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:1rem; margin-bottom:2rem; }
         .stat-card { background:var(--card-bg); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.25rem 1rem; text-align:center; transition:transform .2s,box-shadow .2s; }
@@ -122,6 +124,19 @@
             transition: background .15s;
         }
         .edit-modal-close:hover { background: #e5e7eb; color: #111827; }
+        /* ── Upload Progress Bar ─────────────────────────────────────── */
+        .upload-progress-wrap { margin-top: 1rem; display: none; }
+        .upload-progress-wrap.visible { display: block; }
+        .upload-progress-bar-track { height: 6px; background: #e5e7eb; border-radius: 9999px; overflow: hidden; margin-bottom: 0.5rem; }
+        .upload-progress-bar-fill { height: 100%; background: linear-gradient(90deg, #16a34a, #22c55e); border-radius: 9999px; width: 0%; transition: width 0.4s ease; }
+        .upload-status-msg { font-size: 0.82rem; color: #6b7280; text-align: center; min-height: 1.2em; }
+        /* ── Wake-up Banner ──────────────────────────────────────────── */
+        .wakeup-banner { display: flex; align-items: center; gap: 0.6rem; padding: 0.65rem 1rem; background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.4); border-radius: var(--radius-md); font-size: 0.85rem; color: #92400e; margin-bottom: 1.25rem; }
+        .wakeup-banner .spinner { width: 16px; height: 16px; border: 2px solid rgba(245,158,11,0.3); border-top-color: #f59e0b; border-radius: 50%; animation: spin 0.8s linear infinite; flex-shrink: 0; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        /* ── Notification Email Config ───────────────────────────────── */
+        .email-config-box { background: rgba(26,86,219,0.04); border: 1.5px dashed rgba(26,86,219,0.3); border-radius: var(--radius-md); padding: 0.9rem 1rem; margin-bottom: 1rem; font-size: 0.83rem; color: var(--text-muted); }
+        .email-config-box strong { color: var(--primary); }
     </style>
 </head>
 
@@ -228,6 +243,11 @@
                                     </div>
                                 </div>
                                 <div class="form-group"><label class="form-label">Fichier PDF *</label><input type="file" id="doc-file" class="form-control" accept=".pdf" required></div>
+                                <!-- Barre de progression upload -->
+                                <div class="upload-progress-wrap" id="doc-upload-progress">
+                                    <div class="upload-progress-bar-track"><div class="upload-progress-bar-fill" id="doc-progress-fill"></div></div>
+                                    <div class="upload-status-msg" id="doc-upload-status">Envoi en cours...</div>
+                                </div>
                                 <button type="submit" id="btn-submit-doc" class="btn btn-primary" style="width:100%;background:linear-gradient(135deg,#16a34a,#15803d);">✅ Mettre en ligne</button>
                             </form>
                         </div>
@@ -240,6 +260,11 @@
                                 </div>
                                 <div class="form-group"><label class="form-label">Contenu *</label><textarea class="form-control" id="info-contenu" required placeholder="Décrivez l'annonce ici..."></textarea></div>
                                 <div class="form-group"><label class="form-label">Pièce jointe (Optionnel)</label><input type="file" id="info-file" class="form-control" accept=".pdf,.jpg,.jpeg,.png"><small class="text-muted" style="font-size:.8rem;">JPG, PNG ou PDF.</small></div>
+                                <!-- Barre de progression -->
+                                <div class="upload-progress-wrap" id="info-upload-progress">
+                                    <div class="upload-progress-bar-track"><div class="upload-progress-bar-fill" id="info-progress-fill"></div></div>
+                                    <div class="upload-status-msg" id="info-upload-status">Publication en cours...</div>
+                                </div>
                                 <button type="submit" id="btn-submit-info" class="btn btn-primary" style="width:100%;">📢 Publier</button>
                             </form>
                         </div>
@@ -509,34 +534,159 @@
         document.getElementById('form-add-document')?.addEventListener('submit', async e => {
             e.preventDefault();
             const btn = document.getElementById('btn-submit-doc');
-            btn.disabled = true; btn.textContent = 'Envoi...';
+            const progressWrap = document.getElementById('doc-upload-progress');
+            const progressFill = document.getElementById('doc-progress-fill');
+            const statusMsg = document.getElementById('doc-upload-status');
+
+            btn.disabled = true;
+            btn.textContent = 'Envoi...';
+            progressWrap.classList.add('visible');
+
+            // Animation de progression simulée (le backend ne supporte pas les progress events)
+            let fakeProgress = 0;
+            statusMsg.textContent = '⏳ Réveil du serveur en cours...';
+            progressFill.style.width = '5%';
+            const progressInterval = setInterval(() => {
+                if (fakeProgress < 75) {
+                    fakeProgress += Math.random() * 8;
+                    fakeProgress = Math.min(fakeProgress, 75);
+                    progressFill.style.width = fakeProgress + '%';
+                    if (fakeProgress < 20) statusMsg.textContent = '⏳ Réveil du serveur...';
+                    else if (fakeProgress < 50) statusMsg.textContent = '📡 Connexion établie, envoi du fichier...';
+                    else statusMsg.textContent = '⬆️ Téléversement en cours...';
+                }
+            }, 400);
+
             const fd = new FormData();
-            fd.append('titre', document.getElementById('doc-titre').value);
+            const titre = document.getElementById('doc-titre').value;
+            const cycle = document.getElementById('doc-cycle').value;
+            const annee = document.getElementById('doc-annee').value;
+            fd.append('titre', titre);
             const type = document.getElementById('doc-type').value;
             fd.append('type', type);
             if (type === 'evaluation') fd.append('categorie_eval', document.getElementById('doc-categorie-eval').value);
             fd.append('matiere', document.getElementById('doc-matiere').value);
-            fd.append('cycle', document.getElementById('doc-cycle').value);
-            fd.append('annee', document.getElementById('doc-annee').value);
+            fd.append('cycle', cycle);
+            fd.append('annee', annee);
             fd.append('file', document.getElementById('doc-file').files[0]);
-            try { await api.addDocument(fd); alert('✅ Document ajouté !'); e.target.reset(); document.getElementById('group-categorie-eval').classList.add('hidden'); await loadStats(); }
-            catch(err) { alert('❌ ' + err.message); }
-            finally { btn.disabled = false; btn.textContent = '✅ Mettre en ligne'; }
+
+            try {
+                const result = await api.addDocument(fd);
+                clearInterval(progressInterval);
+                progressFill.style.width = '100%';
+                statusMsg.textContent = '✅ Document publié avec succès !';
+
+                document.getElementById('group-categorie-eval').classList.add('hidden');
+                await loadStats();
+
+                // Marquer comme vu pour ne pas notifier l'admin lui-même
+                const currentSeen = NotifSystem.getSeenDocs();
+                if (result && result.id) currentSeen.add(result.id);
+                localStorage.setItem(NotifSystem.STORAGE_KEY_DOCS, JSON.stringify([...currentSeen]));
+
+                // ── Notification Email via EmailJS ──────────────────────────
+                const adminUser = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.user;
+                sendDocumentNotificationEmail({
+                    titre,
+                    type,
+                    cycle,
+                    annee,
+                    admin_name: adminUser ? `${adminUser.prenom} ${adminUser.nom}` : 'Admin'
+                });
+
+                setTimeout(() => {
+                    e.target.reset();
+                    progressWrap.classList.remove('visible');
+                    progressFill.style.width = '0%';
+                    statusMsg.textContent = '';
+                }, 2000);
+
+                NotifSystem.showToast(`"${titre}" publié pour le cycle ${cycle} (${annee}).`, 'success');
+
+            } catch(err) {
+                clearInterval(progressInterval);
+                progressFill.style.width = '0%';
+                progressWrap.classList.remove('visible');
+                alert('❌ ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '✅ Mettre en ligne';
+            }
         });
 
         document.getElementById('form-add-info')?.addEventListener('submit', async e => {
             e.preventDefault();
             const btn = document.getElementById('btn-submit-info');
-            btn.disabled = true; btn.textContent = 'Publication...';
+            const progressWrap = document.getElementById('info-upload-progress');
+            const progressFill = document.getElementById('info-progress-fill');
+            const statusMsg = document.getElementById('info-upload-status');
+
+            btn.disabled = true;
+            btn.textContent = 'Publication...';
+            progressWrap.classList.add('visible');
+
+            let fakeProgress = 0;
+            statusMsg.textContent = '⏳ Envoi en cours...';
+            progressFill.style.width = '10%';
+            const progressInterval = setInterval(() => {
+                if (fakeProgress < 80) {
+                    fakeProgress += Math.random() * 12;
+                    fakeProgress = Math.min(fakeProgress, 80);
+                    progressFill.style.width = fakeProgress + '%';
+                }
+            }, 300);
+
+            const titre = document.getElementById('info-titre').value;
+            const contenu = document.getElementById('info-contenu').value;
+            const cycle = document.getElementById('admin-cycle-info').value;
+
             const fd = new FormData();
-            fd.append('titre', document.getElementById('info-titre').value);
-            fd.append('contenu', document.getElementById('info-contenu').value);
-            fd.append('cycle', document.getElementById('admin-cycle-info').value);
+            fd.append('titre', titre);
+            fd.append('contenu', contenu);
+            fd.append('cycle', cycle);
             const file = document.getElementById('info-file').files[0];
             if (file) fd.append('file', file);
-            try { await api.addInfo(fd); alert('📢 Information publiée !'); e.target.reset(); await loadStats(); }
-            catch(err) { alert('❌ ' + err.message); }
-            finally { btn.disabled = false; btn.textContent = '📢 Publier'; }
+
+            try {
+                const result = await api.addInfo(fd);
+                clearInterval(progressInterval);
+                progressFill.style.width = '100%';
+                statusMsg.textContent = '✅ Information publiée !';
+
+                await loadStats();
+
+                // Marquer comme vue pour l'admin
+                const currentSeen = NotifSystem.getSeenInfos();
+                if (result && result.id) currentSeen.add(result.id);
+                localStorage.setItem(NotifSystem.STORAGE_KEY_INFOS, JSON.stringify([...currentSeen]));
+
+                // ── Notification Email via EmailJS ──────────────────────────
+                const adminUser = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.user;
+                sendInfoNotificationEmail({
+                    titre,
+                    contenu: contenu.substring(0, 200) + (contenu.length > 200 ? '...' : ''),
+                    cycle,
+                    admin_name: adminUser ? `${adminUser.prenom} ${adminUser.nom}` : 'Admin'
+                });
+
+                NotifSystem.showToast(`Annonce "${titre}" publiée avec succès !`, 'success');
+
+                setTimeout(() => {
+                    e.target.reset();
+                    progressWrap.classList.remove('visible');
+                    progressFill.style.width = '0%';
+                    statusMsg.textContent = '';
+                }, 2000);
+
+            } catch(err) {
+                clearInterval(progressInterval);
+                progressFill.style.width = '0%';
+                progressWrap.classList.remove('visible');
+                alert('❌ ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '📢 Publier';
+            }
         });
 
         // Manage Content
@@ -715,8 +865,104 @@
             }
         });
 
-        // Init
-        await Promise.all([loadStats(), loadUsers()]);
+        // ── Init : Wake-up du serveur + chargement initial ────────────────
+        async function wakeUpServer() {
+            // Ping le serveur backend pour le réveiller (cold start sur Render free tier)
+            // Affiche une bannière temporaire si la réponse prend du temps
+            const wakeupBanner = document.createElement('div');
+            wakeupBanner.className = 'wakeup-banner';
+            wakeupBanner.id = 'wakeup-banner';
+            wakeupBanner.innerHTML = '<div class="spinner"></div><span>⚡ Réveil du serveur en cours (première connexion ~30s)...</span>';
+
+            const mainContent = document.getElementById('admin-content');
+            const firstChild = mainContent?.firstElementChild;
+            if (mainContent && firstChild) mainContent.insertBefore(wakeupBanner, firstChild);
+
+            const startTime = Date.now();
+            try {
+                const token = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.access_token;
+                await fetch('https://seifax-backend.onrender.com/api/admin/stats', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+            } catch (e) { /* ignoré */ }
+
+            const elapsed = Date.now() - startTime;
+            const banner = document.getElementById('wakeup-banner');
+            if (banner) {
+                if (elapsed > 5000) {
+                    banner.innerHTML = '✅ <span>Serveur opérationnel !</span>';
+                    banner.style.background = 'rgba(22,163,74,0.1)';
+                    banner.style.borderColor = 'rgba(22,163,74,0.4)';
+                    banner.style.color = '#166534';
+                }
+                setTimeout(() => banner.remove(), 2500);
+            }
+        }
+
+        // ── EmailJS : Notification par email lors des publications ─────────
+        // ================================================================
+        // CONFIGURATION EMAILJS :
+        // 1. Créez un compte gratuit sur https://www.emailjs.com
+        // 2. Créez un Service Email (Gmail, Outlook, etc.)
+        // 3. Créez un Template avec les variables : {{doc_titre}}, {{doc_type}},
+        //    {{doc_cycle}}, {{doc_annee}}, {{admin_name}}, {{to_email}}
+        // 4. Remplacez les valeurs ci-dessous par vos clés
+        // ================================================================
+        const EMAILJS_PUBLIC_KEY  = 'VOTRE_PUBLIC_KEY';   // ex: 'aBcDeFgHiJ_XXXXX'
+        const EMAILJS_SERVICE_ID  = 'VOTRE_SERVICE_ID';   // ex: 'service_abc123'
+        const EMAILJS_DOC_TEMPLATE_ID  = 'VOTRE_TEMPLATE_DOC';  // ex: 'template_doc_notif'
+        const EMAILJS_INFO_TEMPLATE_ID = 'VOTRE_TEMPLATE_INFO'; // ex: 'template_info_notif'
+
+        // Email de la liste de diffusion (ou email groupe des étudiants)
+        // Dans EmailJS, vous pouvez configurer le template pour envoyer à une liste
+        const NOTIF_TARGET_EMAIL = 'etudiants@eamac.org'; // ← à changer
+
+        function initEmailJS() {
+            if (typeof emailjs !== 'undefined' && EMAILJS_PUBLIC_KEY !== 'VOTRE_PUBLIC_KEY') {
+                emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+            }
+        }
+
+        function sendDocumentNotificationEmail({ titre, type, cycle, annee, admin_name }) {
+            if (typeof emailjs === 'undefined' || EMAILJS_PUBLIC_KEY === 'VOTRE_PUBLIC_KEY') {
+                console.log('[EmailJS] Non configuré - notification email non envoyée.');
+                console.log('[EmailJS] Configure EMAILJS_PUBLIC_KEY, EMAILJS_SERVICE_ID et EMAILJS_DOC_TEMPLATE_ID dans admin.html');
+                return;
+            }
+            emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_DOC_TEMPLATE_ID, {
+                to_email:    NOTIF_TARGET_EMAIL,
+                admin_name:  admin_name,
+                doc_titre:   titre,
+                doc_type:    type,
+                doc_cycle:   cycle,
+                doc_annee:   annee,
+                site_url:    window.location.origin
+            }).then(
+                () => console.log('[EmailJS] Notification document envoyée !'),
+                (err) => console.warn('[EmailJS] Erreur envoi:', err)
+            );
+        }
+
+        function sendInfoNotificationEmail({ titre, contenu, cycle, admin_name }) {
+            if (typeof emailjs === 'undefined' || EMAILJS_PUBLIC_KEY === 'VOTRE_PUBLIC_KEY') {
+                console.log('[EmailJS] Non configuré - notification email non envoyée.');
+                return;
+            }
+            emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_INFO_TEMPLATE_ID, {
+                to_email:    NOTIF_TARGET_EMAIL,
+                admin_name:  admin_name,
+                info_titre:  titre,
+                info_contenu: contenu,
+                info_cycle:  cycle,
+                site_url:    window.location.origin
+            }).then(
+                () => console.log('[EmailJS] Notification info envoyée !'),
+                (err) => console.warn('[EmailJS] Erreur envoi:', err)
+            );
+        }
+
+        initEmailJS();
+        await Promise.all([wakeUpServer(), loadStats(), loadUsers()]);
     });
     </script>
 </body>

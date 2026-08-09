@@ -8,6 +8,20 @@
     <meta name="description" content="Actualités, annonces et informations de formation sur LEFAXEUR.">
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/layout.css">
+    <style>
+        .new-infos-banner {
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 1rem; padding: 0.8rem 1.2rem;
+            background: linear-gradient(135deg, rgba(245,158,11,0.08), rgba(239,68,68,0.05));
+            border: 1.5px solid rgba(245,158,11,0.4); border-radius: 12px;
+            margin-bottom: 1.25rem; flex-wrap: wrap;
+        }
+        .new-infos-banner-text { font-size: 0.92rem; font-weight: 600; color: #92400e; display: flex; align-items: center; gap: 0.5rem; }
+        .new-infos-banner-close { background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 1rem; }
+        .infos-loading { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3rem 0; gap: 1rem; color: var(--text-muted); }
+        .infos-loading-spinner { width: 40px; height: 40px; border: 3px solid rgba(26,86,219,0.15); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
 </head>
 
 <body class="animate-fade-in">
@@ -44,6 +58,20 @@
                 <p class="page-subtitle">Les dernières informations, événements et annonces importantes.</p>
             </header>
 
+            <!-- Bannière nouvelles infos -->
+            <div id="new-infos-banner" class="new-infos-banner" style="display:none;">
+                <div class="new-infos-banner-text">
+                    🔔 <span id="new-infos-count"></span> nouvelle(s) annonce(s) non lue(s) !
+                </div>
+                <button class="new-infos-banner-close" id="btn-dismiss-infos-banner" title="Fermer">✕ Marquer comme lues</button>
+            </div>
+
+            <!-- Spinner de chargement -->
+            <div class="infos-loading" id="infos-loading">
+                <div class="infos-loading-spinner"></div>
+                <p>Chargement des informations...</p>
+            </div>
+
             <div style="max-width:780px; margin:0 auto; display:flex; flex-direction:column; gap:1.5rem;"
                 id="infos-list">
                 <!-- Populated by JS -->
@@ -70,13 +98,18 @@
     <script src="../js/main.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
-            // Récupérer le user depuis localStorage
             const userStr = localStorage.getItem('LEFAXEUR_user');
             const user = userStr ? JSON.parse(userStr).user : null;
             const cycle = user && user.cycle ? user.cycle : null;
 
+            // Afficher le spinner de chargement
+            document.getElementById('infos-loading').style.display = 'flex';
+
             // Charger les infos
             const infos = await api.getInfos(cycle);
+
+            // Masquer le spinner
+            document.getElementById('infos-loading').style.display = 'none';
 
             const list = document.getElementById('infos-list');
             const empty = document.getElementById('empty-state');
@@ -86,6 +119,29 @@
             if (!infos || infos.length === 0) {
                 empty.classList.remove('hidden');
                 return;
+            }
+
+            // ── Détection de nouvelles infos ────────────────────────────────────────
+            const newInfos = NotifSystem.getNewInfos(infos);
+            if (newInfos.length > 0) {
+                const banner = document.getElementById('new-infos-banner');
+                document.getElementById('new-infos-count').textContent = newInfos.length;
+                banner.style.display = 'flex';
+
+                // Toast
+                const titles = newInfos.slice(0, 2).map(i => `"${i.titre}"`).join(', ');
+                const extra = newInfos.length > 2 ? ` et ${newInfos.length - 2} autre(s)` : '';
+                NotifSystem.showToast(
+                    `Nouvelle(s) annonce(s) : ${titles}${extra}`,
+                    'annonce',
+                    'infos.html'
+                );
+
+                // Bouton "Marquer comme lues"
+                document.getElementById('btn-dismiss-infos-banner')?.addEventListener('click', () => {
+                    NotifSystem.markInfosAsSeen(infos);
+                    banner.style.display = 'none';
+                });
             }
 
             infos.forEach(info => {

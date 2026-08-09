@@ -1,10 +1,25 @@
 /**
  * LEFAXEUR - API Helper Functions
- * Phase 1 : Simulation (avant connexion réelle au Backend FastAPI)
- * Remplacez API_BASE_URL par votre vraie URL quand le backend sera lancé.
+ * Backend FastAPI déployé sur Render : https://seifax-backend.onrender.com
  */
 
-const API_BASE_URL = 'https://seifax-backend.onrender.com/api'; // Backend distant sur Render
+const API_BASE_URL = 'https://seifax-backend.onrender.com/api';
+
+// ─── Base URL pour accéder aux fichiers statiques (uploads) ───────────────────
+// IMPORTANT : les file_url retournés par le backend sont des chemins RELATIFS
+// (ex: /uploads/documents/fichier.pdf). Il faut les préfixer avec le domaine backend.
+const BACKEND_ORIGIN = 'https://seifax-backend.onrender.com';
+
+/**
+ * Préfixe un chemin de fichier relatif avec l'origine du backend.
+ * Si l'URL est déjà absolue (http/https), elle est retournée telle quelle.
+ */
+function toAbsoluteUrl(url) {
+    if (!url) return null;
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    // Chemin relatif → préfixer avec l'origine backend
+    return BACKEND_ORIGIN + (url.startsWith('/') ? '' : '/') + url;
+}
 
 const api = {
     // ─── Authentification ───────────────────────────────────────────────────
@@ -36,61 +51,77 @@ const api = {
 
     // ─── Sujets / Matières ────────────────────────────────────────────────
     getSubjects: async () => {
-        /*
-        const res = await fetch(`${API_BASE_URL}/subjects`);
-        return res.json();
-        */
-
-        // ─── SIMULATION ───
+        // Données statiques (SUBJECTS_DATA défini en bas de ce fichier)
         return new Promise((resolve) => {
-            setTimeout(() => resolve(SUBJECTS_DATA), 300);
+            setTimeout(() => resolve(SUBJECTS_DATA), 100);
         });
     },
 
+    // ─── Documents ────────────────────────────────────────────────────────
+    /**
+     * Récupère les documents depuis l'API.
+     * CORRECTION : On ne filtre PAS par user.annee (année d'études 1/2) car
+     * les documents publiés ont une année CALENDAIRE (2024, 2025, 2026…).
+     * Seul le filtrage par cycle est appliqué automatiquement pour les étudiants.
+     */
     getDocuments: async (filters = {}) => {
         try {
             const token = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.access_token;
             const user = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.user;
 
-            // Filtrage strict si l'utilisateur n'est pas admin
+            // Filtrage par cycle si l'utilisateur n'est pas admin
             if (user && user.role !== 'admin') {
                 filters.cycle = user.cycle;
-                filters.annee = user.annee;
+                // NOTE : on ne filtre PAS par annee ici car user.annee (1 ou 2)
+                // ne correspond pas aux années calendaires des documents (2024, 2025…)
             }
 
             const params = new URLSearchParams();
             if (filters.type) params.append('type', filters.type);
             if (filters.cycle) params.append('cycle', filters.cycle);
-            if (filters.annee) params.append('annee', filters.annee);
+            // Filtre annee seulement si c'est une année calendaire (>= 2020)
+            if (filters.annee && parseInt(filters.annee) >= 2020) {
+                params.append('annee', filters.annee);
+            }
             if (filters.matiere) params.append('matiere', filters.matiere);
             if (filters.categorie_eval) params.append('categorie_eval', filters.categorie_eval);
 
-            const res = await fetch(`${API_BASE_URL}/documents?${params.toString()}`, {
+            const queryStr = params.toString();
+            const url = `${API_BASE_URL}/documents/${queryStr ? '?' + queryStr : ''}`;
+
+            const res = await fetch(url, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (!res.ok) {
                 console.error("Erreur API getDocuments", res.status);
                 return [];
             }
-            return await res.json();
+            const docs = await res.json();
+
+            // CORRECTION : préfixer les file_url avec l'origine backend
+            return docs.map(doc => ({
+                ...doc,
+                file_url: toAbsoluteUrl(doc.file_url)
+            }));
         } catch (error) {
             console.error("Erreur de connexion API:", error);
-            return []; // Retourne vide si le backend ne répond pas
+            return [];
         }
     },
 
     addDocument: async (formData) => {
         const token = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.access_token;
-        const res = await fetch(`${API_BASE_URL}/documents`, {
+        const res = await fetch(`${API_BASE_URL}/documents/`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${token}` },
-            body: formData // FormData
+            body: formData // FormData (multipart)
         });
         if (!res.ok) {
             const err = await res.json();
             throw new Error(err.detail || "Erreur lors de l'ajout du document");
         }
-        return res.json();
+        const doc = await res.json();
+        return { ...doc, file_url: toAbsoluteUrl(doc.file_url) };
     },
 
     deleteDocument: async (id) => {
@@ -117,7 +148,8 @@ const api = {
             const err = await res.json();
             throw new Error(err.detail || "Erreur lors de la modification du document");
         }
-        return res.json();
+        const doc = await res.json();
+        return { ...doc, file_url: toAbsoluteUrl(doc.file_url) };
     },
 
     // ─── Informations ─────────────────────────────────────────────────────
@@ -126,13 +158,12 @@ const api = {
             const token = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.access_token;
             const user = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.user;
 
-            // Filtrage strict si l'utilisateur n'est pas admin
             let fetchCycle = cycle;
             if (user && user.role !== 'admin') {
                 fetchCycle = user.cycle;
             }
 
-            let url = `${API_BASE_URL}/infos`;
+            let url = `${API_BASE_URL}/infos/`;
             if (fetchCycle) {
                 url += `?cycle=${encodeURIComponent(fetchCycle)}`;
             }
@@ -140,7 +171,13 @@ const api = {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (!res.ok) return [];
-            return await res.json();
+            const infos = await res.json();
+
+            // CORRECTION : préfixer les file_url avec l'origine backend
+            return infos.map(info => ({
+                ...info,
+                file_url: toAbsoluteUrl(info.file_url)
+            }));
         } catch (error) {
             console.error("Erreur api.getInfos:", error);
             return [];
@@ -149,7 +186,7 @@ const api = {
 
     addInfo: async (formData) => {
         const token = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.access_token;
-        const res = await fetch(`${API_BASE_URL}/infos`, {
+        const res = await fetch(`${API_BASE_URL}/infos/`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -160,7 +197,8 @@ const api = {
             const err = await res.json();
             throw new Error(err.detail || "Erreur lors de la publication de l'information");
         }
-        return res.json();
+        const info = await res.json();
+        return { ...info, file_url: toAbsoluteUrl(info.file_url) };
     },
 
     updateInfo: async (id, formData) => {
@@ -190,7 +228,7 @@ const api = {
         return res.json();
     },
 
-    // ─── Profil ─────────────────────────────────────────────────────
+    // ─── Profil ─────────────────────────────────────────────────────────
     updatePassword: async (old_password, new_password) => {
         const token = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.access_token;
         const res = await fetch(`${API_BASE_URL}/auth/password`, {
@@ -221,7 +259,7 @@ const api = {
         }
     },
 
-    // ─── Admin ────────────────────────────────────────────────────
+    // ─── Admin ────────────────────────────────────────────────────────
     getAdminStats: async () => {
         const token = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.access_token;
         const res = await fetch(`${API_BASE_URL}/admin/stats`, {
@@ -266,7 +304,7 @@ const api = {
         return res.json();
     },
 
-    // ─── Suivi des Heures ─────────────────────────────────────────
+    // ─── Suivi des Heures ─────────────────────────────────────────────
     getHeures: async (annee) => {
         const token = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.access_token;
         const res = await fetch(`${API_BASE_URL}/heures/${annee}`, {
@@ -322,6 +360,196 @@ const api = {
             throw new Error(err.detail || "Erreur lors de la suppression de la semaine");
         }
         return res.json();
+    }
+};
+
+// ─── Système de Notification In-App ──────────────────────────────────────────
+// Utilise le localStorage pour détecter les nouveaux documents/infos publiés
+
+const NotifSystem = {
+    STORAGE_KEY_DOCS: 'LEFAXEUR_seen_docs',
+    STORAGE_KEY_INFOS: 'LEFAXEUR_seen_infos',
+
+    /**
+     * Retourne le Set des IDs de documents déjà vus
+     */
+    getSeenDocs() {
+        try {
+            const raw = localStorage.getItem(this.STORAGE_KEY_DOCS);
+            return new Set(raw ? JSON.parse(raw) : []);
+        } catch { return new Set(); }
+    },
+
+    /**
+     * Retourne le Set des IDs d'infos déjà vues
+     */
+    getSeenInfos() {
+        try {
+            const raw = localStorage.getItem(this.STORAGE_KEY_INFOS);
+            return new Set(raw ? JSON.parse(raw) : []);
+        } catch { return new Set(); }
+    },
+
+    /**
+     * Marque les documents comme vus
+     */
+    markDocsAsSeen(docs) {
+        const ids = docs.map(d => d.id);
+        localStorage.setItem(this.STORAGE_KEY_DOCS, JSON.stringify(ids));
+    },
+
+    /**
+     * Marque les infos comme vues
+     */
+    markInfosAsSeen(infos) {
+        const ids = infos.map(i => i.id);
+        localStorage.setItem(this.STORAGE_KEY_INFOS, JSON.stringify(ids));
+    },
+
+    /**
+     * Retourne les nouveaux documents (jamais vus)
+     */
+    getNewDocs(docs) {
+        const seen = this.getSeenDocs();
+        return docs.filter(d => !seen.has(d.id));
+    },
+
+    /**
+     * Retourne les nouvelles infos (jamais vues)
+     */
+    getNewInfos(infos) {
+        const seen = this.getSeenInfos();
+        return infos.filter(i => !seen.has(i.id));
+    },
+
+    /**
+     * Affiche un toast de notification
+     * @param {string} message - Texte du toast
+     * @param {string} type - 'success' | 'info' | 'warning'
+     * @param {string|null} actionUrl - URL optionnelle si on clique sur le toast
+     */
+    showToast(message, type = 'info', actionUrl = null) {
+        // Injecter le style des toasts si pas encore fait
+        if (!document.getElementById('lefaxeur-toast-styles')) {
+            const style = document.createElement('style');
+            style.id = 'lefaxeur-toast-styles';
+            style.textContent = `
+                #lefaxeur-toasts {
+                    position: fixed;
+                    top: 1rem;
+                    right: 1rem;
+                    z-index: 99999;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 0.6rem;
+                    max-width: 380px;
+                }
+                .lefaxeur-toast {
+                    display: flex;
+                    align-items: flex-start;
+                    gap: 0.75rem;
+                    padding: 0.9rem 1.1rem;
+                    border-radius: 12px;
+                    background: #ffffff;
+                    box-shadow: 0 8px 32px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.08);
+                    animation: toastIn 0.4s cubic-bezier(0.16,1,0.3,1) forwards;
+                    cursor: ${actionUrl ? 'pointer' : 'default'};
+                    border-left: 4px solid #1a56db;
+                    transition: transform 0.2s, box-shadow 0.2s;
+                }
+                .lefaxeur-toast:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(0,0,0,0.18); }
+                .lefaxeur-toast.success { border-left-color: #16a34a; }
+                .lefaxeur-toast.warning { border-left-color: #f59e0b; }
+                .lefaxeur-toast-icon { font-size: 1.4rem; flex-shrink: 0; }
+                .lefaxeur-toast-body { flex: 1; }
+                .lefaxeur-toast-title { font-weight: 700; font-size: 0.9rem; color: #111827; margin-bottom: 0.2rem; }
+                .lefaxeur-toast-msg { font-size: 0.82rem; color: #6b7280; line-height: 1.4; }
+                .lefaxeur-toast-close { background: none; border: none; cursor: pointer; color: #9ca3af; font-size: 1rem; padding: 0; flex-shrink: 0; }
+                .lefaxeur-toast-close:hover { color: #374151; }
+                @keyframes toastIn {
+                    from { opacity: 0; transform: translateX(60px); }
+                    to   { opacity: 1; transform: translateX(0); }
+                }
+                @keyframes toastOut {
+                    from { opacity: 1; transform: translateX(0); max-height: 200px; margin-bottom: 0; }
+                    to   { opacity: 0; transform: translateX(60px); max-height: 0; margin-bottom: -0.6rem; }
+                }
+                .lefaxeur-toast.removing { animation: toastOut 0.3s ease forwards; }
+                /* Badge notification */
+                .notif-badge {
+                    display: inline-flex; align-items: center; justify-content: center;
+                    background: #ef4444; color: #fff; font-size: 0.65rem; font-weight: 800;
+                    border-radius: 9999px; min-width: 18px; height: 18px; padding: 0 5px;
+                    position: absolute; top: -6px; right: -8px;
+                    animation: pulseBadge 2s ease-in-out infinite;
+                }
+                @keyframes pulseBadge {
+                    0%, 100% { transform: scale(1); }
+                    50% { transform: scale(1.15); }
+                }
+                /* Upload progress bar */
+                .upload-progress-wrap {
+                    margin-top: 1rem;
+                    display: none;
+                }
+                .upload-progress-wrap.visible { display: block; }
+                .upload-progress-bar-track {
+                    height: 6px; background: #e5e7eb; border-radius: 9999px; overflow: hidden;
+                }
+                .upload-progress-bar-fill {
+                    height: 100%; background: linear-gradient(90deg, #16a34a, #22c55e);
+                    border-radius: 9999px;
+                    transition: width 0.4s ease;
+                    width: 0%;
+                }
+                .upload-status-msg {
+                    font-size: 0.82rem; color: #6b7280; margin-top: 0.5rem; text-align: center;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Conteneur de toasts
+        let container = document.getElementById('lefaxeur-toasts');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'lefaxeur-toasts';
+            document.body.appendChild(container);
+        }
+
+        const icons = { info: '🔔', success: '✅', warning: '⚠️', doc: '📄', annonce: '📢' };
+        const icon = icons[type] || icons.info;
+
+        const toast = document.createElement('div');
+        toast.className = `lefaxeur-toast ${type}`;
+        toast.innerHTML = `
+            <div class="lefaxeur-toast-icon">${icon}</div>
+            <div class="lefaxeur-toast-body">
+                <div class="lefaxeur-toast-title">${type === 'doc' ? 'Nouveau document' : type === 'annonce' ? 'Nouvelle annonce' : 'Notification'}</div>
+                <div class="lefaxeur-toast-msg">${message}</div>
+            </div>
+            <button class="lefaxeur-toast-close" title="Fermer">✕</button>
+        `;
+
+        if (actionUrl) {
+            toast.addEventListener('click', (e) => {
+                if (!e.target.classList.contains('lefaxeur-toast-close')) {
+                    window.location.href = actionUrl;
+                }
+            });
+        }
+
+        const closeBtn = toast.querySelector('.lefaxeur-toast-close');
+        function removeToast() {
+            toast.classList.add('removing');
+            toast.addEventListener('animationend', () => toast.remove(), { once: true });
+        }
+        closeBtn.addEventListener('click', removeToast);
+
+        container.appendChild(toast);
+
+        // Auto-dismiss après 6 secondes
+        setTimeout(removeToast, 6000);
     }
 };
 

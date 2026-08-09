@@ -8,6 +8,58 @@
     <meta name="description" content="Consultez les cours, TP et évaluations sur LEFAXEUR.">
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/layout.css">
+    <style>
+        /* Badge de notification sur nav Documents */
+        .notif-badge-nav {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #ef4444;
+            color: #fff;
+            font-size: 0.6rem;
+            font-weight: 800;
+            border-radius: 9999px;
+            min-width: 16px;
+            height: 16px;
+            padding: 0 4px;
+            margin-left: 4px;
+            vertical-align: middle;
+            animation: pulseBadge 2s ease-in-out infinite;
+        }
+        @keyframes pulseBadge {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        /* Banner "Nouveaux documents disponibles" */
+        .new-docs-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 0.8rem 1.2rem;
+            background: linear-gradient(135deg, rgba(26,86,219,0.08), rgba(99,102,241,0.08));
+            border: 1.5px solid rgba(26,86,219,0.3);
+            border-radius: 12px;
+            margin-bottom: 1.25rem;
+            flex-wrap: wrap;
+        }
+        .new-docs-banner-text { font-size: 0.92rem; font-weight: 600; color: var(--primary); display: flex; align-items: center; gap: 0.5rem; }
+        .new-docs-banner-close { background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 1rem; padding: 0; }
+        .new-docs-banner-close:hover { color: var(--text); }
+        /* Indicateur de chargement documents */
+        .docs-loading {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 3rem 0; gap: 1rem; color: var(--text-muted);
+        }
+        .docs-loading-spinner {
+            width: 40px; height: 40px;
+            border: 3px solid rgba(26,86,219,0.15);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
 </head>
 
 <body class="animate-fade-in">
@@ -21,7 +73,7 @@
 
             <ul class="navbar-nav">
                 <li><a href="../index.html" class="nav-link">Accueil</a></li>
-                <li><a href="documents.html" class="nav-link active">Documents</a></li>
+                <li><a href="documents.html" class="nav-link active">Documents<span id="docs-notif-badge" class="notif-badge-nav" style="display:none;"></span></a></li>
                 <li><a href="notes.html" class="nav-link" id="mm-notes" style="display:none;">📊 Notes</a></li>
                 <li><a href="heures.html" class="nav-link" id="mm-heures" style="display:none;">⏱️ Heures</a></li>
                 <li><a href="infos.html" class="nav-link" id="mm-infos" style="display:none;">🔔 Informations</a></li>
@@ -44,6 +96,14 @@
                 <p class="page-subtitle">Consultez les supports de cours, les travaux pratiques et les épreuves
                     d'évaluation.</p>
             </header>
+
+            <!-- Bannière nouveaux documents -->
+            <div id="new-docs-banner" class="new-docs-banner" style="display:none;">
+                <div class="new-docs-banner-text">
+                    🆕 <span id="new-docs-count"></span> nouveau(x) document(s) disponible(s) dans votre cycle !
+                </div>
+                <button class="new-docs-banner-close" id="btn-dismiss-banner" title="Fermer">✕ Marquer comme lus</button>
+            </div>
 
             <!-- ── Tabs ───────────────────────────────────────────────── -->
             <div class="tabs-container">
@@ -88,8 +148,14 @@
                 <button class="btn btn-primary" id="btn-filter">Filtrer</button>
             </div>
 
+            <!-- ── Loading state ─────────────────────────────────────── -->
+            <div class="docs-loading" id="docs-loading">
+                <div class="docs-loading-spinner"></div>
+                <p>Chargement des documents...</p>
+            </div>
+
             <!-- ── Results grid ───────────────────────────────────────── -->
-            <div class="grid-cards" id="documents-list">
+            <div class="grid-cards" id="documents-list" style="display:none;">
                 <!-- Cards populated by JS -->
             </div>
 
@@ -148,19 +214,15 @@
 
             if (user) {
                 if (user.role !== 'admin') {
-                    // Verrouiller
+                    // Verrouiller le filtre cycle (l'annee calendaire reste libre)
                     if (cycleFilter) cycleFilter.style.display = 'none';
-                    if (anneeFilter) anneeFilter.style.display = 'none';
+                    if (anneeFilter) anneeFilter.style.display = 'block'; // garder visible
                     lockedBadge.classList.remove('hidden');
-                    lockedBadge.innerHTML = `🔒 Profil: ${user.cycle} - Année ${user.annee}`;
-
-                    // Forcer les valeurs pour le JS local si nécessaire (l'API va forcer aussi)
+                    lockedBadge.innerHTML = `🔒 Cycle: ${user.cycle}`;
                     if (cycleFilter) cycleFilter.value = user.cycle;
-                    if (anneeFilter) anneeFilter.value = user.annee;
                 } else {
-                    // Admin: juste pré-remplir
+                    // Admin: pré-remplir mais laisser libre
                     if (user.cycle && cycleFilter) cycleFilter.value = user.cycle;
-                    if (user.annee && anneeFilter) anneeFilter.value = user.annee;
                 }
             }
 
@@ -178,7 +240,7 @@
                         evalFilters.classList.remove('hidden');
                     } else {
                         evalFilters.classList.add('hidden');
-                        currentEvalFilter = ''; // reset eval filter
+                        currentEvalFilter = '';
                     }
                     filterDocuments();
                 });
@@ -198,8 +260,49 @@
             // Bouton filtrer
             document.getElementById('btn-filter').addEventListener('click', filterDocuments);
 
+            // Afficher le spinner de chargement
+            document.getElementById('docs-loading').style.display = 'flex';
+            document.getElementById('documents-list').style.display = 'none';
+
             // Fetch data
             allDocuments = await api.getDocuments();
+
+            // Masquer le spinner
+            document.getElementById('docs-loading').style.display = 'none';
+            document.getElementById('documents-list').style.display = '';
+
+            // ─── Détection de nouveaux documents ──────────────────────────────
+            const newDocs = NotifSystem.getNewDocs(allDocuments);
+            if (newDocs.length > 0) {
+                // Afficher la bannière
+                const banner = document.getElementById('new-docs-banner');
+                document.getElementById('new-docs-count').textContent = newDocs.length;
+                banner.style.display = 'flex';
+
+                // Badge dans la navbar
+                const badge = document.getElementById('docs-notif-badge');
+                if (badge) {
+                    badge.textContent = newDocs.length;
+                    badge.style.display = 'inline-flex';
+                }
+
+                // Toast de notification
+                const docTitles = newDocs.slice(0, 2).map(d => `"${d.titre}"`).join(', ');
+                const extra = newDocs.length > 2 ? ` et ${newDocs.length - 2} autre(s)` : '';
+                NotifSystem.showToast(
+                    `${newDocs.length} nouveau(x) document(s) : ${docTitles}${extra}`,
+                    'doc',
+                    'documents.html'
+                );
+
+                // Bouton "Marquer comme lus"
+                document.getElementById('btn-dismiss-banner')?.addEventListener('click', () => {
+                    NotifSystem.markDocsAsSeen(allDocuments);
+                    banner.style.display = 'none';
+                    if (badge) badge.style.display = 'none';
+                });
+            }
+
             filterDocuments();
         });
 
@@ -214,6 +317,9 @@
             }
             empty.classList.add('hidden');
 
+            // Récupérer les IDs de nouveaux documents pour le badge "Nouveau"
+            const seenSet = NotifSystem.getSeenDocs();
+
             list.forEach(doc => {
                 let icon = '📖';
                 if (doc.type === 'tp') icon = '💻';
@@ -224,12 +330,21 @@
                     evalBadge = `<span class="badge badge-green" style="margin-left: 0.5rem; text-transform: capitalize;">${doc.categorie_eval}</span>`;
                 }
 
+                // Badge "Nouveau" si non vu
+                const isNew = !seenSet.has(doc.id);
+                const newBadge = isNew ? `<span class="badge" style="background:rgba(220,38,38,0.1);color:#dc2626;margin-left:0.4rem;font-size:0.7rem;font-weight:800;">🆕 Nouveau</span>` : '';
+
+                // CORRECTION : file_url est maintenant une URL absolue (préfixée dans api.js)
+                const downloadUrl = doc.file_url || '#';
+                const canDownload = doc.file_url && doc.file_url !== '#';
+
                 grid.innerHTML += `
-            <div class="doc-card">
+            <div class="doc-card" style="${isNew ? 'border-color: rgba(26,86,219,0.4); box-shadow: 0 0 0 2px rgba(26,86,219,0.1);' : ''}">
                 <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;">
                     <div>
                         <span class="badge badge-blue" style="text-transform: capitalize;">${doc.type}</span>
                         ${evalBadge}
+                        ${newBadge}
                     </div>
                     <span class="badge" style="background:rgba(17,24,39,0.08);color:var(--text-muted);">📅 ${doc.annee}</span>
                 </div>
@@ -243,10 +358,20 @@
                 </div>
                 
                 <p class="text-muted" style="font-size:0.85rem;margin-bottom:1.25rem;">🎓 ${doc.cycle}</p>
-                <a href="${doc.file_url || '#'}" target="_blank" class="btn btn-outline" style="width:100%;font-size:0.9rem;">📥 Télécharger PDF</a>
+                ${canDownload
+                    ? `<a href="${downloadUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-outline" style="width:100%;font-size:0.9rem;" onclick="markDocAsSeen('${doc.id}')">📥 Télécharger PDF</a>`
+                    : `<button class="btn btn-outline" style="width:100%;font-size:0.9rem;opacity:0.5;cursor:not-allowed;" disabled>📄 Fichier non disponible</button>`
+                }
             </div>`;
             });
         }
+
+        // Marquer un document comme vu quand on clique "Télécharger"
+        window.markDocAsSeen = function(docId) {
+            const seen = NotifSystem.getSeenDocs();
+            seen.add(docId);
+            localStorage.setItem(NotifSystem.STORAGE_KEY_DOCS, JSON.stringify([...seen]));
+        };
 
         function filterDocuments() {
             const search = document.getElementById('search-matiere').value.toLowerCase();
@@ -264,10 +389,11 @@
 
                 // Recherche texte (titre ou matiere)
                 const matchSearch = !search ||
-                    doc.matiere.toLowerCase().includes(search) ||
+                    (doc.matiere && doc.matiere.toLowerCase().includes(search)) ||
                     (doc.titre && doc.titre.toLowerCase().includes(search));
 
                 const matchCycle = !cycle || doc.cycle === cycle;
+                // Filtre annee par valeur calendaire uniquement
                 const matchAnnee = !annee || String(doc.annee) === annee;
 
                 return matchSearch && matchCycle && matchAnnee;
