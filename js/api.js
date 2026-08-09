@@ -304,7 +304,20 @@ const api = {
         return res.json();
     },
 
-    // ─── Suivi des Heures ─────────────────────────────────────────────
+    syncDrive: async () => {
+        const token = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.access_token;
+        const res = await fetch(`${API_BASE_URL}/admin/sync-drive`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.detail || 'Erreur lors de la synchronisation Drive');
+        }
+        return res.json();
+    },
+
+    // ─── Heures ────────────────────────────────────────────────────────
     getHeures: async (annee) => {
         const token = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.access_token;
         const res = await fetch(`${API_BASE_URL}/heures/${annee}`, {

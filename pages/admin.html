@@ -319,9 +319,10 @@
                 <!-- Tab Gérer contenu -->
                 <div id="tab-manage" class="tab-panel">
                     <div class="card">
-                        <div style="display:flex;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+                        <div style="display:flex;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;align-items:center;">
                             <button class="btn btn-outline" id="btn-manage-docs">📄 Documents</button>
                             <button class="btn btn-outline" id="btn-manage-infos">🔔 Informations</button>
+                            <button class="btn btn-primary" id="btn-sync-drive" style="margin-left:auto;">🔄 Synchroniser le Drive</button>
                         </div>
                         <div id="manage-docs-section" style="display:none;">
                             <h3 style="font-size:1rem;margin-bottom:1rem;">Documents publiés</h3>
@@ -757,6 +758,24 @@
                 document.getElementById('btn-manage-infos').click();
             } catch(err) { alert('❌ ' + err.message); }
             finally { btn.disabled = false; btn.textContent = 'Sauvegarder'; }
+        });
+
+        // ── Synchronisation Drive ──────────────────────────────────────────
+        document.getElementById('btn-sync-drive')?.addEventListener('click', async () => {
+            const btn = document.getElementById('btn-sync-drive');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner" style="width:14px;height:14px;border-width:2px;display:inline-block;margin-right:8px;vertical-align:middle;"></span> Synchronisation...';
+            btn.disabled = true;
+            try {
+                const res = await api.syncDrive();
+                alert('✅ ' + res.message);
+                document.getElementById('btn-manage-docs').click(); // refresh docs
+            } catch (err) {
+                alert('❌ ' + err.message);
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
         });
 
         // ── Édition Document ───────────────────────────────────────────────
