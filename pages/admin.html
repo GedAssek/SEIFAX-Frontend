@@ -694,10 +694,11 @@
             document.getElementById('manage-docs-section').style.display = 'block';
             document.getElementById('manage-infos-section').style.display = 'none';
             document.getElementById('manage-empty').style.display = 'none';
-            const docs = await api.getDocuments();
+            const allDocs = await api.getDocuments();
+            const docs = allDocs.filter(d => d.source === 'admin');
             document.getElementById('manage-docs-list').innerHTML = docs.length
                 ? docs.map(d => `<tr><td>${d.titre}</td><td><span class="role-badge student">${d.type}</span></td><td>${d.cycle}</td><td style="text-align:right;white-space:nowrap;"><button class="action-btn edit" onclick="editDocument('${d.id}','${d.titre.replace(/'/g,"&apos;")}','${d.type}','${d.matiere?.replace(/'/g,"&apos;")}','${d.categorie_eval||''}')">✏️ Modifier</button><button class="action-btn danger" onclick="deleteDocument('${d.id}')">🗑️ Supprimer</button></td></tr>`).join('')
-                : '<tr><td colspan="4" style="text-align:center;padding:1.5rem;color:var(--text-muted);">Aucun document.</td></tr>';
+                : '<tr><td colspan="4" style="text-align:center;padding:1.5rem;color:var(--text-muted);">Aucun document publié manuellement.</td></tr>';
         });
 
         document.getElementById('btn-manage-infos')?.addEventListener('click', async () => {
