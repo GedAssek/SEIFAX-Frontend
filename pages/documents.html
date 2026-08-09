@@ -320,6 +320,7 @@
             // Récupérer les IDs de nouveaux documents pour le badge "Nouveau"
             const seenSet = NotifSystem.getSeenDocs();
 
+            let htmlContent = '';
             list.forEach(doc => {
                 let icon = '📖';
                 if (doc.type === 'tp') icon = '💻';
@@ -338,7 +339,7 @@
                 const downloadUrl = doc.file_url || '#';
                 const canDownload = doc.file_url && doc.file_url !== '#';
 
-                grid.innerHTML += `
+                htmlContent += `
             <div class="doc-card" style="${isNew ? 'border-color: rgba(26,86,219,0.4); box-shadow: 0 0 0 2px rgba(26,86,219,0.1);' : ''}">
                 <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;">
                     <div>
@@ -364,6 +365,7 @@
                 }
             </div>`;
             });
+            grid.innerHTML = htmlContent;
         }
 
         // Marquer un document comme vu quand on clique "Télécharger"
