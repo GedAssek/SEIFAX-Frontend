@@ -322,6 +322,19 @@ const api = {
         return res.json();
     },
 
+    fixAnneeEtude: async () => {
+        const token = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.access_token;
+        const res = await fetch(`${API_BASE_URL}/admin/fix-annee-etude`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.detail || 'Erreur lors de la correction des années d\''étude');
+        }
+        return res.json();
+    },
+
     // ─── Heures ────────────────────────────────────────────────────────
     getHeures: async (annee) => {
         const token = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.access_token;

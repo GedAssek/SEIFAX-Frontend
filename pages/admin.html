@@ -335,6 +335,10 @@
                         <div style="display:flex;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;align-items:center;">
                             <button class="btn btn-outline" id="btn-manage-docs">📄 Documents</button>
                             <button class="btn btn-outline" id="btn-manage-infos">🔔 Informations</button>
+                            <div style="margin-left:auto;display:flex;gap:.5rem;flex-wrap:wrap;">
+                                <button class="btn btn-primary" id="btn-fix-annee" style="background:linear-gradient(135deg,#f59e0b,#d97706);">🔧 Corriger Années d'étude</button>
+                                <button class="btn btn-primary" id="btn-sync-drive">☁️ Synchroniser le Drive</button>
+                            </div>
                         </div>
                         <div id="manage-docs-section" style="display:none;">
                             <h3 style="font-size:1rem;margin-bottom:1rem;">Documents publiés</h3>
@@ -543,6 +547,49 @@
             try { await api.deleteAdminUser(id); await Promise.all([loadUsers(), loadStats()]); }
             catch(e) { alert(e.message); }
         };
+
+        // Bouton Synchroniser le Drive
+        document.getElementById('btn-sync-drive')?.addEventListener('click', async () => {
+            const btn = document.getElementById('btn-sync-drive');
+            if(!confirm('Lancer la synchronisation avec Google Drive ? Cela peut prendre quelques instants.')) return;
+            
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '⏳ Synchronisation...';
+            btn.disabled = true;
+            
+            try {
+                const res = await api.syncDrive();
+                alert('✅ ' + (res.message || 'Synchronisation réussie !'));
+                if(document.getElementById('manage-docs-section').style.display === 'block') {
+                    document.getElementById('btn-manage-docs').click(); // actualiser la liste
+                }
+            } catch(e) {
+                alert('❌ Erreur: ' + e.message);
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        });
+
+        // Bouton Corriger Années d'étude
+        document.getElementById('btn-fix-annee')?.addEventListener('click', async () => {
+            const btn = document.getElementById('btn-fix-annee');
+            if(!confirm('Corriger les années d\'étude de tous les documents depuis Google Drive ?\n\nCette opération met à jour les documents existants sans en créer de nouveaux.')) return;
+            
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '⏳ Correction en cours...';
+            btn.disabled = true;
+            
+            try {
+                const res = await api.fixAnneeEtude();
+                alert('✅ ' + (res.message || 'Correction réussie !'));
+            } catch(e) {
+                alert('❌ Erreur: ' + e.message);
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        });
 
         // Form: Document
         document.getElementById('doc-type')?.addEventListener('change', e => {
