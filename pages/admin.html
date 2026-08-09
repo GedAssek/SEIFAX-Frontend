@@ -336,7 +336,7 @@
                             <button class="btn btn-outline" id="btn-manage-docs">📄 Documents</button>
                             <button class="btn btn-outline" id="btn-manage-infos">🔔 Informations</button>
                             <div style="margin-left:auto;display:flex;gap:.5rem;flex-wrap:wrap;">
-                                <button class="btn btn-primary" id="btn-fix-annee" style="background:linear-gradient(135deg,#f59e0b,#d97706);">🔧 Corriger Années d'étude</button>
+                                <button class="btn btn-primary" id="btn-fix-annee-direct" style="background:linear-gradient(135deg,#10b981,#059669);">✅ Corriger Années d'étude</button>
                                 <button class="btn btn-primary" id="btn-sync-drive">☁️ Synchroniser le Drive</button>
                             </div>
                         </div>
@@ -571,18 +571,24 @@
             }
         });
 
-        // Bouton Corriger Années d'étude
-        document.getElementById('btn-fix-annee')?.addEventListener('click', async () => {
-            const btn = document.getElementById('btn-fix-annee');
-            if(!confirm('Corriger les années d\'étude de tous les documents depuis Google Drive ?\n\nCette opération met à jour les documents existants sans en créer de nouveaux.')) return;
+        // Bouton Corriger Années d'étude (DIRECT - sans Google Drive)
+        document.getElementById('btn-fix-annee-direct')?.addEventListener('click', async () => {
+            const btn = document.getElementById('btn-fix-annee-direct');
+            if(!confirm('Corriger les années d\'étude de tous les documents ?\n\nCette opération analyse les noms de matières et assigne automatiquement les années d\'étude (1ère, 2ème, 3ème année) à chaque document.')) return;
             
             const originalText = btn.innerHTML;
             btn.innerHTML = '⏳ Correction en cours...';
             btn.disabled = true;
             
             try {
-                const res = await api.fixAnneeEtude();
-                alert('✅ ' + (res.message || 'Correction réussie !'));
+                const token = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.access_token;
+                const res = await fetch(API_BASE_URL + '/admin/fix-annee-direct', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || 'Erreur');
+                alert('✅ ' + (data.message || 'Correction réussie !'));
             } catch(e) {
                 alert('❌ Erreur: ' + e.message);
             } finally {
