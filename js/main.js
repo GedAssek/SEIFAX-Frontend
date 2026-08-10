@@ -223,7 +223,8 @@ function initAuthPage() {
     function updateStudyYearOptions() {
         if (!cycleSelect || !studyYearSelect) return;
         const cycle = cycleSelect.value;
-        const yearCount = cycle.startsWith('IEAMAC-') ? 3 : cycle.startsWith('EAC-') ? 2 : 1;
+        const isTechnicianCycle = cycle.startsWith('T-');
+        const yearCount = cycle.startsWith('IEAMAC-') ? 3 : (cycle.startsWith('EAC-') || cycle === 'CCA') ? 2 : 1;
         studyYearSelect.innerHTML = '<option value="">Choisir...</option>';
         for (let year = 1; year <= yearCount; year += 1) {
             const option = document.createElement('option');
@@ -231,7 +232,9 @@ function initAuthPage() {
             option.textContent = `${year}${year === 1 ? 'ère' : 'ème'} année`;
             studyYearSelect.appendChild(option);
         }
-        studyYearSelect.disabled = !cycle;
+        // La formation technicien dure une année : sélectionner et verrouiller ce choix.
+        if (isTechnicianCycle) studyYearSelect.value = '1';
+        studyYearSelect.disabled = !cycle || isTechnicianCycle;
     }
 
     if (cycleSelect && studyYearSelect) {
