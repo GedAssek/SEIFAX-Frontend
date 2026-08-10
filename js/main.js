@@ -209,6 +209,57 @@ function initAuthPage() {
     
     const loginForm = document.getElementById('form-login');
     const registerForm = document.getElementById('form-register');
+    const cycleSelect = document.getElementById('reg-cycle');
+    const studyYearSelect = document.getElementById('reg-annee');
+
+    function setSubmitLoading(button, label, isLoading) {
+        button.disabled = isLoading;
+        button.classList.toggle('is-loading', isLoading);
+        button.innerHTML = isLoading
+            ? `<span class="button-content"><span class="button-spinner" aria-hidden="true"></span>${label}</span>`
+            : `<span class="button-content">${button.dataset.defaultLabel}</span>`;
+    }
+
+    function updateStudyYearOptions() {
+        if (!cycleSelect || !studyYearSelect) return;
+        const cycle = cycleSelect.value;
+        const yearCount = cycle.startsWith('IEAMAC-') ? 3 : cycle.startsWith('EAC-') ? 2 : 1;
+        studyYearSelect.innerHTML = '<option value="">Choisir...</option>';
+        for (let year = 1; year <= yearCount; year += 1) {
+            const option = document.createElement('option');
+            option.value = String(year);
+            option.textContent = `${year}${year === 1 ? 'ère' : 'ème'} année`;
+            studyYearSelect.appendChild(option);
+        }
+        studyYearSelect.disabled = !cycle;
+    }
+
+    if (cycleSelect && studyYearSelect) {
+        cycleSelect.addEventListener('change', updateStudyYearOptions);
+        updateStudyYearOptions();
+    }
+
+    ['reg-password', 'reg-password-confirm'].forEach((inputId) => {
+        const input = document.getElementById(inputId);
+        if (!input || input.parentElement.classList.contains('input-icon-wrap')) return;
+        const wrapper = document.createElement('div');
+        wrapper.className = 'input-icon-wrap';
+        input.parentNode.insertBefore(wrapper, input);
+        wrapper.appendChild(input);
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'eye-toggle';
+        button.innerHTML = '&#128065;';
+        button.setAttribute('aria-label', 'Afficher le mot de passe');
+        button.title = 'Afficher le mot de passe';
+        button.addEventListener('click', () => {
+            const isHidden = input.type === 'password';
+            input.type = isHidden ? 'text' : 'password';
+            button.setAttribute('aria-label', isHidden ? 'Masquer le mot de passe' : 'Afficher le mot de passe');
+            button.title = button.getAttribute('aria-label');
+        });
+        wrapper.appendChild(button);
+    });
 
     // Vérifier si l'URL contient #register pour afficher directement la vue d'inscription
     if (window.location.hash === '#register') {
@@ -242,9 +293,8 @@ function initAuthPage() {
             const password = loginForm.password.value;
             const btn = loginForm.querySelector('button[type="submit"]');
             
-            const originalText = btn.textContent;
-            btn.textContent = 'Connexion...';
-            btn.disabled = true;
+            btn.dataset.defaultLabel = btn.textContent.trim();
+            setSubmitLoading(btn, 'Connexion en cours', true);
 
             try {
                 const res = await api.login(email, password);
@@ -253,8 +303,7 @@ function initAuthPage() {
                 window.location.href = '../index.html';
             } catch (err) {
                 alert(err.message);
-                btn.textContent = originalText;
-                btn.disabled = false;
+                setSubmitLoading(btn, '', false);
             }
         });
     }
@@ -272,9 +321,8 @@ function initAuthPage() {
                 return;
             }
 
-            const originalText = btn.textContent;
-            btn.textContent = 'Création...';
-            btn.disabled = true;
+            btn.dataset.defaultLabel = btn.textContent.trim();
+            setSubmitLoading(btn, 'Création en cours', true);
             
             const userData = {
                 username: registerForm.email.value,
@@ -286,15 +334,19 @@ function initAuthPage() {
                 password: password,
             };
 
-            const res = await api.register(userData);
-            if (res.message) {
-                alert('Inscription reussie ! Connectez-vous maintenant avec votre email et mot de passe.');
-                registerView.classList.add('hidden');
-                loginView.classList.remove('hidden');
-                if (loginForm.email) loginForm.email.value = userData.email;
+            try {
+                const res = await api.register(userData);
+                if (res.message) {
+                    alert('Inscription reussie ! Connectez-vous maintenant avec votre email et mot de passe.');
+                    registerView.classList.add('hidden');
+                    loginView.classList.remove('hidden');
+                    if (loginForm.email) loginForm.email.value = userData.email;
+                }
+            } catch (err) {
+                alert(err.message);
+            } finally {
+                setSubmitLoading(btn, '', false);
             }
-            btn.textContent = originalText;
-            btn.disabled = false;
         });
     }
 }

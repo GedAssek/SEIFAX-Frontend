@@ -100,6 +100,11 @@
         }
         .eye-toggle:hover { color: var(--primary); }
 
+        .btn-submit.is-loading { cursor: wait; opacity: 0.9; }
+        .btn-submit .button-content { display: inline-flex; align-items: center; justify-content: center; gap: 0.55rem; }
+        .button-spinner { width: 1.05rem; height: 1.05rem; border: 2px solid rgba(255,255,255,0.35); border-top-color: #fff; border-radius: 50%; animation: auth-spin 0.75s linear infinite; }
+        @keyframes auth-spin { to { transform: rotate(360deg); } }
+
         /* ── Submit btn ── */
         .btn-submit {
             width: 100%;
@@ -145,7 +150,7 @@
                         <button type="button" id="toggle-pw" class="eye-toggle" title="Afficher/Masquer">👁</button>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary btn-submit">Se connecter</button>
+                <button type="submit" class="btn btn-primary btn-submit"><span class="button-content">Se connecter</span></button>
             </form>
 
             <p class="auth-toggle">
@@ -185,7 +190,7 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Année d'études</label>
-                        <select name="annee" class="form-control" required>
+                        <select name="annee" class="form-control" required id="reg-annee" disabled>
                             <option value="">Choisir...</option>
                             <option value="1">1ère Année</option>
                             <option value="2">2ème Année</option>
