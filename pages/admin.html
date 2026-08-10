@@ -782,9 +782,24 @@
             document.getElementById('manage-docs-section').style.display = 'none';
             document.getElementById('manage-empty').style.display = 'none';
             const infos = await api.getInfos();
-            document.getElementById('manage-infos-list').innerHTML = infos.length
-                ? infos.map(i => `<tr><td>${i.titre}</td><td>${i.cycle}</td><td style="text-align:right;white-space:nowrap;"><button class="action-btn edit" onclick="editInfo('${i.id}','${i.titre.replace(/'/g,"&apos;")}','${(i.cycle||'Général')}','${i.contenu?.replace(/'/g,"&apos;").replace(/\n/g,' ')||''}')">✏️ Modifier</button><button class="action-btn danger" onclick="deleteInfo('${i.id}')">🗑️ Supprimer</button></td></tr>`).join('')
+            const infosList = document.getElementById('manage-infos-list');
+            infosList.innerHTML = infos.length
+                ? infos.map((i, index) => `<tr><td>${i.titre}</td><td>${i.cycle}</td><td style="text-align:right;white-space:nowrap;"><button class="action-btn edit" data-info-action="edit" data-info-index="${index}">✏️ Modifier</button><button class="action-btn danger" data-info-action="delete" data-info-index="${index}">🗑️ Supprimer</button></td></tr>`).join('')
                 : '<tr><td colspan="3" style="text-align:center;padding:1.5rem;color:var(--text-muted);">Aucune information.</td></tr>';
+
+            // Ne pas passer le titre ou le contenu dans un onclick HTML : une apostrophe
+            // rendait l'attribut invalide et empêchait l'édition de certaines annonces.
+            infosList.onclick = (event) => {
+                const button = event.target.closest('button[data-info-action]');
+                if (!button) return;
+                const info = infos[Number(button.dataset.infoIndex)];
+                if (!info) return;
+                if (button.dataset.infoAction === 'edit') {
+                    window.editInfo(info.id, info.titre, info.cycle || 'Général', info.contenu || '');
+                } else {
+                    window.deleteInfo(info.id);
+                }
+            };
         });
 
         window.deleteDocument = async (id) => {
