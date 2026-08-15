@@ -3,12 +3,12 @@
  * Backend FastAPI déployé sur Render : https://seifax-backend.onrender.com
  */
 
-const API_BASE_URL = 'https://seifax-backend-xh0q.onrender.com';
+const API_BASE_URL = 'https://seifax-backend-xh0q.onrender.com/api';
 
 // ─── Base URL pour accéder aux fichiers statiques (uploads) ───────────────────
 // IMPORTANT : les file_url retournés par le backend sont des chemins RELATIFS
 // (ex: /uploads/documents/fichier.pdf). Il faut les préfixer avec le domaine backend.
-const BACKEND_ORIGIN = 'https://seifax-backend-xh0q.onrender.com';
+const BACKEND_ORIGIN = 'https://seifax-backend-xh0q.onrender.com/api';
 
 /**
  * Préfixe un chemin de fichier relatif avec l'origine du backend.
