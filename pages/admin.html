@@ -271,6 +271,12 @@
                                 <div class="form-group"><label class="form-label">Cible *</label>
                                     <select class="form-control" id="admin-cycle-info"><option value="Général">Général (Tous les cycles)</option></select>
                                 </div>
+                                <div class="form-group"><label class="form-label">Année d'étude ciblée</label>
+                                    <select class="form-control" id="admin-info-annee-etude" disabled>
+                                        <option value="">Toutes les années</option>
+                                    </select>
+                                    <small class="text-muted" style="font-size:.8rem;">Choisissez d'abord un cycle pour cibler une année précise.</small>
+                                </div>
                                 <div class="form-group"><label class="form-label">Contenu *</label><textarea class="form-control" id="info-contenu" required placeholder="Décrivez l'annonce ici..."></textarea></div>
                                 <div class="form-group"><label class="form-label">Pièce jointe (Optionnel)</label><input type="file" id="info-file" class="form-control" accept=".pdf,.jpg,.jpeg,.png"><small class="text-muted" style="font-size:.8rem;">JPG, PNG ou PDF.</small></div>
                                 <!-- Barre de progression -->
@@ -374,6 +380,11 @@
                         <option value="Général">Général (Tous)</option>
                     </select>
                 </div>
+                <div class="form-group"><label class="form-label">Année d'étude ciblée</label>
+                    <select class="form-control" id="edit-info-annee-etude" disabled>
+                        <option value="">Toutes les années</option>
+                    </select>
+                </div>
                 <div class="form-group"><label class="form-label">Contenu *</label><textarea class="form-control" id="edit-info-contenu" required></textarea></div>
                 <div class="form-group"><label class="form-label">Nouvelle pièce jointe (optionnel)</label><input type="file" id="edit-info-file" class="form-control" accept=".pdf,.jpg,.jpeg,.png"></div>
                 <button type="submit" id="btn-edit-info-submit" class="btn btn-primary" style="width:100%;">Sauvegarder</button>
@@ -444,6 +455,30 @@
                 });
             });
         }
+
+        function updateInfoYearOptions(cycleSelectId, yearSelectId, selectedYear = '') {
+            const cycle = document.getElementById(cycleSelectId).value;
+            const yearSelect = document.getElementById(yearSelectId);
+            const yearCount = cycle.startsWith('IEAMAC-') ? 3 : (cycle.startsWith('EAC-') || cycle === 'CCA') ? 2 : 1;
+            yearSelect.innerHTML = '<option value="">Toutes les années</option>';
+
+            if (cycle !== 'Général') {
+                for (let year = 1; year <= yearCount; year += 1) {
+                    const option = document.createElement('option');
+                    option.value = String(year);
+                    option.textContent = `${year}${year === 1 ? 'ère' : 'ème'} année`;
+                    yearSelect.appendChild(option);
+                }
+            }
+
+            yearSelect.disabled = cycle === 'Général';
+            yearSelect.value = selectedYear ? String(selectedYear) : '';
+        }
+
+        [['admin-cycle-info', 'admin-info-annee-etude'], ['edit-info-cycle', 'edit-info-annee-etude']].forEach(([cycleId, yearId]) => {
+            document.getElementById(cycleId)?.addEventListener('change', () => updateInfoYearOptions(cycleId, yearId));
+            updateInfoYearOptions(cycleId, yearId);
+        });
 
         // Tabs
         document.querySelectorAll('.admin-tab').forEach(tab => {
@@ -715,11 +750,13 @@
             const titre = document.getElementById('info-titre').value;
             const contenu = document.getElementById('info-contenu').value;
             const cycle = document.getElementById('admin-cycle-info').value;
+            const anneeEtude = document.getElementById('admin-info-annee-etude').value;
 
             const fd = new FormData();
             fd.append('titre', titre);
             fd.append('contenu', contenu);
             fd.append('cycle', cycle);
+            if (anneeEtude) fd.append('annee_etude', anneeEtude);
             const file = document.getElementById('info-file').files[0];
             if (file) fd.append('file', file);
 
@@ -795,7 +832,7 @@
                 const info = infos[Number(button.dataset.infoIndex)];
                 if (!info) return;
                 if (button.dataset.infoAction === 'edit') {
-                    window.editInfo(info.id, info.titre, info.cycle || 'Général', info.contenu || '');
+                    window.editInfo(info.id, info.titre, info.cycle || 'Général', info.contenu || '', info.annee_etude || '');
                 } else {
                     window.deleteInfo(info.id);
                 }
@@ -814,13 +851,14 @@
         };
 
         // ── Édition Information ────────────────────────────────────────────
-        window.editInfo = (id, titre, cycle, contenu) => {
+        window.editInfo = (id, titre, cycle, contenu, anneeEtude = '') => {
             document.getElementById('edit-info-id').value = id;
             document.getElementById('edit-info-titre').value = titre;
             document.getElementById('edit-info-contenu').value = contenu;
             // Set cycle select
             const sel = document.getElementById('edit-info-cycle');
             if ([...sel.options].some(o => o.value === cycle)) sel.value = cycle;
+            updateInfoYearOptions('edit-info-cycle', 'edit-info-annee-etude', anneeEtude);
             document.getElementById('modal-edit-info').classList.add('open');
         };
 
@@ -840,6 +878,8 @@
             fd.append('titre', document.getElementById('edit-info-titre').value);
             fd.append('contenu', document.getElementById('edit-info-contenu').value);
             fd.append('cycle', document.getElementById('edit-info-cycle').value);
+            const anneeEtude = document.getElementById('edit-info-annee-etude').value;
+            if (anneeEtude) fd.append('annee_etude', anneeEtude);
             const file = document.getElementById('edit-info-file').files[0];
             if (file) fd.append('file', file);
             try {

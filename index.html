@@ -139,7 +139,8 @@
                         <a href="pages/infos.html" class="btn btn-outline">Dernières Infos</a>
                     </div>
                     <!-- Notification summary -->
-                    <div id="dashboard-notif-summary" style="display:none; margin-top:1.25rem; padding:0.75rem 1rem; background:rgba(26,86,219,0.06); border:1.5px solid rgba(26,86,219,0.2); border-radius:12px; font-size:0.9rem; color:var(--primary); display:flex; align-items:center; gap:0.6rem;">
+                    <div id="dashboard-notif-summary"
+                        style="display:none; margin-top:1.25rem; padding:0.75rem 1rem; background:rgba(26,86,219,0.06); border:1.5px solid rgba(26,86,219,0.2); border-radius:12px; font-size:0.9rem; color:var(--primary); display:flex; align-items:center; gap:0.6rem;">
                         🔔 <span id="dashboard-notif-text"></span>
                     </div>
                 </header>
@@ -147,15 +148,18 @@
                 <div class="grid-cards">
                     <div class="card text-center" style="cursor:pointer; position:relative;"
                         onclick="window.location='pages/documents.html'">
-                        <span id="home-doc-badge" style="display:none; position:absolute; top:12px; right:12px; background:#ef4444; color:#fff; font-size:0.65rem; font-weight:800; border-radius:9999px; padding:2px 7px;"></span>
+                        <span id="home-doc-badge"
+                            style="display:none; position:absolute; top:12px; right:12px; background:#ef4444; color:#fff; font-size:0.65rem; font-weight:800; border-radius:9999px; padding:2px 7px;"></span>
                         <div style="font-size:2.8rem; margin-bottom:1rem; display:block;">📚</div>
                         <h3 style="margin-bottom:0.6rem;">Centre de Documents</h3>
                         <p class="text-muted" style="font-size:0.92rem;">Cours, TP, et évaluations des années
                             précédentes
                             pour un entraînement ciblé.</p>
                     </div>
-                    <div class="card text-center" style="cursor:pointer; position:relative;" onclick="window.location='pages/infos.html'">
-                        <span id="home-info-badge" style="display:none; position:absolute; top:12px; right:12px; background:#ef4444; color:#fff; font-size:0.65rem; font-weight:800; border-radius:9999px; padding:2px 7px;"></span>
+                    <div class="card text-center" style="cursor:pointer; position:relative;"
+                        onclick="window.location='pages/infos.html'">
+                        <span id="home-info-badge"
+                            style="display:none; position:absolute; top:12px; right:12px; background:#ef4444; color:#fff; font-size:0.65rem; font-weight:800; border-radius:9999px; padding:2px 7px;"></span>
                         <div style="font-size:2.8rem; margin-bottom:1rem; display:block;">🔔</div>
                         <h3 style="margin-bottom:0.6rem;">Actualités</h3>
                         <p class="text-muted" style="font-size:0.92rem;">Ne manquez plus aucun événement, changement de
@@ -223,7 +227,6 @@
                 if (mmLogout) { mmLogout.style.display = ''; mmLogout.addEventListener('click', e => { e.preventDefault(); localStorage.removeItem('LEFAXEUR_user'); window.location.reload(); }); }
 
                 // ── Vérification des nouvelles notifications ────────────────────
-                // Charge les documents/infos en arrière-plan pour afficher les badges
                 try {
                     const [docs, infos] = await Promise.all([
                         api.getDocuments(),

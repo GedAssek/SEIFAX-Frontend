@@ -3,12 +3,12 @@
  * Backend FastAPI déployé sur Render : https://seifax-backend.onrender.com
  */
 
-const API_BASE_URL = 'https://seifax-backend.onrender.com/api';
+const API_BASE_URL = 'https://seifax-backend-xh0q.onrender.com';
 
 // ─── Base URL pour accéder aux fichiers statiques (uploads) ───────────────────
 // IMPORTANT : les file_url retournés par le backend sont des chemins RELATIFS
 // (ex: /uploads/documents/fichier.pdf). Il faut les préfixer avec le domaine backend.
-const BACKEND_ORIGIN = 'https://seifax-backend.onrender.com';
+const BACKEND_ORIGIN = 'https://seifax-backend-xh0q.onrender.com';
 
 /**
  * Préfixe un chemin de fichier relatif avec l'origine du backend.
@@ -164,14 +164,17 @@ const api = {
             const user = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.user;
 
             let fetchCycle = cycle;
+            let fetchStudyYear = null;
             if (user && user.role !== 'admin') {
                 fetchCycle = user.cycle;
+                fetchStudyYear = user.annee || null;
             }
 
             let url = `${API_BASE_URL}/infos/`;
-            if (fetchCycle) {
-                url += `?cycle=${encodeURIComponent(fetchCycle)}`;
-            }
+            const params = new URLSearchParams();
+            if (fetchCycle) params.append('cycle', fetchCycle);
+            if (fetchStudyYear) params.append('annee_etude', fetchStudyYear);
+            if (params.size) url += `?${params.toString()}`;
             const res = await fetch(url, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -179,7 +182,15 @@ const api = {
             const infos = await res.json();
 
             // CORRECTION : préfixer les file_url avec l'origine backend
-            return infos.map(info => ({
+            const targetedInfos = user && user.role !== 'admin'
+                ? infos.filter(info => {
+                    const cycleMatches = !info.cycle || info.cycle === 'Général' || info.cycle === user.cycle;
+                    const yearMatches = !info.annee_etude || String(info.annee_etude) === String(user.annee);
+                    return cycleMatches && yearMatches;
+                })
+                : infos;
+
+            return targetedInfos.map(info => ({
                 ...info,
                 file_url: toAbsoluteUrl(info.file_url)
             }));
