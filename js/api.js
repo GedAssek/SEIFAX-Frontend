@@ -49,7 +49,15 @@ const api = {
         });
         if (!res.ok) {
             const err = await res.json();
-            throw new Error(err.detail || 'Erreur lors de l\'inscription');
+            let errMsg = "Erreur lors de l'inscription";
+            if (typeof err.detail === 'string') {
+                errMsg = err.detail;
+            } else if (Array.isArray(err.detail)) {
+                errMsg = err.detail.map(e => e.msg).join('\\n');
+            } else if (err.detail && typeof err.detail === 'object') {
+                errMsg = err.detail.message || JSON.stringify(err.detail);
+            }
+            throw new Error(errMsg);
         }
         return res.json();
     },
@@ -62,7 +70,15 @@ const api = {
         });
         if (!res.ok) {
             const err = await res.json();
-            throw new Error(err.detail || 'Erreur lors de la complétion du profil');
+            let errMsg = "Erreur lors de la complétion du profil";
+            if (typeof err.detail === 'string') {
+                errMsg = err.detail;
+            } else if (Array.isArray(err.detail)) {
+                errMsg = err.detail.map(e => e.msg).join('\\n');
+            } else if (err.detail && typeof err.detail === 'object') {
+                errMsg = err.detail.message || JSON.stringify(err.detail);
+            }
+            throw new Error(errMsg);
         }
         return res.json();
     },
