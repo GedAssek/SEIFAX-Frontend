@@ -102,6 +102,8 @@ function updateNavigation() {
                             <p><strong>Rôle:</strong> ${user.role}</p>
                             <p><strong>Cycle:</strong> ${user.cycle || 'N/A'}</p>
                             <p><strong>Année d'étude:</strong> ${user.annee || 'N/A'}</p>
+                            <p><strong>Sexe:</strong> ${user.sexe || 'N/A'}</p>
+                            <p><strong>Promotion:</strong> ${user.promotion || 'N/A'}</p>
                         </div>
                         <hr style="margin: 1rem 0; border:0; border-top:1px solid rgba(128,128,128,0.2);">
                         <h3 style="font-size:1rem; margin-bottom:1rem;">🔒 Changer le mot de passe</h3>
@@ -212,6 +214,43 @@ function initAuthPage() {
     const cycleSelect = document.getElementById('reg-cycle');
     const studyYearSelect = document.getElementById('reg-annee');
 
+    function showCompleteProfileMode(detail, currentPassword) {
+        loginView.classList.add('hidden');
+        registerView.classList.remove('hidden');
+        registerView.classList.add('animate-fade-in');
+        
+        registerView.querySelector('h2').textContent = "Compléter mon profil";
+        registerView.querySelector('p').textContent = "Veuillez mettre à jour vos informations pour continuer.";
+        
+        registerForm.dataset.mode = 'complete-profile';
+        
+        if (registerForm.nom && detail.nom) {
+            registerForm.nom.value = detail.nom;
+            registerForm.nom.readOnly = true;
+        }
+        if (registerForm.prenom && detail.prenom) {
+            registerForm.prenom.value = detail.prenom;
+            registerForm.prenom.readOnly = true;
+        }
+        if (registerForm.email && detail.email) {
+            registerForm.email.value = detail.email;
+            registerForm.email.readOnly = true;
+        }
+        
+        const cycleGroup = document.getElementById('reg-cycle-annee-group');
+        if (cycleGroup) cycleGroup.style.display = 'none';
+        
+        if (registerForm.cycle) registerForm.cycle.removeAttribute('required');
+        if (registerForm.annee) registerForm.annee.removeAttribute('required');
+        
+        const btn = registerForm.querySelector('button[type="submit"]');
+        btn.textContent = "Mettre à jour mon profil";
+        btn.dataset.defaultLabel = "Mettre à jour mon profil";
+        
+        const toggleP = registerView.querySelector('.auth-toggle');
+        if (toggleP) toggleP.style.display = 'none';
+    }
+
     function setSubmitLoading(button, label, isLoading) {
         button.disabled = isLoading;
         button.classList.toggle('is-loading', isLoading);
@@ -305,7 +344,11 @@ function initAuthPage() {
                 localStorage.setItem('LEFAXEUR_user', JSON.stringify(res));
                 window.location.href = '../index.html';
             } catch (err) {
-                alert(err.message);
+                if (err.detail && err.detail.code === 'profile_completion_required') {
+                    showCompleteProfileMode(err.detail, password);
+                } else {
+                    alert(err.message);
+                }
                 setSubmitLoading(btn, '', false);
             }
         });
@@ -325,7 +368,28 @@ function initAuthPage() {
             }
 
             btn.dataset.defaultLabel = btn.textContent.trim();
-            setSubmitLoading(btn, 'Création en cours', true);
+            setSubmitLoading(btn, registerForm.dataset.mode === 'complete-profile' ? 'Mise à jour en cours' : 'Création en cours', true);
+            
+            if (registerForm.dataset.mode === 'complete-profile') {
+                const profileData = {
+                    username: registerForm.email.value,
+                    password: password,
+                    sexe: registerForm.sexe.value,
+                    promotion: registerForm.promotion.value
+                };
+                
+                try {
+                    const res = await api.completeProfile(profileData);
+                    alert("Profil mis à jour avec succès ! Connexion en cours...");
+                    const loginRes = await api.login(profileData.username, profileData.password);
+                    localStorage.setItem('LEFAXEUR_user', JSON.stringify(loginRes));
+                    window.location.href = '../index.html';
+                } catch (err) {
+                    alert(err.message || "Erreur lors de la mise à jour");
+                    setSubmitLoading(btn, '', false);
+                }
+                return;
+            }
             
             const userData = {
                 username: registerForm.email.value,
@@ -335,6 +399,8 @@ function initAuthPage() {
                 annee: registerForm.annee.value,
                 email: registerForm.email.value,
                 password: password,
+                sexe: registerForm.sexe.value,
+                promotion: registerForm.promotion.value
             };
 
             try {

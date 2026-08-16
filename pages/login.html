@@ -180,7 +180,7 @@
                 </div>
 
                 <!-- Cycle & Année -->
-                <div class="form-grid-2">
+                <div class="form-grid-2" id="reg-cycle-annee-group">
                     <div class="form-group">
                         <label class="form-label">Cycle</label>
                         <select name="cycle" class="form-control" required id="reg-cycle">
@@ -196,6 +196,22 @@
                             <option value="2">2ème Année</option>
                             <option value="3">3ème Année</option>
                         </select>
+                    </div>
+                </div>
+
+                <!-- Sexe & Promotion -->
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Sexe</label>
+                        <select name="sexe" class="form-control" required id="reg-sexe">
+                            <option value="">Sélectionnez</option>
+                            <option value="M">Masculin</option>
+                            <option value="F">Féminin</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Promotion</label>
+                        <input type="text" name="promotion" class="form-control" required id="reg-promotion" placeholder="Ex: EAC SEI 2025 A">
                     </div>
                 </div>
 

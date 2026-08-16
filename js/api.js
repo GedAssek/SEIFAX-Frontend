@@ -31,6 +31,11 @@ const api = {
         });
         if (!res.ok) {
             const err = await res.json();
+            if (err.detail && typeof err.detail === 'object') {
+                const errorObj = new Error(err.detail.message || 'Erreur de connexion');
+                errorObj.detail = err.detail;
+                throw errorObj;
+            }
             throw new Error(err.detail || 'Erreur de connexion');
         }
         return res.json();
@@ -45,6 +50,19 @@ const api = {
         if (!res.ok) {
             const err = await res.json();
             throw new Error(err.detail || 'Erreur lors de l\'inscription');
+        }
+        return res.json();
+    },
+
+    completeProfile: async (userData) => {
+        const res = await fetch(`${API_BASE_URL}/auth/complete-profile`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(userData)
+        });
+        if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.detail || 'Erreur lors de la complétion du profil');
         }
         return res.json();
     },
