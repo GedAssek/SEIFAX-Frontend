@@ -110,6 +110,7 @@
                 <button class="tab-btn active" data-tab="cours">📖 Cours</button>
                 <button class="tab-btn" data-tab="tp">💻 TP / TD</button>
                 <button class="tab-btn" data-tab="evaluation">📝 Évaluations</button>
+                <button class="tab-btn" data-tab="autres">📁 Autres</button>
             </div>
 
             <!-- ── Sous-filtres Évaluations (cachés par défaut) ────────── -->
@@ -167,7 +168,7 @@
             <!-- Empty state -->
             <div id="empty-state" class="hidden text-center" style="padding:4rem 0;">
                 <div style="font-size:4rem; margin-bottom:1rem;">🗂️</div>
-                <h3>Aucun document n'est publié</h3>
+                <h3 id="empty-state-title">Aucun document n'est publié</h3>
                 <p class="text-muted">Revenez plus tard pour consulter de nouveaux documents.</p>
             </div>
 
@@ -350,6 +351,7 @@
                 let icon = '📖';
                 if (doc.type === 'tp') icon = '💻';
                 if (doc.type === 'evaluation') icon = '📝';
+                if (doc.type === 'autres') icon = '📁';
 
                 let evalBadge = '';
                 if (doc.type === 'evaluation' && doc.categorie_eval) {
@@ -417,6 +419,13 @@
             const search = document.getElementById('search-matiere').value.toLowerCase();
             const cycle = document.getElementById('filter-cycle').value;
             const annee = document.getElementById('filter-annee').value;
+            const emptyStateTitle = document.getElementById('empty-state-title');
+
+            if (emptyStateTitle) {
+                emptyStateTitle.textContent = currentTab === 'autres'
+                    ? 'Aucun autre document disponible'
+                    : "Aucun document n'est publié";
+            }
 
             filteredDocuments = allDocuments.filter(doc => {
                 // Filtre d'onglet
