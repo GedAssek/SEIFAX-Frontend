@@ -1,19 +1,11 @@
-/**
- * LEFAXEUR - API Helper Functions
- * Backend FastAPI déployé sur Render : https://seifax-backend.onrender.com
- */
+
 
 const API_BASE_URL = 'https://seifax-backend-xh0q.onrender.com/api';
 
-// ─── Base URL pour accéder aux fichiers statiques (uploads) ───────────────────
-// IMPORTANT : les file_url retournés par le backend sont des chemins RELATIFS
-// (ex: /uploads/documents/fichier.pdf). Il faut les préfixer avec le domaine backend.
+
 const BACKEND_ORIGIN = 'https://seifax-backend-xh0q.onrender.com/api';
 
-/**
- * Préfixe un chemin de fichier relatif avec l'origine du backend.
- * Si l'URL est déjà absolue (http/https), elle est retournée telle quelle.
- */
+
 function toAbsoluteUrl(url) {
     if (!url) return null;
     if (url.startsWith('http://') || url.startsWith('https://')) return url;
@@ -412,6 +404,35 @@ const api = {
         if (!res.ok) {
             const err = await res.json();
             throw new Error(err.detail || "Erreur lors de l'enregistrement des heures");
+        }
+        return res.json();
+    },
+
+    getRentrees: async () => {
+        const token = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.access_token;
+        const res = await fetch(`${API_BASE_URL}/heures/rentrees`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.detail || "Erreur lors du chargement des rentrées scolaires");
+        }
+        return res.json();
+    },
+
+    sauvegarderRentree: async (dateRentree) => {
+        const token = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.access_token;
+        const res = await fetch(`${API_BASE_URL}/heures/rentrees`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ date_rentree: dateRentree })
+        });
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.detail || "Erreur lors de l'enregistrement de la rentrée scolaire");
         }
         return res.json();
     },

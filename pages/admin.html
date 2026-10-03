@@ -296,6 +296,19 @@
                     <div class="publish-grid">
                         <div class="card">
                             <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;">⏱️ Enregistrer des heures (Semaine)</h2>
+                            <section style="padding-bottom:1.25rem;margin-bottom:1.25rem;border-bottom:1px solid var(--border);">
+                                <h3 style="font-size:1rem;font-weight:700;margin-bottom:1rem;">🎓 Rentrée scolaire</h3>
+                                <form id="form-rentree-scolaire">
+                                    <div class="form-group">
+                                        <label class="form-label" for="date-rentree">Date de rentrée scolaire *</label>
+                                        <input type="date" id="date-rentree" class="form-control" required aria-describedby="date-rentree-example">
+                                        <small id="date-rentree-example" class="text-muted" style="font-size:.8rem;">Exemple : 05/10/2026</small>
+                                    </div>
+                                    <p id="rentree-annee-scolaire" class="text-muted" style="font-size:.85rem;margin:-.25rem 0 .85rem;" aria-live="polite">Aucune rentrée scolaire configurée.</p>
+                                    <button type="submit" id="btn-submit-rentree" class="btn btn-outline" style="width:100%;">Enregistrer la rentrée</button>
+                                    <p id="rentree-status" style="display:none;margin:.85rem 0 0;font-size:.85rem;" role="status" aria-live="polite"></p>
+                                </form>
+                            </section>
                             <form id="form-add-heures">
                                 <div class="form-grid-2">
                                     <div class="form-group"><label class="form-label">Année *</label>
@@ -304,8 +317,8 @@
                                             <option value="2">EAC SEI 2ème année</option>
                                         </select>
                                     </div>
-                                    <div class="form-group"><label class="form-label">Semaine *</label>
-                                        <input type="week" id="heures-semaine" class="form-control" required>
+                                    <div class="form-group"><label class="form-label" for="heures-semaine">Date de la semaine *</label>
+                                        <input type="date" id="heures-semaine" class="form-control" required>
                                     </div>
                                 </div>
                                 <div class="form-group"><label class="form-label">Heures effectuées (total semaine) *</label>
@@ -314,7 +327,9 @@
                                 <div class="form-group"><label class="form-label">Commentaire (optionnel)</label>
                                     <textarea id="heures-commentaire" class="form-control" style="min-height:60px;" placeholder="ex: Semaine normale..."></textarea>
                                 </div>
-                                <button type="submit" id="btn-submit-heures" class="btn btn-primary" style="width:100%;">Enregistrer les heures</button>
+                                <button type="submit" id="btn-submit-heures" class="btn btn-primary" style="width:100%;" disabled>Enregistrer les heures</button>
+                                <p id="heures-rentree-warning" class="text-muted" style="margin:.85rem 0 0;font-size:.85rem;">Veuillez d’abord enregistrer la date de rentrée scolaire.</p>
+                                <p id="heures-status" style="display:none;margin:.85rem 0 0;font-size:.85rem;" role="status" aria-live="polite"></p>
                             </form>
                         </div>
                         <div class="card">
@@ -931,6 +946,83 @@
 
         
         // Tab Heures Logic
+        let rentreeConfigured = false;
+
+        function formatDateFr(date) {
+            if (!date) return '';
+            const [annee, mois, jour] = String(date).slice(0, 10).split('-');
+            return annee && mois && jour ? `${jour}/${mois}/${annee}` : date;
+        }
+
+        function getAnneeScolaire(dateRentree, anneeScolaire) {
+            if (anneeScolaire) return anneeScolaire;
+            const [annee, mois] = String(dateRentree || '').slice(0, 10).split('-').map(Number);
+            if (!annee || !mois) return '';
+            const debut = mois >= 8 ? annee : annee - 1;
+            return `${debut}-${debut + 1}`;
+        }
+
+        function setStatus(elementId, message, isError = false) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            element.textContent = message;
+            element.style.display = 'block';
+            element.style.color = isError ? 'var(--danger)' : '#16a34a';
+        }
+
+        function updateHeuresFormAvailability() {
+            const button = document.getElementById('btn-submit-heures');
+            const warning = document.getElementById('heures-rentree-warning');
+            if (button) button.disabled = !rentreeConfigured;
+            if (warning) warning.style.display = rentreeConfigured ? 'none' : 'block';
+        }
+
+        function afficherRentree(rentree) {
+            const dateRentree = rentree?.date_rentree || rentree?.date || '';
+            const input = document.getElementById('date-rentree');
+            const anneeScolaire = document.getElementById('rentree-annee-scolaire');
+            rentreeConfigured = Boolean(dateRentree);
+            if (input) input.value = dateRentree ? String(dateRentree).slice(0, 10) : '';
+            if (anneeScolaire) {
+                anneeScolaire.textContent = rentreeConfigured
+                    ? `Année scolaire : ${getAnneeScolaire(dateRentree, rentree.annee_scolaire || rentree.school_year)}`
+                    : 'Aucune rentrée scolaire configurée.';
+            }
+            updateHeuresFormAvailability();
+        }
+
+        async function loadRentree() {
+            try {
+                const response = await api.getRentrees();
+                const rentrees = Array.isArray(response) ? response : (Array.isArray(response?.rentrees) ? response.rentrees : [response]);
+                const derniereRentree = rentrees
+                    .filter(rentree => rentree?.date_rentree || rentree?.date)
+                    .sort((a, b) => String(b.date_rentree || b.date).localeCompare(String(a.date_rentree || a.date)))[0];
+                afficherRentree(derniereRentree);
+            } catch (error) {
+                afficherRentree(null);
+                setStatus('rentree-status', `Erreur : ${error.message}`, true);
+            }
+        }
+
+        document.getElementById('form-rentree-scolaire')?.addEventListener('submit', async e => {
+            e.preventDefault();
+            const button = document.getElementById('btn-submit-rentree');
+            const dateRentree = document.getElementById('date-rentree').value;
+            button.disabled = true;
+            button.textContent = 'Enregistrement...';
+            try {
+                const response = await api.sauvegarderRentree(dateRentree);
+                afficherRentree(response?.date_rentree || response?.date ? response : { date_rentree: dateRentree });
+                setStatus('rentree-status', 'Rentrée scolaire enregistrée avec succès.');
+            } catch (error) {
+                setStatus('rentree-status', `Erreur : ${error.message}`, true);
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Enregistrer la rentrée';
+            }
+        });
+
         document.querySelectorAll('.admin-tab').forEach(tab => {
             tab.addEventListener('click', (e) => {
                 if (tab.dataset.tab === 'tab-heures') {
@@ -977,29 +1069,36 @@
         document.getElementById('form-add-heures')?.addEventListener('submit', async e => {
             e.preventDefault();
             const btn = document.getElementById('btn-submit-heures');
+            if (!rentreeConfigured) {
+                updateHeuresFormAvailability();
+                return;
+            }
             btn.disabled = true; btn.textContent = 'Enregistrement...';
             
             const annee = parseInt(document.getElementById('heures-annee').value);
-            const semaineInput = document.getElementById('heures-semaine').value; // Format: "2026-W32"
+            const semaineInput = document.getElementById('heures-semaine').value;
             const heures = parseFloat(document.getElementById('heures-totales').value);
             const commentaire = document.getElementById('heures-commentaire').value;
             
             try {
-                await api.sauvegarderSemaine({
+                const response = await api.sauvegarderSemaine({
                     annee: annee,
                     semaine: semaineInput,
                     heures_totales: heures,
                     commentaire: commentaire
                 });
-                alert('✅ Heures enregistrées !');
+                const periode = response.date_debut && response.date_fin
+                    ? ` — du ${formatDateFr(response.date_debut)} au ${formatDateFr(response.date_fin)}`
+                    : '';
+                setStatus('heures-status', `✓ ${response.semaine || 'Heures enregistrées'}${periode}`);
                 e.target.reset();
                 if (document.getElementById('heures-history-annee').value == annee) {
                     loadHeuresHistory(annee);
                 }
             } catch(err) {
-                alert('❌ ' + err.message);
+                setStatus('heures-status', `Erreur : ${err.message}`, true);
             } finally {
-                btn.disabled = false; btn.textContent = 'Enregistrer les heures';
+                btn.disabled = !rentreeConfigured; btn.textContent = 'Enregistrer les heures';
             }
         });
 
@@ -1100,7 +1199,7 @@
         }
 
         initEmailJS();
-        await Promise.all([wakeUpServer(), loadStats(), loadUsers()]);
+        await Promise.all([wakeUpServer(), loadStats(), loadUsers(), loadRentree()]);
     });
     </script>
 </body>
