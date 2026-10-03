@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Documents — LEFAXEUR</title>
     <meta name="description" content="Consultez les cours, TP et évaluations sur LEFAXEUR.">
-    <link rel="stylesheet" href="../css/style.css?v=3">
-    <link rel="stylesheet" href="../css/layout.css?v=3">
+    <link rel="stylesheet" href="../css/style.css?v=4">
+    <link rel="stylesheet" href="../css/layout.css?v=4">
     <style>
         /* Badge de notification sur nav Documents */
         .notif-badge-nav {
@@ -85,6 +85,9 @@
                 <span id="user-badge" class="user-badge" style="display:none;"></span>
                 <a href="login.html" class="btn btn-primary" id="nav-auth">Se connecter</a>
                 <a href="#" class="btn btn-outline" id="nav-logout" style="display:none;">Déconnexion</a>
+                <button class="hamburger-btn" id="hamburger-btn" aria-label="Menu" aria-expanded="false">
+                    <span></span><span></span><span></span>
+                </button>
             </div>
         </nav>
 
@@ -124,13 +127,13 @@
             <!-- ── Filter Bar ─────────────────────────────────────────── -->
             <div class="filter-bar">
                 <input type="text" id="search-matiere" class="form-control"
-                    placeholder="Rechercher une matière ou un titre..." aria-label="Rechercher un document" style="flex:2; min-width:200px;">
+                    placeholder="Rechercher une matière ou un titre..." aria-label="Rechercher un document">
 
-                <select id="filter-cycle" class="form-control" style="flex:1; min-width:180px;">
+                <select id="filter-cycle" class="form-control">
                     <option value="">Tous les cycles</option>
                 </select>
 
-                <select id="filter-annee" class="form-control" style="min-width:130px;">
+                <select id="filter-annee" class="form-control">
                     <option value="">Toutes les années</option>
                     <option value="2026">2026</option>
                     <option value="2025">2025</option>
@@ -182,6 +185,25 @@
 
     </div>
 
+    <!-- ═══ MOBILE MENU ══════════════════════════════════════════════════ -->
+    <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+    <nav class="mobile-menu" id="mobile-menu" aria-label="Menu mobile">
+        <div class="mobile-menu-header">
+            <img src="../assets/img/logo.jpg" alt="LEFAXEUR">
+            <button class="mobile-menu-close" id="mobile-menu-close" aria-label="Fermer">&times;</button>
+        </div>
+        <a href="../index.html" class="nav-link">🏠 Accueil</a>
+        <a href="documents.html" class="nav-link active">📚 Documents</a>
+        <a href="notes.html" class="nav-link" id="mm-notes-drawer" style="display:none;">📊 Notes</a>
+        <a href="heures.html" class="nav-link" id="mm-heures-drawer" style="display:none;">⏱️ Heures</a>
+        <a href="infos.html" class="nav-link" id="mm-infos-drawer" style="display:none;">🔔 Informations</a>
+        <a href="admin.html" class="nav-link" id="mm-admin-drawer" style="display:none;">⚙️ Administration</a>
+        <div class="mobile-menu-footer">
+            <a href="login.html" class="btn btn-primary" id="mm-auth-drawer">Se connecter</a>
+            <a href="#" class="btn btn-outline" id="mm-logout-drawer" style="display:none;">Déconnexion</a>
+        </div>
+    </nav>
+
     <script src="../js/api.js"></script>
     <script src="../js/main.js"></script>
     <script>
@@ -200,10 +222,31 @@
             const mmHeures = document.getElementById('mm-heures');
             const mmInfos = document.getElementById('mm-infos');
 
+            // Mobile drawer sync
+            const mmNotesD = document.getElementById('mm-notes-drawer');
+            const mmHeuresD = document.getElementById('mm-heures-drawer');
+            const mmInfosD = document.getElementById('mm-infos-drawer');
+            const mmAdminD = document.getElementById('mm-admin-drawer');
+            const mmAuthD = document.getElementById('mm-auth-drawer');
+            const mmLogoutD = document.getElementById('mm-logout-drawer');
+
             if (user) {
                 if (mmNotes) mmNotes.style.display = 'block';
                 if (mmHeures) mmHeures.style.display = 'block';
                 if (mmInfos) mmInfos.style.display = 'block';
+                if (mmNotesD) mmNotesD.style.display = '';
+                if (mmHeuresD) mmHeuresD.style.display = '';
+                if (mmInfosD) mmInfosD.style.display = '';
+                if (mmAdminD) mmAdminD.style.display = user.role === 'admin' ? '' : 'none';
+                if (mmAuthD) mmAuthD.style.display = 'none';
+                if (mmLogoutD) {
+                    mmLogoutD.style.display = '';
+                    mmLogoutD.addEventListener('click', e => {
+                        e.preventDefault();
+                        localStorage.removeItem('LEFAXEUR_user');
+                        window.location.href = '../index.html';
+                    });
+                }
             }
 
             // Populate cycle filter

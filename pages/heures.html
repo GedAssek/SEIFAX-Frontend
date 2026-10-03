@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Suivi des Volumes Horaires — LEFAXEUR</title>
     <meta name="description" content="Consultez le suivi des heures de cours par matière.">
-    <link rel="stylesheet" href="../css/style.css?v=3">
-    <link rel="stylesheet" href="../css/layout.css?v=3">
+    <link rel="stylesheet" href="../css/style.css?v=4">
+    <link rel="stylesheet" href="../css/layout.css?v=4">
     <style>
         .progress-card {
             background: var(--surface);
@@ -113,6 +113,9 @@
                 <span id="user-badge" class="user-badge" style="display:none;"></span>
                 <a href="login.html" class="btn btn-primary" id="nav-auth">Se connecter</a>
                 <a href="#" class="btn btn-outline" id="nav-logout" style="display:none;">Déconnexion</a>
+                <button class="hamburger-btn" id="hamburger-btn" aria-label="Menu" aria-expanded="false">
+                    <span></span><span></span><span></span>
+                </button>
             </div>
         </nav>
 
@@ -192,7 +195,26 @@
 
     </div>
 
-    <script src="../js/api.js"></script>
+    
+    <!-- --- MOBILE MENU -------------------------------------------------- -->
+    <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+    <nav class="mobile-menu" id="mobile-menu" aria-label="Menu mobile">
+        <div class="mobile-menu-header">
+            <img src="../assets/img/logo.jpg" alt="LEFAXEUR">
+            <button class="mobile-menu-close" id="mobile-menu-close" aria-label="Fermer">&times;</button>
+        </div>
+        <a href="../index.html" class="nav-link">&#127968; Accueil</a>
+        <a href="documents.html" class="nav-link">&#128218; Documents</a>
+        <a href="notes.html" class="nav-link">&#128202; Notes</a>
+        <a href="heures.html" class="nav-link">&#9200;&#65039; Heures</a>
+        <a href="infos.html" class="nav-link">&#128276; Informations</a>
+        <a href="admin.html" class="nav-link" id="mm-admin-drawer" style="display:none;">&#9881;&#65039; Administration</a>
+        <div class="mobile-menu-footer">
+            <a href="login.html" class="btn btn-primary" id="mm-auth-drawer">Se connecter</a>
+            <a href="#" class="btn btn-outline" id="mm-logout-drawer" style="display:none;">Deconnexion</a>
+        </div>
+    </nav>
+<script src="../js/api.js"></script>
     <script src="../js/main.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
