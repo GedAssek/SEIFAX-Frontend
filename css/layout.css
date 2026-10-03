@@ -350,3 +350,36 @@
     .page-title { font-size: 1.5rem; }
     .navbar-actions .btn { font-size: 0.78rem; padding: 0.45rem 0.8rem; }
 }
+
+/* Application shell refresh */
+.navbar {
+    position: sticky;
+    top: 0;
+    margin: 0;
+    padding: .7rem max(4%, calc((100% - 1280px) / 2));
+    border: 0;
+    border-bottom: 1px solid var(--border);
+    border-radius: 0;
+    background: color-mix(in srgb, var(--surface) 94%, transparent);
+    box-shadow: none;
+    backdrop-filter: blur(10px);
+}
+.navbar-logo { height: 34px; border-radius: 4px; }
+.navbar-nav { gap: 1.5rem; }
+.nav-link { font-size: .86rem; font-weight: 500; }
+.nav-link::after { left: 0; transform: none; height: 2px; }
+.navbar-actions { gap: .5rem; }
+.btn-icon, .hamburger-btn { width: 36px; height: 36px; border-radius: var(--radius-sm); background: var(--surface); border-color: var(--border); }
+.btn-icon:hover { transform: none; }
+.user-badge { font-family: inherit; border-radius: var(--radius-sm); padding: .35rem .6rem; }
+.main-content { max-width: 1280px; padding: 2.25rem 4% 3rem; }
+.hero-section { min-height: auto; padding: 2rem 0 3rem; gap: 3rem; }
+.hero-title { font-size: clamp(2.2rem, 4.5vw, 3.5rem); }
+.hero-image > div > div { animation: none !important; border-radius: 16px !important; box-shadow: none !important; }
+.footer { justify-content: flex-start; padding: 1.5rem max(4%, calc((100% - 1280px) / 2)); border-color: var(--border); }
+
+@media (max-width: 768px) {
+    .navbar { padding: .6rem 4%; }
+    .main-content { padding: 1.5rem 4% 2rem; }
+    .mobile-menu { box-shadow: -8px 0 20px rgba(15,23,42,.12); }
+}

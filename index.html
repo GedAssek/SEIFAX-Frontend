@@ -165,13 +165,29 @@
                         <p class="text-muted" style="font-size:0.92rem;">Ne manquez plus aucun événement, changement de
                             salle ou conférence.</p>
                     </div>
-                    <div class="card text-center">
-                        <div style="font-size:2.8rem; margin-bottom:1rem; display:block;">🤝</div>
-                        <h3 style="margin-bottom:0.6rem;">Communauté</h3>
-                        <p class="text-muted" style="font-size:0.92rem;">Partagez vos documents et aidez vos camarades
-                            de promotion.</p>
+                    <div class="card text-center" style="cursor:pointer; position:relative;"
+                        onclick="window.location='pages/heures.html'">
+                        <div style="font-size:2.8rem; margin-bottom:1rem; display:block;">⏱️</div>
+                        <h3 style="margin-bottom:0.6rem;">Suivi des heures</h3>
+                        <p class="text-muted" style="font-size:0.92rem;">Consultez la progression horaire de votre année.</p>
                     </div>
                 </div>
+
+                <section class="dashboard-feed" aria-label="Contenus récents">
+                    <div class="dashboard-feed-header">
+                        <div><h2>Documents récents</h2><p>Les derniers supports publiés pour votre cycle.</p></div>
+                        <a href="pages/documents.html" class="btn btn-outline">Voir tous les documents</a>
+                    </div>
+                    <div id="dashboard-recent-docs" class="dashboard-list" aria-live="polite"><p class="text-muted">Chargement des documents…</p></div>
+                </section>
+
+                <section class="dashboard-feed" aria-label="Actualités récentes">
+                    <div class="dashboard-feed-header">
+                        <div><h2>Dernières actualités</h2><p>Les informations utiles à votre formation.</p></div>
+                        <a href="pages/infos.html" class="btn btn-outline">Voir toutes les actualités</a>
+                    </div>
+                    <div id="dashboard-recent-infos" class="dashboard-list" aria-live="polite"><p class="text-muted">Chargement des actualités…</p></div>
+                </section>
             </section>
 
         </main>
@@ -236,6 +252,28 @@
                     const newDocs = NotifSystem.getNewDocs(docs);
                     const newInfos = NotifSystem.getNewInfos(infos);
 
+                    const escapeHtml = value => String(value || '').replace(/[&<>'"]/g, char => ({
+                        '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+                    }[char]));
+                    const recentDocs = document.getElementById('dashboard-recent-docs');
+                    const recentInfos = document.getElementById('dashboard-recent-infos');
+                    if (recentDocs) {
+                        recentDocs.innerHTML = docs?.length
+                            ? docs.slice(0, 3).map(doc => `<article class="dashboard-list-item">
+                                <div><strong>${escapeHtml(doc.titre)}</strong><span>${escapeHtml(doc.matiere || doc.type || 'Document')} · ${escapeHtml(doc.annee || '')}</span></div>
+                                <a href="${escapeHtml(doc.file_url || 'pages/documents.html')}" ${doc.file_url ? 'target="_blank" rel="noopener noreferrer"' : ''}>Ouvrir</a>
+                            </article>`).join('')
+                            : '<p class="text-muted">Aucun document récent à afficher.</p>';
+                    }
+                    if (recentInfos) {
+                        recentInfos.innerHTML = infos?.length
+                            ? infos.slice(0, 3).map(info => `<article class="dashboard-list-item">
+                                <div><strong>${escapeHtml(info.titre)}</strong><span>${escapeHtml(info.auteur || 'Administration')}</span></div>
+                                <a href="pages/infos.html">Lire</a>
+                            </article>`).join('')
+                            : '<p class="text-muted">Aucune actualité récente à afficher.</p>';
+                    }
+
                     const docBadge = document.getElementById('home-doc-badge');
                     const infoBadge = document.getElementById('home-info-badge');
                     const notifSummary = document.getElementById('dashboard-notif-summary');
@@ -266,7 +304,11 @@
                         );
                     }
                 } catch (e) {
-                    // Silencieux si hors-ligne
+                    const fallback = '<p class="text-muted">Le contenu récent est indisponible pour le moment.</p>';
+                    const recentDocs = document.getElementById('dashboard-recent-docs');
+                    const recentInfos = document.getElementById('dashboard-recent-infos');
+                    if (recentDocs) recentDocs.innerHTML = fallback;
+                    if (recentInfos) recentInfos.innerHTML = fallback;
                 }
             }
         });

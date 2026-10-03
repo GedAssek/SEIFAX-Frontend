@@ -37,8 +37,8 @@
             justify-content: space-between;
             gap: 1rem;
             padding: 0.8rem 1.2rem;
-            background: linear-gradient(135deg, rgba(26,86,219,0.08), rgba(99,102,241,0.08));
-            border: 1.5px solid rgba(26,86,219,0.3);
+            background: var(--primary-light);
+            border: 1px solid #bfdbfe;
             border-radius: 12px;
             margin-bottom: 1.25rem;
             flex-wrap: wrap;
@@ -92,7 +92,7 @@
         <main class="main-content">
 
             <header class="page-header">
-                <h1 class="page-title">📚 Centre de Documents</h1>
+                <h1 class="page-title">Documents</h1>
                 <p class="page-subtitle">Consultez les supports de cours, les travaux pratiques et les épreuves
                     d'évaluation.</p>
             </header>
@@ -107,10 +107,10 @@
 
             <!-- ── Tabs ───────────────────────────────────────────────── -->
             <div class="tabs-container">
-                <button class="tab-btn active" data-tab="cours">📖 Cours</button>
-                <button class="tab-btn" data-tab="tp">💻 TP / TD</button>
-                <button class="tab-btn" data-tab="evaluation">📝 Évaluations</button>
-                <button class="tab-btn" data-tab="autres">📁 Autres</button>
+                <button class="tab-btn active" data-tab="cours">Cours</button>
+                <button class="tab-btn" data-tab="tp">TP / TD</button>
+                <button class="tab-btn" data-tab="evaluation">Évaluations</button>
+                <button class="tab-btn" data-tab="autres">Autres</button>
             </div>
 
             <!-- ── Sous-filtres Évaluations (cachés par défaut) ────────── -->
@@ -124,7 +124,7 @@
             <!-- ── Filter Bar ─────────────────────────────────────────── -->
             <div class="filter-bar">
                 <input type="text" id="search-matiere" class="form-control"
-                    placeholder="🔍 Rechercher une matière ou un titre..." style="flex:2; min-width:200px;">
+                    placeholder="Rechercher une matière ou un titre..." aria-label="Rechercher un document" style="flex:2; min-width:200px;">
 
                 <select id="filter-cycle" class="form-control" style="flex:1; min-width:180px;">
                     <option value="">Tous les cycles</option>
@@ -147,6 +147,7 @@
                 </div>
 
                 <button class="btn btn-primary" id="btn-filter">Filtrer</button>
+                <button class="btn btn-outline" id="btn-reset-filters" type="button">Réinitialiser</button>
             </div>
 
             <!-- ── Loading state ─────────────────────────────────────── -->
@@ -167,9 +168,8 @@
 
             <!-- Empty state -->
             <div id="empty-state" class="hidden text-center" style="padding:4rem 0;">
-                <div style="font-size:4rem; margin-bottom:1rem;">🗂️</div>
                 <h3 id="empty-state-title">Aucun document n'est publié</h3>
-                <p class="text-muted">Revenez plus tard pour consulter de nouveaux documents.</p>
+                <p class="text-muted" id="empty-state-description">Revenez plus tard pour consulter de nouveaux documents.</p>
             </div>
 
         </main>
@@ -268,6 +268,25 @@
 
             // Bouton filtrer
             document.getElementById('btn-filter').addEventListener('click', filterDocuments);
+            document.getElementById('btn-reset-filters').addEventListener('click', () => {
+                document.getElementById('search-matiere').value = '';
+                document.getElementById('filter-cycle').value = user?.role === 'admin' ? '' : (user?.cycle || '');
+                document.getElementById('filter-annee').value = '';
+                currentTab = 'cours';
+                currentEvalFilter = '';
+                tabs.forEach(tab => tab.classList.toggle('active', tab.dataset.tab === currentTab));
+                chips.forEach(chip => chip.classList.toggle('active', chip.dataset.filter === ''));
+                evalFilters.classList.add('hidden');
+                filterDocuments();
+            });
+
+            let searchTimer;
+            document.getElementById('search-matiere').addEventListener('input', () => {
+                clearTimeout(searchTimer);
+                searchTimer = setTimeout(filterDocuments, 250);
+            });
+            document.getElementById('filter-cycle').addEventListener('change', filterDocuments);
+            document.getElementById('filter-annee').addEventListener('change', filterDocuments);
 
             // Bouton voir plus
             const loadMoreBtn = document.getElementById('btn-load-more');
@@ -282,10 +301,18 @@
             document.getElementById('documents-list').style.display = 'none';
 
             // Fetch data
-            allDocuments = await api.getDocuments();
+            try {
+                allDocuments = await api.getDocuments();
+            } catch (error) {
+                document.getElementById('empty-state-title').textContent = 'Impossible de charger les documents';
+                document.getElementById('empty-state-description').textContent = 'Vérifiez votre connexion puis réessayez.';
+                document.getElementById('empty-state').classList.remove('hidden');
+                return;
+            } finally {
+                document.getElementById('docs-loading').style.display = 'none';
+            }
 
             // Masquer le spinner
-            document.getElementById('docs-loading').style.display = 'none';
             document.getElementById('documents-list').style.display = '';
 
             // ─── Détection de nouveaux documents ──────────────────────────────
@@ -348,10 +375,7 @@
 
             let htmlContent = '';
             docsToRender.forEach(doc => {
-                let icon = '📖';
-                if (doc.type === 'tp') icon = '💻';
-                if (doc.type === 'evaluation') icon = '📝';
-                if (doc.type === 'autres') icon = '📁';
+                const typeLabel = { cours: 'COURS', tp: 'TP', evaluation: 'ÉVAL.', autres: 'AUTRE' }[doc.type] || 'DOC';
 
                 let evalBadge = '';
                 if (doc.type === 'evaluation' && doc.categorie_eval) {
@@ -360,7 +384,7 @@
 
                 // Badge "Nouveau" si non vu
                 const isNew = !seenSet.has(doc.id);
-                const newBadge = isNew ? `<span class="badge" style="background:rgba(220,38,38,0.1);color:#dc2626;margin-left:0.4rem;font-size:0.7rem;font-weight:800;">🆕 Nouveau</span>` : '';
+                const newBadge = isNew ? `<span class="badge" style="background:rgba(220,38,38,0.1);color:#dc2626;margin-left:0.4rem;font-size:0.7rem;font-weight:800;">Nouveau</span>` : '';
 
                 // CORRECTION : file_url est maintenant une URL absolue (préfixée dans api.js)
                 const downloadUrl = doc.file_url || '#';
@@ -374,21 +398,21 @@
                         ${evalBadge}
                         ${newBadge}
                     </div>
-                    <span class="badge" style="background:rgba(17,24,39,0.08);color:var(--text-muted);">📅 ${doc.annee}</span>
+                    <span class="badge" style="background:rgba(17,24,39,0.08);color:var(--text-muted);">${doc.annee}</span>
                 </div>
                 
                 <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1rem;">
-                    <div class="doc-icon">${icon}</div>
+                    <div class="doc-icon" aria-hidden="true">${typeLabel}</div>
                     <div>
                         <h3 style="color:var(--primary);margin-bottom:0.2rem;font-size:1.1rem;line-height:1.2;">${doc.titre}</h3>
                         <p class="text-muted" style="font-size:0.9rem;">${doc.matiere}</p>
                     </div>
                 </div>
                 
-                <p class="text-muted" style="font-size:0.85rem;margin-bottom:1.25rem;">🎓 ${doc.cycle}</p>
+                <p class="text-muted" style="font-size:0.85rem;margin-bottom:1.25rem;">${doc.cycle}</p>
                 ${canDownload
-                    ? `<a href="${downloadUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-outline" style="width:100%;font-size:0.9rem;" onclick="markDocAsSeen('${doc.id}')">📥 Télécharger PDF</a>`
-                    : `<button class="btn btn-outline" style="width:100%;font-size:0.9rem;opacity:0.5;cursor:not-allowed;" disabled>📄 Fichier non disponible</button>`
+                    ? `<a href="${downloadUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-outline" style="width:100%;font-size:0.9rem;" onclick="markDocAsSeen('${doc.id}')">Ouvrir le PDF</a>`
+                    : `<button class="btn btn-outline" style="width:100%;font-size:0.9rem;opacity:0.5;cursor:not-allowed;" disabled>Fichier non disponible</button>`
                 }
             </div>`;
             });
@@ -422,9 +446,13 @@
             const emptyStateTitle = document.getElementById('empty-state-title');
 
             if (emptyStateTitle) {
-                emptyStateTitle.textContent = currentTab === 'autres'
-                    ? 'Aucun autre document disponible'
-                    : "Aucun document n'est publié";
+                const hasSearchOrFilters = Boolean(search || cycle || annee || currentEvalFilter);
+                emptyStateTitle.textContent = hasSearchOrFilters
+                    ? 'Aucun document trouvé'
+                    : (currentTab === 'autres' ? 'Aucun autre document disponible' : "Aucun document n'est publié");
+                document.getElementById('empty-state-description').textContent = hasSearchOrFilters
+                    ? 'Essayez avec un autre mot-clé ou modifiez vos filtres.'
+                    : 'Revenez plus tard pour consulter de nouveaux documents.';
             }
 
             filteredDocuments = allDocuments.filter(doc => {
