@@ -425,12 +425,12 @@ body.dark .form-control {
 }
 
 @media (max-width: 480px) {
-    /* Boutons côte à côte: empiler */
-    .flex.gap-1 { flex-direction: column; }
-    .btn { width: 100%; justify-content: center; }
+    /* Boutons côte à côte dans le hero ou headers: empiler */
+    .hero-text .flex.gap-1, .dashboard-feed-header .btn { flex-direction: column; width: 100%; }
+    .hero-text .btn { width: 100%; justify-content: center; }
 
-    /* Grid cards: 1 colonne */
-    .grid-cards { grid-template-columns: 1fr; gap: 1rem; }
+    /* Grid cards: l'espacement réduit sur petit mobile */
+    .grid-cards { gap: 1rem; }
 }
 
 /* Product UI refresh: restrained, dense, and consistent across the application. */

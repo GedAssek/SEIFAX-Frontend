@@ -176,11 +176,11 @@
 /* ─── Grid Cards ─────────────────────────────────────────── */
 .grid-cards {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
     gap: 1.75rem;
 }
-.grid-2 { grid-template-columns: repeat(2, 1fr); }
-.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-2 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+.grid-3 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
 
 /* ─── Filter Bar ─────────────────────────────────────────── */
 .filter-bar {
@@ -332,7 +332,7 @@
     .hamburger-btn { display: flex; }
     .navbar-nav { display: none !important; }
     .user-badge { display: none !important; }
-    .navbar-actions .btn { font-size: 0.82rem; padding: 0.5rem 1rem; }
+    .navbar-actions .btn { display: none !important; }
 }
 
 @media (max-width: 600px) {
