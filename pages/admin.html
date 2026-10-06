@@ -330,6 +330,12 @@
                                         <div style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 1rem; border: 1px dashed var(--border); border-radius: var(--radius-md);">Veuillez sélectionner une année pour charger les matières.</div>
                                     </div>
                                 </div>
+                                <div id="totaux-categories-container" style="display: none; background: rgba(26,86,219,0.04); border: 1px solid rgba(26,86,219,0.2); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1.25rem;">
+                                    <h4 style="font-size: 0.85rem; font-weight: 700; color: var(--primary); margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">📊 Récapitulatif par catégorie</h4>
+                                    <div id="totaux-categories-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; font-size: 0.85rem; color: var(--text-muted);">
+                                        <!-- Computed totals injected here -->
+                                    </div>
+                                </div>
                                 <div class="form-group"><label class="form-label">Commentaire (optionnel)</label>
                                     <textarea id="heures-commentaire" class="form-control" style="min-height:60px;" placeholder="ex: Semaine normale..."></textarea>
                                 </div>
@@ -1049,6 +1055,7 @@
         });
 
         let matieresDisponibles = [];
+        let categoriesDisponibles = [];
 
         async function loadHeuresCategories(annee) {
             const container = document.getElementById('matieres-container');
@@ -1058,22 +1065,88 @@
             container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 1rem; border: 1px dashed var(--border); border-radius: var(--radius-md);">Chargement des matières...</div>';
             if (btnAdd) btnAdd.disabled = true;
             matieresDisponibles = [];
+            categoriesDisponibles = [];
 
             try {
                 const data = await api.getHeures(annee);
                 if (!data || !data.categories || data.categories.length === 0) {
                     container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 1rem; border: 1px dashed var(--border); border-radius: var(--radius-md);">Aucune matière disponible.</div>';
+                    document.getElementById('totaux-categories-container').style.display = 'none';
                     return;
                 }
-                matieresDisponibles = data.categories;
+                
+                categoriesDisponibles = data.categories;
+                
+                // Construire la liste plate des matières avec l'info de catégorie
+                data.categories.forEach(cat => {
+                    const catName = cat.nom || cat.label || cat.titre || 'Général';
+                    const catId = cat.id || catName;
+                    if (cat.matieres && Array.isArray(cat.matieres)) {
+                        cat.matieres.forEach(mat => {
+                            matieresDisponibles.push({
+                                ...mat,
+                                categorie: catName,
+                                categorieId: catId
+                            });
+                        });
+                    }
+                });
+
                 container.innerHTML = '';
                 if (btnAdd) btnAdd.disabled = false;
                 
-                // Ajouter une première ligne vide par défaut
+                updateTotauxCategories();
                 addMatiereRow();
             } catch (error) {
                 container.innerHTML = '<div style="color: var(--danger); font-size: 0.85rem; text-align: center; padding: 1rem; border: 1px dashed var(--danger); border-radius: var(--radius-md);">Erreur lors du chargement des matières.</div>';
             }
+        }
+
+        function updateTotauxCategories() {
+            const listContainer = document.getElementById('totaux-categories-list');
+            const summaryContainer = document.getElementById('totaux-categories-container');
+            if (!listContainer || !summaryContainer) return;
+            
+            if (matieresDisponibles.length === 0) {
+                summaryContainer.style.display = 'none';
+                return;
+            }
+            
+            const totaux = {};
+            categoriesDisponibles.forEach(cat => {
+                const catName = cat.nom || cat.label || cat.titre || 'Général';
+                totaux[catName] = 0;
+            });
+            
+            document.querySelectorAll('.matiere-row').forEach(row => {
+                const select = row.querySelector('.matiere-select');
+                const input = row.querySelector('.heures-input');
+                if (select && select.value && input && input.value) {
+                    const matiereId = select.value;
+                    const matiere = matieresDisponibles.find(m => String(m.id || m.matiereId || m._id || m) === String(matiereId));
+                    if (matiere && matiere.categorie) {
+                        totaux[matiere.categorie] += parseFloat(input.value) || 0;
+                    }
+                }
+            });
+            
+            let html = '';
+            let totalGeneral = 0;
+            for (const [categorie, total] of Object.entries(totaux)) {
+                html += `<div style="display: flex; justify-content: space-between; padding-bottom: 0.25rem; border-bottom: 1px solid rgba(0,0,0,0.05);">
+                    <span>${categorie}</span>
+                    <strong style="color: var(--text);">${total}h</strong>
+                </div>`;
+                totalGeneral += total;
+            }
+            
+            html += `<div style="display: flex; justify-content: space-between; padding-top: 0.25rem; margin-top: 0.25rem; font-weight: 700; grid-column: 1 / -1;">
+                <span style="color: var(--text);">Total Global</span>
+                <span style="color: var(--primary);">${totalGeneral}h</span>
+            </div>`;
+            
+            listContainer.innerHTML = html;
+            summaryContainer.style.display = 'block';
         }
 
         function addMatiereRow() {
@@ -1088,10 +1161,17 @@
             row.className = 'matiere-row';
             
             let optionsHTML = '<option value="">-- Choisir une matière --</option>';
-            matieresDisponibles.forEach(mat => {
-                const nom = mat.nom || mat.label || mat.titre || 'Matière Inconnue';
-                const id = mat.id || mat.matiereId || mat._id || mat;
-                optionsHTML += `<option value="${id}">${nom}</option>`;
+            categoriesDisponibles.forEach(cat => {
+                const catName = cat.nom || cat.label || cat.titre || 'Général';
+                if (cat.matieres && cat.matieres.length > 0) {
+                    optionsHTML += `<optgroup label="${catName}">`;
+                    cat.matieres.forEach(mat => {
+                        const nom = mat.nom || mat.label || mat.titre || 'Matière Inconnue';
+                        const id = mat.id || mat.matiereId || mat._id || mat;
+                        optionsHTML += `<option value="${id}">${nom}</option>`;
+                    });
+                    optionsHTML += `</optgroup>`;
+                }
             });
 
             row.innerHTML = `
@@ -1108,8 +1188,15 @@
                 </div>
             `;
             
+            const select = row.querySelector('.matiere-select');
+            const input = row.querySelector('.heures-input');
+            
+            select.addEventListener('change', updateTotauxCategories);
+            input.addEventListener('input', updateTotauxCategories);
+            
             row.querySelector('.btn-remove-matiere').addEventListener('click', () => {
                 row.remove();
+                updateTotauxCategories();
             });
             
             container.appendChild(row);
