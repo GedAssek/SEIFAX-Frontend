@@ -76,12 +76,15 @@ const api = {
     },
 
     // ─── Sujets / Matières ────────────────────────────────────────────────
-    getSubjects: async () => {
-        // Données statiques (SUBJECTS_DATA défini en bas de ce fichier)
-        return new Promise((resolve) => {
-            setTimeout(() => resolve(SUBJECTS_DATA), 100);
+    getSubjectsAPI: async () => {
+        const token = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.access_token;
+        const res = await fetch(`${API_BASE_URL}/subjects`, {
+            headers: { 'Authorization': `Bearer ${token}` }
         });
+        if (!res.ok) return [];
+        return res.json();
     },
+
 
     // ─── Documents ────────────────────────────────────────────────────────
     /**
@@ -382,14 +385,7 @@ const api = {
         return res.json();
     },
 
-    getSubjects: async () => {
-        const token = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.access_token;
-        const res = await fetch(`${API_BASE_URL}/subjects`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (!res.ok) return [];
-        return res.json();
-    },
+
 
     getVolumes: async (annee) => {
         const token = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.access_token;

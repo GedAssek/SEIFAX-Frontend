@@ -1069,7 +1069,7 @@
 
             try {
                 // On récupère toutes les matières sans filtrer par année
-                const rawData = await api.getSubjects();
+                const rawData = await api.getSubjectsAPI();
                 let dataArray = [];
                 
                 // Extraire le tableau brut (soit la réponse elle-même, soit une de ses propriétés courantes)
