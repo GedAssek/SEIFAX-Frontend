@@ -318,11 +318,11 @@
                                         </select>
                                     </div>
                                     <div class="form-group"><label class="form-label" for="heures-semaine">Date de la semaine *</label>
-                                        <input type="date" id="heures-semaine" class="form-control" required>
+                                        <input type="text" id="heures-semaine" class="form-control" required placeholder="ex: 01, 05/10/2026">
                                     </div>
                                 </div>
-                                <div class="form-group"><label class="form-label">Heures effectuées (total semaine) *</label>
-                                    <input type="number" id="heures-totales" class="form-control" required min="0" max="100" step="0.5" placeholder="ex: 35">
+                                <div id="categories-container" class="form-grid-2" style="margin-bottom: 1.25rem;">
+                                    <div style="grid-column: 1 / -1; color: var(--text-muted);">Chargement des catégories...</div>
                                 </div>
                                 <div class="form-group"><label class="form-label">Commentaire (optionnel)</label>
                                     <textarea id="heures-commentaire" class="form-control" style="min-height:60px;" placeholder="ex: Semaine normale..."></textarea>
@@ -1027,6 +1027,9 @@
             tab.addEventListener('click', (e) => {
                 if (tab.dataset.tab === 'tab-heures') {
                     loadHeuresHistory(document.getElementById('heures-history-annee').value);
+                    if (!document.querySelector('.category-input')) {
+                        loadHeuresCategories(document.getElementById('heures-annee').value);
+                    }
                 }
             });
         });
@@ -1034,6 +1037,34 @@
         document.getElementById('heures-history-annee')?.addEventListener('change', (e) => {
             loadHeuresHistory(e.target.value);
         });
+
+        document.getElementById('heures-annee')?.addEventListener('change', (e) => {
+            loadHeuresCategories(e.target.value);
+        });
+
+        async function loadHeuresCategories(annee) {
+            const container = document.getElementById('categories-container');
+            if(!container) return;
+            container.innerHTML = '<div style="grid-column: 1 / -1; color: var(--text-muted);">Chargement des catégories...</div>';
+            try {
+                const data = await api.getHeures(annee);
+                if (!data || !data.categories || data.categories.length === 0) {
+                    container.innerHTML = '<div style="grid-column: 1 / -1; color: var(--text-muted);">Aucune catégorie disponible.</div>';
+                    return;
+                }
+                container.innerHTML = '';
+                data.categories.forEach(cat => {
+                    container.innerHTML += `
+                        <div class="form-group">
+                            <label class="form-label">${cat} (heures) *</label>
+                            <input type="number" class="form-control category-input" data-category="${cat}" required min="0" max="100" step="0.5" placeholder="ex: 5">
+                        </div>
+                    `;
+                });
+            } catch (error) {
+                container.innerHTML = '<div style="grid-column: 1 / -1; color: var(--danger);">Erreur lors du chargement des catégories.</div>';
+            }
+        }
 
         async function loadHeuresHistory(annee) {
             const tbody = document.getElementById('heures-history-list');
@@ -1077,14 +1108,19 @@
             
             const annee = parseInt(document.getElementById('heures-annee').value);
             const semaineInput = document.getElementById('heures-semaine').value;
-            const heures = parseFloat(document.getElementById('heures-totales').value);
+            
+            const heures_par_categorie = {};
+            document.querySelectorAll('.category-input').forEach(input => {
+                heures_par_categorie[input.dataset.category] = parseFloat(input.value) || 0;
+            });
+            
             const commentaire = document.getElementById('heures-commentaire').value;
             
             try {
                 const response = await api.sauvegarderSemaine({
                     annee: annee,
                     semaine: semaineInput,
-                    heures_totales: heures,
+                    heures_par_categorie: heures_par_categorie,
                     commentaire: commentaire
                 });
                 const periode = response.date_debut && response.date_fin
