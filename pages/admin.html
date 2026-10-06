@@ -1062,13 +1062,14 @@
             const btnAdd = document.getElementById('btn-add-matiere');
             if(!container) return;
             
-            container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 1rem; border: 1px dashed var(--border); border-radius: var(--radius-md);">Chargement des matières...</div>';
-            if (btnAdd) btnAdd.disabled = true;
+            container.innerHTML = '';
+            if (btnAdd) btnAdd.disabled = false;
             matieresDisponibles = [];
             categoriesDisponibles = [];
 
             try {
-                const rawData = await api.getSubjects(annee);
+                // On récupère toutes les matières sans filtrer par année
+                const rawData = await api.getSubjects();
                 let dataArray = [];
                 
                 // Extraire le tableau brut (soit la réponse elle-même, soit une de ses propriétés courantes)
@@ -1080,52 +1081,41 @@
                     dataArray = rawData.matieres;
                 }
 
-                if (dataArray.length === 0) {
-                    container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 1rem; border: 1px dashed var(--border); border-radius: var(--radius-md);">Aucune donnée disponible.</div>';
-                    document.getElementById('totaux-categories-container').style.display = 'none';
-                    return;
+                if (dataArray.length > 0) {
+                    let currentCategory = "Matières non catégorisées";
+                    const formattedSubjects = [];
+                    const catsSet = new Set();
+
+                    dataArray.forEach(item => {
+                        if (item.type === 'category') {
+                            currentCategory = item.name || item.nom || item.label || currentCategory;
+                            catsSet.add(currentCategory);
+                        } else if (item.type === 'subject') {
+                            catsSet.add(currentCategory);
+                            formattedSubjects.push({ 
+                                ...item, 
+                                categorie: currentCategory 
+                            });
+                        } else if (!item.type) {
+                            // Fallback au cas où les données arrivent sans type explicite mais sont des matières
+                            catsSet.add(item.categorie || currentCategory);
+                            formattedSubjects.push({
+                                ...item,
+                                categorie: item.categorie || currentCategory
+                            });
+                        }
+                    });
+
+                    matieresDisponibles = formattedSubjects;
+                    categoriesDisponibles = Array.from(catsSet).map(c => ({ nom: c }));
                 }
-                
-                let currentCategory = "Matières non catégorisées";
-                const formattedSubjects = [];
-                const catsSet = new Set();
-
-                dataArray.forEach(item => {
-                    if (item.type === 'category') {
-                        currentCategory = item.name || item.nom || item.label || currentCategory;
-                        catsSet.add(currentCategory);
-                    } else if (item.type === 'subject') {
-                        catsSet.add(currentCategory);
-                        formattedSubjects.push({ 
-                            ...item, 
-                            categorie: currentCategory 
-                        });
-                    } else if (!item.type) {
-                        // Fallback au cas où les données arrivent sans type explicite mais sont des matières
-                        catsSet.add(item.categorie || currentCategory);
-                        formattedSubjects.push({
-                            ...item,
-                            categorie: item.categorie || currentCategory
-                        });
-                    }
-                });
-
-                if (formattedSubjects.length === 0) {
-                    container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 1rem; border: 1px dashed var(--border); border-radius: var(--radius-md);">Aucune matière n\'a pu être extraite.</div>';
-                    document.getElementById('totaux-categories-container').style.display = 'none';
-                    return;
-                }
-
-                matieresDisponibles = formattedSubjects;
-                categoriesDisponibles = Array.from(catsSet).map(c => ({ nom: c }));
-
-                container.innerHTML = '';
-                if (btnAdd) btnAdd.disabled = false;
                 
                 updateTotauxCategories();
+                // Toujours afficher au moins une ligne, peu importe le résultat
                 addMatiereRow();
             } catch (error) {
-                container.innerHTML = '<div style="color: var(--danger); font-size: 0.85rem; text-align: center; padding: 1rem; border: 1px dashed var(--danger); border-radius: var(--radius-md);">Erreur lors du chargement des matières.</div>';
+                // S'il y a une erreur réseau, on affiche quand même une ligne vide pour pouvoir saisir
+                addMatiereRow();
             }
         }
 
@@ -1232,7 +1222,7 @@
         }
 
         document.getElementById('btn-add-matiere')?.addEventListener('click', () => {
-            if (matieresDisponibles.length > 0) addMatiereRow();
+            addMatiereRow();
         });
 
         async function loadHeuresHistory(annee) {
