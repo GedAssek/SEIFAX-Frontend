@@ -382,6 +382,23 @@ const api = {
         return res.json();
     },
 
+    getSubjects: async (annee) => {
+        const token = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.access_token;
+        // L'API est /api/subjects mais peut-être qu'elle prend l'année en paramètre
+        const res = await fetch(`${API_BASE_URL}/subjects?annee=${annee}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) {
+            // Fallback to /subjects/${annee} if query param fails or if it's the right route
+            const res2 = await fetch(`${API_BASE_URL}/subjects/${annee}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!res2.ok) return [];
+            return res2.json();
+        }
+        return res.json();
+    },
+
     getVolumes: async (annee) => {
         const token = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.access_token;
         const res = await fetch(`${API_BASE_URL}/heures/volumes/${annee}`, {
