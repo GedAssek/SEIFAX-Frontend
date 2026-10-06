@@ -1082,32 +1082,29 @@
                 }
 
                 if (dataArray.length > 0) {
-                    let currentCategory = "Matières non catégorisées";
-                    const formattedSubjects = [];
-                    const catsSet = new Set();
-
-                    dataArray.forEach(item => {
-                        if (item.type === 'category') {
-                            currentCategory = item.name || item.nom || item.label || currentCategory;
-                            catsSet.add(currentCategory);
-                        } else if (item.type === 'subject') {
-                            catsSet.add(currentCategory);
-                            formattedSubjects.push({ 
-                                ...item, 
-                                categorie: currentCategory 
-                            });
-                        } else if (!item.type) {
-                            // Fallback au cas où les données arrivent sans type explicite mais sont des matières
-                            catsSet.add(item.categorie || currentCategory);
-                            formattedSubjects.push({
-                                ...item,
-                                categorie: item.categorie || currentCategory
-                            });
-                        }
-                    });
-
-                    matieresDisponibles = formattedSubjects;
-                    categoriesDisponibles = Array.from(catsSet).map(c => ({ nom: c }));
+                    const anneeSelect = document.getElementById('heures-annee');
+                    const selectedAnneeText = anneeSelect && anneeSelect.selectedIndex >= 0 ? anneeSelect.options[anneeSelect.selectedIndex].text : annee;
+                    const selectedAnneeVal = annee;
+                    
+                    const currentCycleData = dataArray.find(c => 
+                        c.label === selectedAnneeText || c.cycle === selectedAnneeText ||
+                        c.label === selectedAnneeVal || c.cycle === selectedAnneeVal
+                    );
+                    
+                    const matieresDuCycle = currentCycleData ? currentCycleData.matieres : [];
+                    
+                    if (matieresDuCycle && matieresDuCycle.length > 0) {
+                        const catName = currentCycleData.label || currentCycleData.cycle || 'Général';
+                        
+                        matieresDisponibles = matieresDuCycle.map(mat => {
+                            // Au cas où ce serait quand même des objets, on gère les deux
+                            if (typeof mat === 'string') {
+                                return { id: mat, nom: mat, categorie: catName };
+                            }
+                            return { ...mat, categorie: catName };
+                        });
+                        categoriesDisponibles = [{ nom: catName }];
+                    }
                 }
                 
                 updateTotauxCategories();
