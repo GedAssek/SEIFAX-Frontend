@@ -321,8 +321,14 @@
                                         <input type="text" id="heures-semaine" class="form-control" required placeholder="ex: 01, 05/10/2026">
                                     </div>
                                 </div>
-                                <div id="categories-container" class="form-grid-2" style="margin-bottom: 1.25rem;">
-                                    <div style="grid-column: 1 / -1; color: var(--text-muted);">Chargement des catégories...</div>
+                                <div style="margin-bottom: 1.25rem;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                                        <label class="form-label" style="margin: 0;">Heures par matière *</label>
+                                        <button type="button" class="btn btn-outline" id="btn-add-matiere" style="font-size: 0.8rem; padding: 0.3rem 0.6rem;" disabled>➕ Ajouter une matière</button>
+                                    </div>
+                                    <div id="matieres-container" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                        <div style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 1rem; border: 1px dashed var(--border); border-radius: var(--radius-md);">Veuillez sélectionner une année pour charger les matières.</div>
+                                    </div>
                                 </div>
                                 <div class="form-group"><label class="form-label">Commentaire (optionnel)</label>
                                     <textarea id="heures-commentaire" class="form-control" style="min-height:60px;" placeholder="ex: Semaine normale..."></textarea>
@@ -1042,29 +1048,76 @@
             loadHeuresCategories(e.target.value);
         });
 
+        let matieresDisponibles = [];
+
         async function loadHeuresCategories(annee) {
-            const container = document.getElementById('categories-container');
+            const container = document.getElementById('matieres-container');
+            const btnAdd = document.getElementById('btn-add-matiere');
             if(!container) return;
-            container.innerHTML = '<div style="grid-column: 1 / -1; color: var(--text-muted);">Chargement des catégories...</div>';
+            
+            container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 1rem; border: 1px dashed var(--border); border-radius: var(--radius-md);">Chargement des matières...</div>';
+            if (btnAdd) btnAdd.disabled = true;
+            matieresDisponibles = [];
+
             try {
                 const data = await api.getHeures(annee);
                 if (!data || !data.categories || data.categories.length === 0) {
-                    container.innerHTML = '<div style="grid-column: 1 / -1; color: var(--text-muted);">Aucune catégorie disponible.</div>';
+                    container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 1rem; border: 1px dashed var(--border); border-radius: var(--radius-md);">Aucune matière disponible.</div>';
                     return;
                 }
+                matieresDisponibles = data.categories;
                 container.innerHTML = '';
-                data.categories.forEach(cat => {
-                    container.innerHTML += `
-                        <div class="form-group">
-                            <label class="form-label">${cat} (heures) *</label>
-                            <input type="number" class="form-control category-input" data-category="${cat}" required min="0" max="100" step="0.5" placeholder="ex: 5">
-                        </div>
-                    `;
-                });
+                if (btnAdd) btnAdd.disabled = false;
+                
+                // Ajouter une première ligne vide par défaut
+                addMatiereRow();
             } catch (error) {
-                container.innerHTML = '<div style="grid-column: 1 / -1; color: var(--danger);">Erreur lors du chargement des catégories.</div>';
+                container.innerHTML = '<div style="color: var(--danger); font-size: 0.85rem; text-align: center; padding: 1rem; border: 1px dashed var(--danger); border-radius: var(--radius-md);">Erreur lors du chargement des matières.</div>';
             }
         }
+
+        function addMatiereRow() {
+            const container = document.getElementById('matieres-container');
+            if (!container) return;
+            
+            const row = document.createElement('div');
+            row.style.display = 'flex';
+            row.style.gap = '0.75rem';
+            row.style.alignItems = 'center';
+            row.style.flexWrap = 'wrap';
+            row.className = 'matiere-row';
+            
+            let optionsHTML = '<option value="">-- Choisir une matière --</option>';
+            matieresDisponibles.forEach(mat => {
+                const nom = mat.nom || mat.label || mat.titre || 'Matière Inconnue';
+                const id = mat.id || mat.matiereId || mat._id || mat;
+                optionsHTML += `<option value="${id}">${nom}</option>`;
+            });
+
+            row.innerHTML = `
+                <div style="flex: 2; min-width: 200px;">
+                    <select class="form-control matiere-select" required>
+                        ${optionsHTML}
+                    </select>
+                </div>
+                <div style="flex: 1; min-width: 100px;">
+                    <input type="number" class="form-control heures-input" required min="0" max="100" step="0.5" placeholder="Heures (ex: 4)">
+                </div>
+                <div style="flex: 0 0 auto;">
+                    <button type="button" class="btn btn-outline danger btn-remove-matiere" style="padding: 0.55rem 0.75rem; color: var(--danger); border-color: var(--danger);" title="Supprimer">🗑️</button>
+                </div>
+            `;
+            
+            row.querySelector('.btn-remove-matiere').addEventListener('click', () => {
+                row.remove();
+            });
+            
+            container.appendChild(row);
+        }
+
+        document.getElementById('btn-add-matiere')?.addEventListener('click', () => {
+            if (matieresDisponibles.length > 0) addMatiereRow();
+        });
 
         async function loadHeuresHistory(annee) {
             const tbody = document.getElementById('heures-history-list');
@@ -1109,9 +1162,17 @@
             const annee = parseInt(document.getElementById('heures-annee').value);
             const semaineInput = document.getElementById('heures-semaine').value;
             
-            const heures_par_categorie = {};
-            document.querySelectorAll('.category-input').forEach(input => {
-                heures_par_categorie[input.dataset.category] = parseFloat(input.value) || 0;
+            const heuresSaisies = [];
+            document.querySelectorAll('.matiere-row').forEach(row => {
+                const select = row.querySelector('.matiere-select');
+                const input = row.querySelector('.heures-input');
+                if (select && select.value && input && input.value) {
+                    const parsedId = parseInt(select.value);
+                    heuresSaisies.push({
+                        matiereId: isNaN(parsedId) ? select.value : parsedId,
+                        heures: parseFloat(input.value) || 0
+                    });
+                }
             });
             
             const commentaire = document.getElementById('heures-commentaire').value;
@@ -1120,7 +1181,7 @@
                 const response = await api.sauvegarderSemaine({
                     annee: annee,
                     semaine: semaineInput,
-                    heures_par_categorie: heures_par_categorie,
+                    heuresSaisies: heuresSaisies,
                     commentaire: commentaire
                 });
                 const periode = response.date_debut && response.date_fin
