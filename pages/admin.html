@@ -1069,28 +1069,31 @@
 
             try {
                 const data = await api.getHeures(annee);
-                if (!data || !data.categories || data.categories.length === 0) {
+                let matieresArray = [];
+                if (data && Array.isArray(data.matieres)) {
+                    matieresArray = data.matieres;
+                } else if (Array.isArray(data)) {
+                    matieresArray = data;
+                } else if (data && Array.isArray(data.categories) && data.categories.length > 0 && typeof data.categories[0] === 'object' && data.categories[0].categorie) {
+                    // Si par hasard c'est toujours data.categories mais avec le bon format
+                    matieresArray = data.categories;
+                }
+
+                if (matieresArray.length === 0) {
                     container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 1rem; border: 1px dashed var(--border); border-radius: var(--radius-md);">Aucune matière disponible.</div>';
                     document.getElementById('totaux-categories-container').style.display = 'none';
                     return;
                 }
                 
-                categoriesDisponibles = data.categories;
+                matieresDisponibles = matieresArray;
                 
-                // Construire la liste plate des matières avec l'info de catégorie
-                data.categories.forEach(cat => {
-                    const catName = cat.nom || cat.label || cat.titre || 'Général';
-                    const catId = cat.id || catName;
-                    if (cat.matieres && Array.isArray(cat.matieres)) {
-                        cat.matieres.forEach(mat => {
-                            matieresDisponibles.push({
-                                ...mat,
-                                categorie: catName,
-                                categorieId: catId
-                            });
-                        });
-                    }
+                // Extraire les catégories uniques
+                const catsSet = new Set();
+                matieresDisponibles.forEach(mat => {
+                    if (mat.categorie) catsSet.add(mat.categorie);
+                    else catsSet.add('Général');
                 });
+                categoriesDisponibles = Array.from(catsSet).map(c => ({ nom: c }));
 
                 container.innerHTML = '';
                 if (btnAdd) btnAdd.disabled = false;
@@ -1162,12 +1165,14 @@
             
             let optionsHTML = '<option value="">-- Choisir une matière --</option>';
             categoriesDisponibles.forEach(cat => {
-                const catName = cat.nom || cat.label || cat.titre || 'Général';
-                if (cat.matieres && cat.matieres.length > 0) {
+                const catName = cat.nom;
+                // Trouver les matières de cette catégorie
+                const matieresDeCat = matieresDisponibles.filter(m => (m.categorie || 'Général') === catName);
+                if (matieresDeCat.length > 0) {
                     optionsHTML += `<optgroup label="${catName}">`;
-                    cat.matieres.forEach(mat => {
+                    matieresDeCat.forEach(mat => {
                         const nom = mat.nom || mat.label || mat.titre || 'Matière Inconnue';
-                        const id = mat.id || mat.matiereId || mat._id || mat;
+                        const id = mat.id || mat.matiereId || mat._id || mat.nom;
                         optionsHTML += `<option value="${id}">${nom}</option>`;
                     });
                     optionsHTML += `</optgroup>`;
