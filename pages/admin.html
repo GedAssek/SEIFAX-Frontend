@@ -1068,31 +1068,55 @@
             categoriesDisponibles = [];
 
             try {
-                const data = await api.getHeures(annee);
-                let matieresArray = [];
-                if (data && Array.isArray(data.matieres)) {
-                    matieresArray = data.matieres;
-                } else if (Array.isArray(data)) {
-                    matieresArray = data;
-                } else if (data && Array.isArray(data.categories) && data.categories.length > 0 && typeof data.categories[0] === 'object' && data.categories[0].categorie) {
-                    // Si par hasard c'est toujours data.categories mais avec le bon format
-                    matieresArray = data.categories;
+                const rawData = await api.getHeures(annee);
+                let dataArray = [];
+                
+                // Extraire le tableau brut (soit la réponse elle-même, soit une de ses propriétés courantes)
+                if (Array.isArray(rawData)) {
+                    dataArray = rawData;
+                } else if (rawData && Array.isArray(rawData.categories)) {
+                    dataArray = rawData.categories;
+                } else if (rawData && Array.isArray(rawData.matieres)) {
+                    dataArray = rawData.matieres;
                 }
 
-                if (matieresArray.length === 0) {
-                    container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 1rem; border: 1px dashed var(--border); border-radius: var(--radius-md);">Aucune matière disponible.</div>';
+                if (dataArray.length === 0) {
+                    container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 1rem; border: 1px dashed var(--border); border-radius: var(--radius-md);">Aucune donnée disponible.</div>';
                     document.getElementById('totaux-categories-container').style.display = 'none';
                     return;
                 }
                 
-                matieresDisponibles = matieresArray;
-                
-                // Extraire les catégories uniques
+                let currentCategory = "Matières non catégorisées";
+                const formattedSubjects = [];
                 const catsSet = new Set();
-                matieresDisponibles.forEach(mat => {
-                    if (mat.categorie) catsSet.add(mat.categorie);
-                    else catsSet.add('Général');
+
+                dataArray.forEach(item => {
+                    if (item.type === 'category') {
+                        currentCategory = item.name || item.nom || item.label || currentCategory;
+                        catsSet.add(currentCategory);
+                    } else if (item.type === 'subject') {
+                        catsSet.add(currentCategory);
+                        formattedSubjects.push({ 
+                            ...item, 
+                            categorie: currentCategory 
+                        });
+                    } else if (!item.type) {
+                        // Fallback au cas où les données arrivent sans type explicite mais sont des matières
+                        catsSet.add(item.categorie || currentCategory);
+                        formattedSubjects.push({
+                            ...item,
+                            categorie: item.categorie || currentCategory
+                        });
+                    }
                 });
+
+                if (formattedSubjects.length === 0) {
+                    container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 1rem; border: 1px dashed var(--border); border-radius: var(--radius-md);">Aucune matière n\'a pu être extraite.</div>';
+                    document.getElementById('totaux-categories-container').style.display = 'none';
+                    return;
+                }
+
+                matieresDisponibles = formattedSubjects;
                 categoriesDisponibles = Array.from(catsSet).map(c => ({ nom: c }));
 
                 container.innerHTML = '';
