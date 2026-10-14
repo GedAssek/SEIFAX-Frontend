@@ -145,6 +145,20 @@ img, video { max-width: 100%; height: auto; }
     box-shadow: 0 0 0 3px rgba(37,99,235,0.14);
 }
 .form-control option { background: var(--surface); color: var(--text-main); }
+.form-control:disabled,
+.form-control[readonly] {
+    background-color: var(--background);
+    color: var(--text-muted);
+    cursor: not-allowed;
+    opacity: 0.8;
+    border-color: var(--border);
+}
+.form-control:disabled:focus,
+.form-control:disabled:focus-visible {
+    border-color: var(--border);
+    box-shadow: none;
+    outline: none;
+}
 
 /* --- Cards ------------------------------------------------- */
 .card {

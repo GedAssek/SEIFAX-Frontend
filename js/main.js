@@ -224,6 +224,39 @@ function initAuthPage() {
     const registerForm = document.getElementById('form-register');
     const cycleSelect = document.getElementById('reg-cycle');
     const studyYearSelect = document.getElementById('reg-annee');
+    const promotionInput = document.getElementById('reg-promotion');
+
+    let userPromotionBackup = '';
+
+    function updatePromotionAuto() {
+        if (!promotionInput) return;
+        const isEACSEI1 = cycleSelect && cycleSelect.value === 'EAC-SEI' && studyYearSelect && studyYearSelect.value === '1';
+
+        if (isEACSEI1) {
+            if (!promotionInput.disabled && !promotionInput.dataset.autoFilled) {
+                userPromotionBackup = promotionInput.value;
+            }
+            promotionInput.value = 'EAC SEI 2026';
+            promotionInput.disabled = true;
+            promotionInput.dataset.autoFilled = 'true';
+        } else {
+            if (promotionInput.dataset.autoFilled === 'true') {
+                promotionInput.disabled = false;
+                delete promotionInput.dataset.autoFilled;
+                promotionInput.value = userPromotionBackup || '';
+            } else {
+                promotionInput.disabled = false;
+            }
+        }
+    }
+
+    if (promotionInput) {
+        promotionInput.addEventListener('input', () => {
+            if (!promotionInput.disabled && !promotionInput.dataset.autoFilled) {
+                userPromotionBackup = promotionInput.value;
+            }
+        });
+    }
 
     function showCompleteProfileMode(detail, currentPassword) {
         loginView.classList.add('hidden');
@@ -285,10 +318,14 @@ function initAuthPage() {
         // La formation technicien dure une année : sélectionner et verrouiller ce choix.
         if (isTechnicianCycle) studyYearSelect.value = '1';
         studyYearSelect.disabled = !cycle || isTechnicianCycle;
+
+        updatePromotionAuto();
     }
 
     if (cycleSelect && studyYearSelect) {
         cycleSelect.addEventListener('change', updateStudyYearOptions);
+        studyYearSelect.addEventListener('change', updatePromotionAuto);
+        studyYearSelect.addEventListener('input', updatePromotionAuto);
         updateStudyYearOptions();
     }
 
@@ -382,11 +419,16 @@ function initAuthPage() {
             setSubmitLoading(btn, registerForm.dataset.mode === 'complete-profile' ? 'Mise à jour en cours' : 'Création en cours', true);
             
             if (registerForm.dataset.mode === 'complete-profile') {
+                const isEACSEI1 = cycleSelect && cycleSelect.value === 'EAC-SEI' && studyYearSelect && studyYearSelect.value === '1';
+                const profilePromotion = (isEACSEI1 || (promotionInput && promotionInput.disabled))
+                    ? 'EAC SEI 2026'
+                    : (promotionInput ? promotionInput.value : (registerForm.promotion ? registerForm.promotion.value : ''));
+
                 const profileData = {
                     username: registerForm.email.value,
                     password: password,
                     sexe: registerForm.sexe.value,
-                    promotion: registerForm.promotion.value
+                    promotion: profilePromotion
                 };
                 
                 try {
@@ -402,6 +444,11 @@ function initAuthPage() {
                 return;
             }
             
+            const isEACSEI1 = cycleSelect && cycleSelect.value === 'EAC-SEI' && studyYearSelect && studyYearSelect.value === '1';
+            const promotionVal = (isEACSEI1 || (promotionInput && promotionInput.disabled))
+                ? 'EAC SEI 2026'
+                : (promotionInput ? promotionInput.value : (registerForm.promotion ? registerForm.promotion.value : ''));
+
             const userData = {
                 username: registerForm.email.value,
                 nom: registerForm.nom.value,
@@ -411,7 +458,7 @@ function initAuthPage() {
                 email: registerForm.email.value,
                 password: password,
                 sexe: registerForm.sexe.value,
-                promotion: registerForm.promotion.value
+                promotion: promotionVal
             };
 
             try {
