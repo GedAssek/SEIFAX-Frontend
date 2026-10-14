@@ -57,11 +57,11 @@ async function openAuthenticatedFile(fileUrl, token) {
         setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
 
         if (!newTab) {
-            alert('Le navigateur a bloqué l'ouverture d'un nouvel onglet. Veuillez autoriser les pop-ups pour ce site.');
+            alert("Le navigateur a bloqué l'ouverture d'un nouvel onglet. Veuillez autoriser les pop-ups pour ce site.");
         }
     } catch (err) {
         console.error('openAuthenticatedFile error:', err);
-        alert('Impossible d'ouvrir le fichier : ' + (err.message || 'erreur réseau'));
+        alert("Impossible d'ouvrir le fichier : " + (err.message || 'erreur réseau'));
     }
 }
 
