@@ -43,7 +43,7 @@
             </ul>
 
             <div class="navbar-actions">
-                <button id="theme-toggle" class="btn-icon" title="Thème">🌙</button>
+                <button id="theme-toggle" class="btn-icon" title="Thème">☾</button>
                 <span id="user-badge" class="user-badge" style="display:none;"></span>
                 <a href="login.html" class="btn btn-primary" id="nav-auth">Se connecter</a>
                 <a href="#" class="btn btn-outline" id="nav-logout" style="display:none;">Déconnexion</a>
@@ -64,7 +64,7 @@
             <!-- Bannière nouvelles infos -->
             <div id="new-infos-banner" class="new-infos-banner" style="display:none;">
                 <div class="new-infos-banner-text">
-                    🔔 <span id="new-infos-count"></span> nouvelle(s) annonce(s) non lue(s) !
+                    <span style="font-size:0.75rem;font-weight:900;">NOUVELLES</span> <span id="new-infos-count"></span> annonce(s) non lue(s) !
                 </div>
                 <button class="new-infos-banner-close" id="btn-dismiss-infos-banner" title="Fermer">✕ Marquer comme lues</button>
             </div>
@@ -104,12 +104,12 @@
             <img src="../assets/img/logo.jpg" alt="LEFAXEUR">
             <button class="mobile-menu-close" id="mobile-menu-close" aria-label="Fermer">&times;</button>
         </div>
-        <a href="../index.html" class="nav-link">&#127968; Accueil</a>
-        <a href="documents.html" class="nav-link">&#128218; Documents</a>
-        <a href="notes.html" class="nav-link">&#128202; Notes</a>
-        <a href="heures.html" class="nav-link">&#9200;&#65039; Heures</a>
-        <a href="infos.html" class="nav-link">&#128276; Informations</a>
-        <a href="admin.html" class="nav-link" id="mm-admin-drawer" style="display:none;">&#9881;&#65039; Administration</a>
+        <a href="../index.html" class="nav-link">Accueil</a>
+        <a href="documents.html" class="nav-link">Documents</a>
+        <a href="notes.html" class="nav-link">Notes</a>
+        <a href="heures.html" class="nav-link">Heures</a>
+        <a href="infos.html" class="nav-link">Informations</a>
+        <a href="admin.html" class="nav-link" id="mm-admin-drawer" style="display:none;">Administration</a>
         <div class="mobile-menu-footer">
             <a href="login.html" class="btn btn-primary" id="mm-auth-drawer">Se connecter</a>
             <a href="#" class="btn btn-outline" id="mm-logout-drawer" style="display:none;">Deconnexion</a>
@@ -185,13 +185,13 @@
                     if (info.file_type === 'image') {
                         attachmentHtml = `
                             <div style="margin-top:1rem; border-radius:var(--radius-md); overflow:hidden;">
-                                <img src="${info.file_url}" alt="Pièce jointe" style="max-width:100%; height:auto; display:block;">
+                                <button class="btn btn-outline" style="font-size:0.85rem; padding:0.5rem 1rem;" onclick="openAuthenticatedFile('${info.file_url}')">🖼️ Voir l'image jointe</button>
                             </div>
                         `;
                     } else if (info.file_type === 'pdf') {
                         attachmentHtml = `
                             <div style="margin-top:1rem;">
-                                <a href="${info.file_url}" target="_blank" class="btn btn-outline" style="padding:0.5rem 1rem; font-size:0.85rem;">📥 Ouvrir le document PDF joint</a>
+                                <button class="btn btn-outline" style="padding:0.5rem 1rem; font-size:0.85rem;" onclick="openAuthenticatedFile('${info.file_url}')">📥 Ouvrir le document PDF joint</button>
                             </div>
                         `;
                     }
@@ -204,7 +204,7 @@
                         ${info.titre}
                         ${cycleBadge}
                     </h3>
-                    <span class="badge badge-blue">📅 ${dateStr}</span>
+                    <span class="badge badge-blue">&#128197; ${dateStr}</span>
                 </div>
                 <hr class="divider">
                 <p class="text-muted" style="font-size:0.93rem; line-height:1.7;">

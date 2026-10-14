@@ -31,7 +31,7 @@
             </ul>
 
             <div class="navbar-actions">
-                <button id="theme-toggle" class="btn-icon" title="Changer le thème">🌙</button>
+                <button id="theme-toggle" class="btn-icon" title="Changer le thème">☾</button>
                 <span id="user-badge" class="user-badge" style="display:none;"></span>
                 <a href="pages/login.html" class="btn btn-primary" id="nav-auth">Se connecter</a>
                 <a href="#" class="btn btn-outline" id="nav-logout" style="display:none;">Déconnexion</a>
@@ -47,7 +47,7 @@
             <!-- VUE GUEST -->
             <section id="welcome-guest" class="hero-section">
                 <div class="hero-text">
-                    <p class="badge badge-blue" style="margin-bottom:1.5rem; font-size:0.82rem;">✈️ EAMAC · Portail
+                    <p class="badge badge-blue" style="margin-bottom:1.5rem; font-size:0.82rem;">EAMAC · Portail
                         d'apprentissage</p>
                     <h1 class="hero-title">
                         L'excellence académique<br>
@@ -66,13 +66,13 @@
                     <div class="flex gap-1" style="margin-top:2.5rem; flex-wrap:wrap;">
                         <span
                             style="display:inline-flex;align-items:center;gap:0.4rem;color:var(--text-muted);font-size:0.88rem;"><span
-                                style="color:var(--primary);">📚</span> Banque d'épreuves</span>
+                                style="color:var(--primary);">—</span> Banque d'épreuves</span>
                         <span
                             style="display:inline-flex;align-items:center;gap:0.4rem;color:var(--text-muted);font-size:0.88rem;"><span
-                                style="color:var(--primary);">🔔</span> Actualités en temps réel</span>
+                                style="color:var(--primary);">—</span> Actualités en temps réel</span>
                         <span
                             style="display:inline-flex;align-items:center;gap:0.4rem;color:var(--text-muted);font-size:0.88rem;"><span
-                                style="color:var(--primary);">🛡️</span> Accès sécurisé</span>
+                                style="color:var(--primary);">—</span> Accès sécurisé</span>
                     </div>
                 </div>
 
@@ -128,7 +128,7 @@
             <section id="dashboard-user" class="hidden">
                 <header style="margin-bottom:2.5rem;">
                     <h1 class="hero-title" style="font-size:2.6rem;">
-                        Bonjour, <span id="dashboard-name" class="text-gradient">Étudiant</span> 👋
+                        Bonjour, <span id="dashboard-name" class="text-gradient">Étudiant</span>
                     </h1>
                     <p class="hero-subtitle" style="font-size:1rem; margin-bottom:1.5rem;">Que souhaitez-vous réviser
                         aujourd'hui ?</p>
@@ -139,7 +139,7 @@
                     <!-- Notification summary -->
                     <div id="dashboard-notif-summary"
                         style="display:none; margin-top:1.25rem; padding:0.75rem 1rem; background:rgba(26,86,219,0.06); border:1.5px solid rgba(26,86,219,0.2); border-radius:12px; font-size:0.9rem; color:var(--primary); display:flex; align-items:center; gap:0.6rem;">
-                        🔔 <span id="dashboard-notif-text"></span>
+                        <span id="dashboard-notif-text"></span>
                     </div>
                 </header>
 
@@ -148,7 +148,7 @@
                         onclick="window.location='pages/documents.html'">
                         <span id="home-doc-badge"
                             style="display:none; position:absolute; top:12px; right:12px; background:#ef4444; color:#fff; font-size:0.65rem; font-weight:800; border-radius:9999px; padding:2px 7px;"></span>
-                        <div style="font-size:2.8rem; margin-bottom:1rem; display:block;">📚</div>
+                        <div style="font-size:2rem; font-weight:300; margin-bottom:1rem; display:block; color:var(--primary); letter-spacing:-1px;">PDF</div>
                         <h3 style="margin-bottom:0.6rem;">Centre de Documents</h3>
                         <p class="text-muted" style="font-size:0.92rem;">Cours, TP, et évaluations des années
                             précédentes
@@ -158,14 +158,14 @@
                         onclick="window.location='pages/infos.html'">
                         <span id="home-info-badge"
                             style="display:none; position:absolute; top:12px; right:12px; background:#ef4444; color:#fff; font-size:0.65rem; font-weight:800; border-radius:9999px; padding:2px 7px;"></span>
-                        <div style="font-size:2.8rem; margin-bottom:1rem; display:block;">🔔</div>
+                        <div style="font-size:2rem; font-weight:300; margin-bottom:1rem; display:block; color:var(--primary);">&#9993;</div>
                         <h3 style="margin-bottom:0.6rem;">Actualités</h3>
                         <p class="text-muted" style="font-size:0.92rem;">Ne manquez plus aucun événement, changement de
                             salle ou conférence.</p>
                     </div>
                     <div class="card text-center" style="cursor:pointer; position:relative;"
                         onclick="window.location='pages/heures.html'">
-                        <div style="font-size:2.8rem; margin-bottom:1rem; display:block;">⏱️</div>
+                        <div style="font-size:2rem; font-weight:300; margin-bottom:1rem; display:block; color:var(--primary);">&#9201;</div>
                         <h3 style="margin-bottom:0.6rem;">Suivi des heures</h3>
                         <p class="text-muted" style="font-size:0.92rem;">Consultez la progression horaire de votre année.</p>
                     </div>
@@ -205,12 +205,12 @@
             <img src="assets/img/logo.jpg" alt="LEFAXEUR">
             <button class="mobile-menu-close" id="mobile-menu-close" aria-label="Fermer">&times;</button>
         </div>
-        <a href="index.html" class="nav-link active" id="mm-home">🏠 Accueil</a>
-        <a href="pages/documents.html" class="nav-link" id="mm-docs" style="display:none;">📚 Documents</a>
-        <a href="pages/notes.html" class="nav-link" id="mm-notes" style="display:none;">📊 Notes</a>
-        <a href="pages/heures.html" class="nav-link" id="mm-heures" style="display:none;">⏱️ Heures</a>
-        <a href="pages/infos.html" class="nav-link" id="mm-infos" style="display:none;">🔔 Informations</a>
-        <a href="pages/admin.html" class="nav-link" id="mm-admin" style="display:none;">⚙️ Administration</a>
+        <a href="index.html" class="nav-link active" id="mm-home">Accueil</a>
+        <a href="pages/documents.html" class="nav-link" id="mm-docs" style="display:none;">Documents</a>
+        <a href="pages/notes.html" class="nav-link" id="mm-notes" style="display:none;">Notes</a>
+        <a href="pages/heures.html" class="nav-link" id="mm-heures" style="display:none;">Heures</a>
+        <a href="pages/infos.html" class="nav-link" id="mm-infos" style="display:none;">Informations</a>
+        <a href="pages/admin.html" class="nav-link" id="mm-admin" style="display:none;">Administration</a>
         <div class="mobile-menu-footer">
             <a href="pages/login.html" class="btn btn-primary" id="mm-auth">Se connecter</a>
             <a href="#" class="btn btn-outline" id="mm-logout" style="display:none;">Déconnexion</a>
@@ -259,7 +259,10 @@
                         recentDocs.innerHTML = docs?.length
                             ? docs.slice(0, 3).map(doc => `<article class="dashboard-list-item">
                                 <div><strong>${escapeHtml(doc.titre)}</strong><span>${escapeHtml(doc.matiere || doc.type || 'Document')} · ${escapeHtml(doc.annee || '')}</span></div>
-                                <a href="${escapeHtml(doc.file_url || 'pages/documents.html')}" ${doc.file_url ? 'target="_blank" rel="noopener noreferrer"' : ''}>Ouvrir</a>
+                                ${doc.file_url
+                                    ? `<button onclick="openAuthenticatedFile('${escapeHtml(doc.file_url)}')" style="background:none;border:none;cursor:pointer;color:var(--primary);font-size:0.85rem;font-weight:600;padding:0;text-decoration:underline;">Ouvrir</button>`
+                                    : `<a href="pages/documents.html">Voir</a>`
+                                }
                             </article>`).join('')
                             : '<p class="text-muted">Aucun document récent à afficher.</p>';
                     }

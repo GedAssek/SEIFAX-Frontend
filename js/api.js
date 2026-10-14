@@ -3,14 +3,66 @@
 const API_BASE_URL = 'https://seifax-backend-xh0q.onrender.com/api';
 
 
-const BACKEND_ORIGIN = 'https://seifax-backend-xh0q.onrender.com/api';
+// Origine du backend SANS /api pour construire les URL de fichiers correctement
+const BACKEND_ORIGIN = 'https://seifax-backend-xh0q.onrender.com';
 
 
 function toAbsoluteUrl(url) {
     if (!url) return null;
     if (url.startsWith('http://') || url.startsWith('https://')) return url;
-    // Chemin relatif → préfixer avec l'origine backend
-    return BACKEND_ORIGIN + (url.startsWith('/') ? '' : '/') + url;
+    // Chemin relatif (ex: /api/files/…) → préfixer avec l'origine backend seule
+    return new URL(url.startsWith('/') ? url : '/' + url, BACKEND_ORIGIN).href;
+}
+
+/**
+ * Ouvre un fichier protégé (PDF ou image) dans un nouvel onglet en passant
+ * le token Bearer dans l'en-tête Authorization (jamais dans l'URL).
+ *
+ * @param {string} fileUrl  - URL absolue ou relative du fichier (ex: /api/files/...)
+ * @param {string} [token]  - JWT Bearer token ; si omis, lu depuis localStorage
+ */
+async function openAuthenticatedFile(fileUrl, token) {
+    if (!fileUrl) {
+        alert('Aucun fichier disponible.');
+        return;
+    }
+    try {
+        // Résoudre l'URL absolue sans doubler /api
+        const absoluteUrl = new URL(
+            fileUrl.startsWith('http') ? fileUrl : (fileUrl.startsWith('/') ? fileUrl : '/' + fileUrl),
+            BACKEND_ORIGIN
+        ).href;
+
+        const authToken = token || JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.access_token;
+
+        const response = await fetch(absoluteUrl, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+
+        if (!response.ok) {
+            const msg = response.status === 401
+                ? 'Accès refusé : vous devez être connecté.'
+                : response.status === 404
+                    ? 'Fichier introuvable sur le serveur.'
+                    : `Erreur lors du téléchargement du fichier (${response.status}).`;
+            alert(msg);
+            return;
+        }
+
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        const newTab = window.open(blobUrl, '_blank');
+
+        // Libérer la mémoire après que l'onglet a eu le temps de charger
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+
+        if (!newTab) {
+            alert('Le navigateur a bloqué l'ouverture d'un nouvel onglet. Veuillez autoriser les pop-ups pour ce site.');
+        }
+    } catch (err) {
+        console.error('openAuthenticatedFile error:', err);
+        alert('Impossible d'ouvrir le fichier : ' + (err.message || 'erreur réseau'));
+    }
 }
 
 const api = {
