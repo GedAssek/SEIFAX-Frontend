@@ -38,13 +38,20 @@ function checkAuthGuard() {
     }
 }
 
+const THEME_ICONS = {
+    sun: `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`,
+    moon: `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`
+};
+
 function initTheme() {
     const toggleBtn = document.getElementById('theme-toggle');
     const isDark = localStorage.getItem('theme') === 'dark';
     
     if (isDark) {
         document.body.classList.add('dark');
-        if(toggleBtn) toggleBtn.textContent = '☀️';
+        if (toggleBtn) toggleBtn.innerHTML = THEME_ICONS.sun;
+    } else {
+        if (toggleBtn) toggleBtn.innerHTML = THEME_ICONS.moon;
     }
     
     if (toggleBtn) {
@@ -52,7 +59,7 @@ function initTheme() {
             document.body.classList.toggle('dark');
             const currentTheme = document.body.classList.contains('dark') ? 'dark' : 'light';
             localStorage.setItem('theme', currentTheme);
-            toggleBtn.textContent = currentTheme === 'dark' ? '☀️' : '🌙';
+            toggleBtn.innerHTML = currentTheme === 'dark' ? THEME_ICONS.sun : THEME_ICONS.moon;
         });
     }
 }
@@ -95,34 +102,38 @@ function updateNavigation() {
                 <div id="profile-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
                     <div class="card animate-fade-in" style="width:100%; max-width:420px; margin:20px; position:relative;">
                         <button id="close-profile-modal" style="position:absolute; top:10px; right:15px; background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--text);">&times;</button>
-                        <h2 style="margin-bottom:1rem; font-size:1.25rem;">👤 Mon Profil</h2>
+                        <h2 style="margin-bottom:1rem; font-size:1.25rem;">Mon profil</h2>
                         <div style="margin-bottom:1rem; display:flex; flex-direction:column; gap:0.4rem;">
-                            <p><strong>Nom:</strong> ${user.prenom} ${user.nom}</p>
-                            <p><strong>Email:</strong> ${user.email}</p>
-                            <p><strong>Rôle:</strong> ${user.role}</p>
-                            <p><strong>Cycle:</strong> ${user.cycle || 'N/A'}</p>
-                            <p><strong>Année d'étude:</strong> ${user.annee || 'N/A'}</p>
-                            <p><strong>Sexe:</strong> ${user.sexe || 'N/A'}</p>
-                            <p><strong>Promotion:</strong> ${user.promotion || 'N/A'}</p>
+                            <p><strong>Nom :</strong> ${user.prenom} ${user.nom}</p>
+                            <p><strong>Email :</strong> ${user.email}</p>
+                            <p><strong>Rôle :</strong> ${user.role}</p>
+                            <p><strong>Cycle :</strong> ${user.cycle || 'Non spécifié'}</p>
+                            <p><strong>Année d'étude :</strong> ${user.annee || 'Non spécifiée'}</p>
+                            <p><strong>Sexe :</strong> ${user.sexe || 'Non spécifié'}</p>
+                            <p><strong>Promotion :</strong> ${user.promotion || 'Non spécifiée'}</p>
                         </div>
                         <hr style="margin: 1rem 0; border:0; border-top:1px solid rgba(128,128,128,0.2);">
-                        <h3 style="font-size:1rem; margin-bottom:1rem;">🔒 Changer le mot de passe</h3>
+                        <h3 style="font-size:1rem; margin-bottom:1rem;">Changer le mot de passe</h3>
                         <form id="form-change-password">
                             <div class="form-group">
                                 <label class="form-label">Ancien mot de passe</label>
                                 <div style="position:relative;">
                                     <input type="password" class="form-control" id="old-password" required style="padding-right:2.5rem;">
-                                    <button type="button" id="toggle-old-pwd" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; font-size:1.1rem; color:var(--text-muted);">👁️</button>
+                                    <button type="button" id="toggle-old-pwd" aria-label="Afficher/Masquer le mot de passe" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:var(--text-muted); display:flex; align-items:center;">
+                                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                    </button>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Nouveau mot de passe</label>
                                 <div style="position:relative;">
                                     <input type="password" class="form-control" id="new-password" required style="padding-right:2.5rem;">
-                                    <button type="button" id="toggle-new-pwd" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; font-size:1.1rem; color:var(--text-muted);">👁️</button>
+                                    <button type="button" id="toggle-new-pwd" aria-label="Afficher/Masquer le mot de passe" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:var(--text-muted); display:flex; align-items:center;">
+                                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                    </button>
                                 </div>
                             </div>
-                            <button type="submit" class="btn btn-primary" style="width:100%;">Mettre à jour</button>
+                            <button type="submit" class="btn btn-primary" style="width:100%;">Enregistrer les modifications</button>
                         </form>
                     </div>
                 </div>`;
@@ -291,7 +302,7 @@ function initAuthPage() {
         const button = document.createElement('button');
         button.type = 'button';
         button.className = 'eye-toggle';
-        button.innerHTML = '&#128065;';
+        button.innerHTML = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
         button.setAttribute('aria-label', 'Afficher le mot de passe');
         button.title = 'Afficher le mot de passe';
         button.addEventListener('click', () => {

@@ -109,7 +109,9 @@
             </ul>
 
             <div class="navbar-actions">
-                <button id="theme-toggle" class="btn-icon" title="Thème">🌙</button>
+                <button id="theme-toggle" class="btn-icon" aria-label="Changer le thème" title="Changer le thème">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                </button>
                 <span id="user-badge" class="user-badge" style="display:none;"></span>
                 <a href="login.html" class="btn btn-primary" id="nav-auth">Se connecter</a>
                 <a href="#" class="btn btn-outline" id="nav-logout" style="display:none;">Déconnexion</a>
@@ -124,8 +126,8 @@
 
             <header class="page-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap: wrap; gap: 1rem;">
                 <div>
-                    <h1 class="page-title">⏱️ Suivi des Heures</h1>
-                    <p class="page-subtitle">Consultez l'avancement global des volumes horaires de votre année.</p>
+                    <h1 class="page-title">Suivi des Volumes Horaires</h1>
+                    <p class="page-subtitle">Consultez l'avancement global des enseignements de votre promotion.</p>
                 </div>
                 <div id="cycle-selector-container" style="display:none; text-align:right;">
                     <label for="heures-select" style="font-weight:600; margin-right:0.5rem;">Année :</label>
@@ -142,20 +144,20 @@
             </div>
 
             <div id="error-state" class="hidden text-center" style="padding:4rem 0;">
-                <div style="font-size:4rem; margin-bottom:1rem;">🚧</div>
-                <h3>Non disponible</h3>
-                <p class="text-muted" id="error-msg">Connectez-vous pour voir le suivi des heures.</p>
+                <div class="badge badge-blue" style="margin-bottom:1rem; padding:0.4rem 0.8rem;">Accès restreint</div>
+                <h3>Espace non disponible</h3>
+                <p class="text-muted" id="error-msg">Connectez-vous pour consulter le suivi horaire de votre filière.</p>
             </div>
 
             <div id="data-container" class="hidden">
                 <!-- Vue d'ensemble globale -->
-                <div class="card" style="padding: 1.5rem; margin-bottom: 2rem; background: linear-gradient(135deg, rgba(26,86,219,0.1), rgba(16,185,129,0.1)); border: 1px solid rgba(26,86,219,0.2);">
+                <div class="card" style="padding: 1.5rem; margin-bottom: 2rem; border: 1px solid var(--border);">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem;">
-                        <h2 style="color:var(--primary); font-size: 1.5rem;">📊 Progression de l'Année</h2>
-                        <span class="badge badge-blue" style="font-size:1.1rem; padding:0.5rem 1rem;" id="global-pct">0%</span>
+                        <h2 style="color:var(--primary); font-size: 1.35rem;">Progression globale de l'année</h2>
+                        <span class="badge badge-blue" style="font-size:1.05rem; padding:0.45rem 0.9rem;" id="global-pct">0%</span>
                     </div>
-                    <div class="progress-bar-container" style="height: 20px;">
-                        <div class="progress-bar-fill" id="global-bar" style="width: 0%; background: linear-gradient(90deg, var(--primary), #10b981);"></div>
+                    <div class="progress-bar-container" style="height: 16px; background:var(--border);">
+                        <div class="progress-bar-fill" id="global-bar" style="width: 0%; background: var(--primary);"></div>
                     </div>
                     <div class="stats-grid">
                         <div class="stat-box">
@@ -177,7 +179,7 @@
                     <!-- Généré par JS -->
                 </div>
                 
-                <h3 style="margin-top: 3rem; margin-bottom: 1rem; color: var(--primary);">📅 Historique des Semaines</h3>
+                <h3 style="margin-top: 3rem; margin-bottom: 1rem; color: var(--primary);">Historique des semaines</h3>
                 <div class="card" style="padding:0;">
                     <div id="semaines-list">
                         <!-- Généré par JS -->
@@ -203,15 +205,15 @@
             <img src="../assets/img/logo.jpg" alt="LEFAXEUR">
             <button class="mobile-menu-close" id="mobile-menu-close" aria-label="Fermer">&times;</button>
         </div>
-        <a href="../index.html" class="nav-link">&#127968; Accueil</a>
-        <a href="documents.html" class="nav-link">&#128218; Documents</a>
-        <a href="notes.html" class="nav-link">&#128202; Notes</a>
-        <a href="heures.html" class="nav-link">&#9200;&#65039; Heures</a>
-        <a href="infos.html" class="nav-link">&#128276; Informations</a>
-        <a href="admin.html" class="nav-link" id="mm-admin-drawer" style="display:none;">&#9881;&#65039; Administration</a>
+        <a href="../index.html" class="nav-link">Accueil</a>
+        <a href="documents.html" class="nav-link">Documents</a>
+        <a href="notes.html" class="nav-link">Notes</a>
+        <a href="heures.html" class="nav-link">Heures</a>
+        <a href="infos.html" class="nav-link">Informations</a>
+        <a href="admin.html" class="nav-link" id="mm-admin-drawer" style="display:none;">Administration</a>
         <div class="mobile-menu-footer">
             <a href="login.html" class="btn btn-primary" id="mm-auth-drawer">Se connecter</a>
-            <a href="#" class="btn btn-outline" id="mm-logout-drawer" style="display:none;">Deconnexion</a>
+            <a href="#" class="btn btn-outline" id="mm-logout-drawer" style="display:none;">Déconnexion</a>
         </div>
     </nav>
 <script src="../js/api.js"></script>
