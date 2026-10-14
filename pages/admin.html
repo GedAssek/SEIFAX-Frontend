@@ -441,16 +441,11 @@
         <nav class="navbar" style="flex-wrap: wrap; gap: 0.5rem;">
             <a href="../index.html" class="navbar-brand" style="gap:.6rem;">
                 <img src="../assets/img/logo.jpg" alt="LEFAXEUR" class="navbar-logo">
-                <span class="admin-badge-pill">Espace Administration</span>
+                <span class="admin-badge-pill">⚙️ Admin</span>
             </a>
             <div class="navbar-actions">
-                <button id="theme-toggle" class="btn-icon" aria-label="Changer le thème" title="Changer le thème">
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                    </svg>
-                </button>
-                <a href="../index.html" class="btn btn-outline" style="font-size:.88rem;">Retour au site</a>
+                <button id="theme-toggle" class="btn-icon" title="Thème">🌙</button>
+                <a href="../index.html" class="btn btn-outline" style="font-size:.88rem;">← Retour</a>
                 <a href="#" class="btn btn-danger" id="nav-logout" style="font-size:.88rem;">Déconnexion</a>
             </div>
         </nav>
@@ -458,48 +453,53 @@
         <main class="main-content">
 
             <div id="admin-protection" class="text-center hidden" style="padding:4rem 0;">
-                <div class="badge badge-red" style="margin-bottom:1rem; padding:0.4rem 0.8rem;">Accès restreint</div>
+                <div style="font-size:4rem;margin-bottom:1rem;">🚫</div>
                 <h2 style="color:var(--danger);margin-bottom:.75rem;">Accès Refusé</h2>
-                <p class="text-muted">Vous devez être administrateur pour accéder à cette interface.</p>
+                <p class="text-muted">Vous devez être administrateur pour accéder à cette page.</p>
             </div>
 
             <div id="admin-content" style="display:none;">
                 <header class="page-header">
-                    <h1 class="page-title">Tableau de bord administration</h1>
-                    <p class="page-subtitle">Vue d'ensemble et gestion des ressources de la plateforme LEFAXEUR.</p>
+                    <h1 class="page-title">⚙️ Tableau de Bord Admin</h1>
+                    <p class="page-subtitle">Vue d'ensemble et gestion complète de la plateforme LEFAXEUR.</p>
                 </header>
 
                 <!-- Stats -->
                 <div class="stats-grid">
                     <div class="stat-card">
+                        <div class="stat-icon">👥</div>
                         <div class="stat-value" id="stat-users">—</div>
-                        <div class="stat-label">Utilisateurs inscrits</div>
+                        <div class="stat-label">Utilisateurs</div>
                     </div>
                     <div class="stat-card">
+                        <div class="stat-icon">🎓</div>
                         <div class="stat-value" id="stat-students">—</div>
                         <div class="stat-label">Étudiants</div>
                     </div>
                     <div class="stat-card">
+                        <div class="stat-icon">🟢</div>
                         <div class="stat-value" id="stat-online" style="color:#16a34a;">—</div>
-                        <div class="stat-label">Connectés</div>
+                        <div class="stat-label">En ligne</div>
                     </div>
                     <div class="stat-card">
+                        <div class="stat-icon">📄</div>
                         <div class="stat-value" id="stat-docs">—</div>
-                        <div class="stat-label">Documents publiés</div>
+                        <div class="stat-label">Documents</div>
                     </div>
                     <div class="stat-card">
+                        <div class="stat-icon">🔔</div>
                         <div class="stat-value" id="stat-infos">—</div>
-                        <div class="stat-label">Annonces actives</div>
+                        <div class="stat-label">Informations</div>
                     </div>
                 </div>
 
                 <!-- Tabs -->
                 <div class="admin-tabs">
-                    <button class="admin-tab active" data-tab="tab-users">Utilisateurs</button>
-                    <button class="admin-tab" data-tab="tab-cycles">Effectif par filière</button>
-                    <button class="admin-tab" data-tab="tab-publish">Publication</button>
-                    <button class="admin-tab" data-tab="tab-manage">Gestion des contenus</button>
-                    <button class="admin-tab" data-tab="tab-heures">Volumes horaires</button>
+                    <button class="admin-tab active" data-tab="tab-users">👥 Utilisateurs</button>
+                    <button class="admin-tab" data-tab="tab-cycles">📊 Cycles</button>
+                    <button class="admin-tab" data-tab="tab-publish">📚 Publier</button>
+                    <button class="admin-tab" data-tab="tab-manage">🗂️ Gérer contenu</button>
+                    <button class="admin-tab" data-tab="tab-heures">⏱️ Suivi Horaire</button>
                 </div>
 
                 <!-- Tab Utilisateurs -->
@@ -508,11 +508,11 @@
                         <div
                             style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1rem;">
                             <h2 style="font-size:1.1rem;font-weight:700;">Liste des utilisateurs</h2>
-                            <button class="btn btn-outline" id="btn-refresh-users"
-                                style="font-size:.85rem;">Actualiser</button>
+                            <button class="btn btn-outline" id="btn-refresh-users" style="font-size:.85rem;">🔄
+                                Actualiser</button>
                         </div>
                         <input type="text" class="search-box" id="user-search"
-                            placeholder="Rechercher par nom, email, filière...">
+                            placeholder="🔍 Rechercher par nom, email, cycle...">
                         <div class="table-wrap">
                             <table class="data-table">
                                 <thead>
@@ -539,13 +539,14 @@
                 <!-- Tab Cycles -->
                 <div id="tab-cycles" class="tab-panel">
                     <div class="card">
-                        <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;">Effectif par filière</h2>
+                        <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;">📊 Étudiants par cycle</h2>
                         <div id="cycle-bars">
                             <p class="text-muted">Chargement...</p>
                         </div>
                     </div>
                     <div class="card" style="margin-top:1.5rem;">
-                        <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;">Dernières inscriptions</h2>
+                        <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;">🕐 Dernières inscriptions
+                        </h2>
                         <div class="table-wrap">
                             <table class="data-table">
                                 <thead>
@@ -570,7 +571,8 @@
                 <div id="tab-publish" class="tab-panel">
                     <div class="publish-grid">
                         <div class="card">
-                            <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;">Publier un document</h2>
+                            <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;">📚 Publier un Document
+                            </h2>
                             <form id="form-add-document">
                                 <div class="form-group"><label class="form-label">Titre *</label><input type="text"
                                         id="doc-titre" class="form-control" required placeholder="ex: Chapitre 1"></div>
@@ -634,11 +636,13 @@
                                     <div class="upload-status-msg" id="doc-upload-status">Envoi en cours...</div>
                                 </div>
                                 <button type="submit" id="btn-submit-doc" class="btn btn-primary"
-                                    style="width:100%;">Mettre en ligne</button>
+                                    style="width:100%;background:linear-gradient(135deg,#16a34a,#15803d);">✅ Mettre en
+                                    ligne</button>
                             </form>
                         </div>
                         <div class="card">
-                            <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;">Publier une annonce</h2>
+                            <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;">🔔 Publier une
+                                Information</h2>
                             <form id="form-add-info">
                                 <div class="form-group"><label class="form-label">Titre *</label><input type="text"
                                         id="info-titre" class="form-control" required placeholder="ex: Rentrée 2025">
@@ -670,7 +674,7 @@
                                     <div class="upload-status-msg" id="info-upload-status">Publication en cours...</div>
                                 </div>
                                 <button type="submit" id="btn-submit-info" class="btn btn-primary"
-                                    style="width:100%;">Publier l'annonce</button>
+                                    style="width:100%;">📢 Publier</button>
                             </form>
                         </div>
                     </div>
@@ -681,11 +685,11 @@
                 <div id="tab-heures" class="tab-panel">
                     <div class="publish-grid">
                         <div class="card">
-                            <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;">Enregistrer des heures
-                                (Semaine)</h2>
+                            <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;">⏱️ Enregistrer des
+                                heures (Semaine)</h2>
                             <section
                                 style="padding-bottom:1.25rem;margin-bottom:1.25rem;border-bottom:1px solid var(--border);">
-                                <h3 style="font-size:1rem;font-weight:700;margin-bottom:1rem;">Rentrée scolaire</h3>
+                                <h3 style="font-size:1rem;font-weight:700;margin-bottom:1rem;">🎓 Rentrée scolaire</h3>
                                 <form id="form-rentree-scolaire">
                                     <div class="form-group">
                                         <label class="form-label" for="date-rentree">Date de rentrée scolaire *</label>
@@ -722,7 +726,7 @@
                                         style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
                                         <label class="form-label" style="margin: 0;">Heures par matière *</label>
                                         <button type="button" class="btn btn-outline" id="btn-add-matiere"
-                                            style="font-size: 0.8rem; padding: 0.3rem 0.6rem;" disabled>Ajouter une
+                                            style="font-size: 0.8rem; padding: 0.3rem 0.6rem;" disabled>➕ Ajouter une
                                             matière</button>
                                     </div>
                                     <div id="matieres-container"
@@ -736,7 +740,7 @@
                                     style="display: none; background: rgba(26,86,219,0.04); border: 1px solid rgba(26,86,219,0.2); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1.25rem;">
                                     <h4
                                         style="font-size: 0.85rem; font-weight: 700; color: var(--primary); margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">
-                                        Récapitulatif par catégorie</h4>
+                                        📊 Récapitulatif par catégorie</h4>
                                     <div id="totaux-categories-list"
                                         style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; font-size: 0.85rem; color: var(--text-muted);">
                                         <!-- Computed totals injected here -->
@@ -756,7 +760,7 @@
                             </form>
                         </div>
                         <div class="card">
-                            <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;">Historique des
+                            <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;">📅 Historique des
                                 enregistrements</h2>
                             <div class="form-group" style="margin-bottom: 1rem;">
                                 <select class="form-control" id="heures-history-annee">
@@ -791,12 +795,13 @@
                 <div id="tab-manage" class="tab-panel">
                     <div class="card">
                         <div style="display:flex;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;align-items:center;">
-                            <button class="btn btn-outline" id="btn-manage-docs">Documents</button>
-                            <button class="btn btn-outline" id="btn-manage-infos">Informations</button>
+                            <button class="btn btn-outline" id="btn-manage-docs">📄 Documents</button>
+                            <button class="btn btn-outline" id="btn-manage-infos">🔔 Informations</button>
                             <div style="margin-left:auto;display:flex;gap:.5rem;flex-wrap:wrap;">
-                                <button class="btn btn-outline" id="btn-fix-annee-direct">Corriger les années
+                                <button class="btn btn-primary" id="btn-fix-annee-direct"
+                                    style="background:linear-gradient(135deg,#10b981,#059669);">✅ Corriger Années
                                     d'étude</button>
-                                <button class="btn btn-primary" id="btn-sync-drive">Synchroniser avec Drive</button>
+                                <button class="btn btn-primary" id="btn-sync-drive">☁️ Synchroniser le Drive</button>
                             </div>
                         </div>
                         <div id="manage-docs-section" style="display:none;">
@@ -849,7 +854,7 @@
         <div class="edit-modal-box">
             <button class="edit-modal-close"
                 onclick="document.getElementById('modal-edit-info').classList.remove('open')">&times;</button>
-            <h3>Modifier l’annonce</h3>
+            <h3>✏️ Modifier l’annonce</h3>
             <form id="form-edit-info">
                 <input type="hidden" id="edit-info-id">
                 <div class="form-group"><label class="form-label">Titre *</label><input type="text" id="edit-info-titre"
@@ -879,7 +884,7 @@
         <div class="edit-modal-box">
             <button class="edit-modal-close"
                 onclick="document.getElementById('modal-edit-doc').classList.remove('open')">&times;</button>
-            <h3>Modifier le document</h3>
+            <h3>✏️ Modifier le document</h3>
             <form id="form-edit-doc">
                 <input type="hidden" id="edit-doc-id">
                 <div class="form-group"><label class="form-label">Titre *</label><input type="text" id="edit-doc-titre"
@@ -919,8 +924,8 @@
         </div>
     </div>
 
-    <script src="../js/api.js"></script>
-    <script src="../js/main.js"></script>
+    <script src="../js/api.js?v=5"></script>
+    <script src="../js/main.js?v=5"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             // Guard
@@ -1013,9 +1018,7 @@
                 const tbody = document.getElementById('users-table-body');
                 if (!users.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:1.5rem;color:var(--text-muted);">Aucun utilisateur.</td></tr>'; return; }
                 tbody.innerHTML = users.map(u => {
-                    const isOnline = u.is_online
-                        ? '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#16a34a;flex-shrink:0;" title="Connecté"></span>'
-                        : '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#94a3b8;flex-shrink:0;" title="Hors ligne"></span>';
+                    const isOnline = u.is_online ? '<span style="color:#16a34a;" title="En ligne">🟢</span>' : '<span style="color:#9ca3af;" title="Hors ligne">⚪</span>';
                     let lastActiveStr = 'Jamais';
                     if (u.last_active) {
                         const d = new Date(u.last_active);
@@ -1025,7 +1028,7 @@
                     return `
                 <tr>
                     <td>
-                        <div style="display:flex;align-items:center;gap:0.5rem;">
+                        <div style="display:flex;align-items:center;gap:0.4rem;">
                             ${isOnline}
                             <strong>${u.prenom} ${u.nom}</strong>
                         </div>
@@ -1033,13 +1036,13 @@
                     <td style="color:var(--text-muted);">${u.email}</td>
                     <td>${u.cycle || '—'} ${u.annee ? '(' + u.annee + ')' : ''}</td>
                     <td style="font-size:0.8rem;color:var(--text-muted);">${lastActiveStr}</td>
-                    <td><span class="role-badge ${u.role}">${u.role === 'admin' ? 'Admin' : 'Étudiant'}</span></td>
+                    <td><span class="role-badge ${u.role}">${u.role === 'admin' ? '⚙️ Admin' : '🎓 Étudiant'}</span></td>
                     <td style="text-align:right;white-space:nowrap;">
                         ${u.role === 'student'
-                            ? `<button class="action-btn promote" onclick="promoteUser('${u.id}','admin')">Rôle Admin</button>`
-                            : `<button class="action-btn" style="border-color:#f59e0b;color:#f59e0b;" onclick="promoteUser('${u.id}','student')">Rôle Étudiant</button>`
+                            ? `<button class="action-btn promote" onclick="promoteUser('${u.id}','admin')">↑ Admin</button>`
+                            : `<button class="action-btn" style="border-color:#f59e0b;color:#f59e0b;" onclick="promoteUser('${u.id}','student')">↓ Étudiant</button>`
                         }
-                        <button class="action-btn danger" onclick="deleteUser('${u.id}')">Supprimer</button>
+                        <button class="action-btn danger" onclick="deleteUser('${u.id}')">🗑️</button>
                     </td>
                 </tr>`;
                 }).join('');
@@ -1790,7 +1793,6 @@
                 try {
                     const token = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.access_token;
                     await fetch(`${API_BASE_URL}/admin/stats`, {
-
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
                 } catch (e) { /* ignoré */ }

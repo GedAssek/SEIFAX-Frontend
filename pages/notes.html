@@ -29,9 +29,7 @@
             </ul>
 
             <div class="navbar-actions">
-                <button id="theme-toggle" class="btn-icon" aria-label="Changer le thème" title="Changer le thème">
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-                </button>
+                <button id="theme-toggle" class="btn-icon" title="Thème">🌙</button>
                 <span id="user-badge" class="user-badge" style="display:none;"></span>
                 <a href="login.html" class="btn btn-primary" id="nav-auth">Se connecter</a>
                 <a href="#" class="btn btn-outline" id="nav-logout" style="display:none;">Déconnexion</a>
@@ -46,11 +44,12 @@
 
             <header class="page-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap: wrap; gap: 1rem;">
                 <div>
-                    <h1 class="page-title">Calculateur de Notes</h1>
-                    <p class="page-subtitle">Renseignez vos évaluations pour estimer vos moyennes automatiquement selon le coefficient officiel.</p>
+                    <h1 class="page-title">📊 Calculateur de Notes</h1>
+                    <p class="page-subtitle">Renseignez vos notes dans la feuille Excel pour voir vos moyennes se
+                        calculer automatiquement.</p>
                 </div>
                 <a href="../assets/Calculateur_Notes.xlsx" download="RELEVE_DE_NOTES_EAC_SEI1.xlsx"
-                    class="btn btn-outline">Télécharger le classeur Excel</a>
+                    class="btn btn-outline">📥 Télécharger le modèle Excel</a>
             </header>
 
             <!-- ── Custom JS Calculator ─────────────────────────────────────────── -->
@@ -155,19 +154,19 @@
             <img src="../assets/img/logo.jpg" alt="LEFAXEUR">
             <button class="mobile-menu-close" id="mobile-menu-close" aria-label="Fermer">&times;</button>
         </div>
-        <a href="../index.html" class="nav-link">Accueil</a>
-        <a href="documents.html" class="nav-link">Documents</a>
-        <a href="notes.html" class="nav-link">Notes</a>
-        <a href="heures.html" class="nav-link">Heures</a>
-        <a href="infos.html" class="nav-link">Informations</a>
-        <a href="admin.html" class="nav-link" id="mm-admin-drawer" style="display:none;">Administration</a>
+        <a href="../index.html" class="nav-link">&#127968; Accueil</a>
+        <a href="documents.html" class="nav-link">&#128218; Documents</a>
+        <a href="notes.html" class="nav-link">&#128202; Notes</a>
+        <a href="heures.html" class="nav-link">&#9200;&#65039; Heures</a>
+        <a href="infos.html" class="nav-link">&#128276; Informations</a>
+        <a href="admin.html" class="nav-link" id="mm-admin-drawer" style="display:none;">&#9881;&#65039; Administration</a>
         <div class="mobile-menu-footer">
             <a href="login.html" class="btn btn-primary" id="mm-auth-drawer">Se connecter</a>
-            <a href="#" class="btn btn-outline" id="mm-logout-drawer" style="display:none;">Déconnexion</a>
+            <a href="#" class="btn btn-outline" id="mm-logout-drawer" style="display:none;">Deconnexion</a>
         </div>
     </nav>
-<script src="../js/api.js"></script>
-    <script src="../js/main.js"></script>
+    <script src="../js/api.js?v=5"></script>
+    <script src="../js/main.js?v=5"></script>
     <script>
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -188,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (user.cycle !== "EAC-SEI") {
-        document.querySelector('.card').innerHTML = `<div class="text-center" style="padding:4rem 0;"><div class="badge badge-blue" style="margin-bottom:1rem; padding:0.4rem 0.8rem;">Module en cours d'intégration</div><h3>Calculateur non disponible</h3><p class="text-muted">Le barème de notes pour la filière <strong>${user.cycle}</strong> sera prochainement intégré.</p></div>`;
+        document.querySelector('.card').innerHTML = `<div class="text-center" style="padding:4rem 0;"><div style="font-size:3rem;">🚧</div><h3>Calculateur non disponible</h3><p class="text-muted">Le fichier de notes pour le cycle <strong>${user.cycle}</strong> sera ajouté prochainement.</p></div>`;
         return;
     }
 

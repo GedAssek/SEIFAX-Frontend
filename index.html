@@ -31,9 +31,7 @@
             </ul>
 
             <div class="navbar-actions">
-                <button id="theme-toggle" class="btn-icon" aria-label="Changer le thème" title="Changer le thème">
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-                </button>
+                <button id="theme-toggle" class="btn-icon" title="Changer le thème">🌙</button>
                 <span id="user-badge" class="user-badge" style="display:none;"></span>
                 <a href="pages/login.html" class="btn btn-primary" id="nav-auth">Se connecter</a>
                 <a href="#" class="btn btn-outline" id="nav-logout" style="display:none;">Déconnexion</a>
@@ -49,12 +47,15 @@
             <!-- VUE GUEST -->
             <section id="welcome-guest" class="hero-section">
                 <div class="hero-text">
-                    <span class="badge badge-blue" style="margin-bottom:1.25rem; font-size:0.8rem; letter-spacing:0.04em; text-transform:uppercase;">EAMAC · Espace d'apprentissage</span>
+                    <p class="badge badge-blue" style="margin-bottom:1.5rem; font-size:0.82rem;">✈️ EAMAC · Portail
+                        d'apprentissage</p>
                     <h1 class="hero-title">
-                        L'espace d'entraide et de révision des élèves de l'EAMAC
+                        L'excellence académique<br>
+                        <span class="text-gradient">à portée de clic.</span>
                     </h1>
                     <p class="hero-subtitle">
-                        Retrouvez les supports de cours, les annales d'épreuves et les informations utiles partagés par et pour la communauté étudiante.
+                        Rejoignez la plateforme exclusive pour accéder aux anciennes épreuves,
+                        aux annales et aux actualités de votre formation aéronautique.
                     </p>
                     <div class="flex gap-1" style="flex-wrap: wrap;">
                         <a href="pages/login.html" class="btn btn-primary" id="hero-btn-login">Accéder à la plateforme</a>
@@ -63,68 +64,110 @@
 
                     <!-- Feature pills -->
                     <div class="flex gap-1" style="margin-top:2.5rem; flex-wrap:wrap;">
-                        <span style="display:inline-flex;align-items:center;gap:0.5rem;color:var(--text-muted);font-size:0.86rem;background:var(--surface);border:1px solid var(--border);padding:0.4rem 0.8rem;border-radius:var(--radius-sm);"><span style="width:6px;height:6px;background:var(--primary);border-radius:50%;"></span>Annales & cours par cycle</span>
-                        <span style="display:inline-flex;align-items:center;gap:0.5rem;color:var(--text-muted);font-size:0.86rem;background:var(--surface);border:1px solid var(--border);padding:0.4rem 0.8rem;border-radius:var(--radius-sm);"><span style="width:6px;height:6px;background:var(--success);border-radius:50%;"></span>Annonces de formation</span>
-                        <span style="display:inline-flex;align-items:center;gap:0.5rem;color:var(--text-muted);font-size:0.86rem;background:var(--surface);border:1px solid var(--border);padding:0.4rem 0.8rem;border-radius:var(--radius-sm);"><span style="width:6px;height:6px;background:var(--warning);border-radius:50%;"></span>Accès réservé aux élèves</span>
+                        <span
+                            style="display:inline-flex;align-items:center;gap:0.4rem;color:var(--text-muted);font-size:0.88rem;"><span
+                                style="color:var(--primary);">📚</span> Banque d'épreuves</span>
+                        <span
+                            style="display:inline-flex;align-items:center;gap:0.4rem;color:var(--text-muted);font-size:0.88rem;"><span
+                                style="color:var(--primary);">🔔</span> Actualités en temps réel</span>
+                        <span
+                            style="display:inline-flex;align-items:center;gap:0.4rem;color:var(--text-muted);font-size:0.88rem;"><span
+                                style="color:var(--primary);">🛡️</span> Accès sécurisé</span>
                     </div>
                 </div>
 
                 <div class="hero-image">
-                    <div class="card" style="padding:2.2rem 1.8rem; text-align:center; max-width:340px; width:100%; box-shadow:0 12px 32px rgba(15,23,42,0.06); border:1px solid var(--border);">
-                        <div style="width:90px; height:90px; margin:0 auto 1.25rem; border-radius:14px; display:flex; align-items:center; justify-content:center; background:#ffffff; box-shadow:0 4px 16px rgba(0,0,0,0.06); border:1px solid var(--border); padding:10px;">
-                            <img src="assets/img/logo.jpg" alt="LEFAXEUR" style="width:100%; height:100%; object-fit:contain; border-radius:8px;">
+                    <div style="position:relative;">
+                        <div style="
+                        width:320px; height:320px;
+                        background: linear-gradient(135deg, rgba(26,86,219,0.15), rgba(17,24,39,0.08));
+                        border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+                        animation: morph 8s ease-in-out infinite;
+                        display:flex; align-items:center; justify-content:center;
+                        border: 1px solid rgba(26,86,219,0.15);
+                        box-shadow: 0 20px 60px rgba(26,86,219,0.15);
+                    ">
+                            <img src="assets/img/logo.jpg" alt="LEFAXEUR Logo"
+                                style="width:200px; height:200px; object-fit:contain; border-radius:50%; background:#fff; padding:12px; box-shadow:0 8px 32px rgba(26,86,219,0.2);">
                         </div>
-                        <h2 style="font-size:1.25rem; margin-bottom:0.4rem;">LEFAXEUR</h2>
-                        <p class="text-muted" style="font-size:0.85rem; margin-bottom:1.3rem; line-height:1.5;">Portail documentaire et de suivi académique pour les élèves de l'École Africaine de la Météorologie et de l'Aviation Civile.</p>
-                        <div style="display:flex; justify-content:center; gap:0.4rem; flex-wrap:wrap;">
-                            <span class="badge" style="background:rgba(37,99,235,0.08); color:var(--primary); font-size:0.75rem;">Ingénieurs</span>
-                            <span class="badge" style="background:rgba(22,163,74,0.08); color:var(--success); font-size:0.75rem;">Exploitation</span>
-                            <span class="badge" style="background:rgba(217,119,6,0.08); color:var(--warning); font-size:0.75rem;">Techniciens</span>
+                        <!-- Rings -->
+                        <div
+                            style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:380px;height:380px;border:2px dashed rgba(26,86,219,0.15);border-radius:50%;animation:spin 20s linear infinite;pointer-events:none;">
                         </div>
                     </div>
                 </div>
+
+                <style>
+                    @keyframes morph {
+                        0% {
+                            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+                        }
+
+                        50% {
+                            border-radius: 70% 30% 30% 70% / 70% 70% 30% 30%;
+                        }
+
+                        100% {
+                            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+                        }
+                    }
+
+                    @keyframes spin {
+                        from {
+                            transform: translate(-50%, -50%) rotate(0deg);
+                        }
+
+                        to {
+                            transform: translate(-50%, -50%) rotate(360deg);
+                        }
+                    }
+                </style>
             </section>
 
             <!-- VUE UTILISATEUR CONNECTÉ -->
             <section id="dashboard-user" class="hidden">
                 <header style="margin-bottom:2.5rem;">
-                    <h1 class="hero-title" style="font-size:2.4rem;">
-                        Bonjour, <span id="dashboard-name">Étudiant</span>
+                    <h1 class="hero-title" style="font-size:2.6rem;">
+                        Bonjour, <span id="dashboard-name" class="text-gradient">Étudiant</span> 👋
                     </h1>
-                    <p class="hero-subtitle" style="font-size:1rem; margin-bottom:1.5rem;">Accédez directement aux ressources de votre cycle.</p>
-                    <div class="flex gap-1" style="flex-wrap:wrap;">
-                        <a href="pages/documents.html" class="btn btn-primary">Explorer les documents</a>
-                        <a href="pages/infos.html" class="btn btn-outline">Dernières informations</a>
+                    <p class="hero-subtitle" style="font-size:1rem; margin-bottom:1.5rem;">Que souhaitez-vous réviser
+                        aujourd'hui ?</p>
+                    <div class="flex gap-1">
+                        <a href="pages/documents.html" class="btn btn-primary">Explorer les Documents</a>
+                        <a href="pages/infos.html" class="btn btn-outline">Dernières Infos</a>
                     </div>
                     <!-- Notification summary -->
                     <div id="dashboard-notif-summary"
-                        style="display:none; margin-top:1.25rem; padding:0.75rem 1rem; background:rgba(37,99,235,0.06); border:1px solid rgba(37,99,235,0.2); border-radius:var(--radius-md); font-size:0.9rem; color:var(--primary);">
-                        <span id="dashboard-notif-text"></span>
+                        style="display:none; margin-top:1.25rem; padding:0.75rem 1rem; background:rgba(26,86,219,0.06); border:1.5px solid rgba(26,86,219,0.2); border-radius:12px; font-size:0.9rem; color:var(--primary); display:flex; align-items:center; gap:0.6rem;">
+                        🔔 <span id="dashboard-notif-text"></span>
                     </div>
                 </header>
 
                 <div class="grid-cards grid-3">
-                    <div class="card" style="cursor:pointer; position:relative;"
+                    <div class="card text-center" style="cursor:pointer; position:relative;"
                         onclick="window.location='pages/documents.html'">
                         <span id="home-doc-badge"
-                            style="display:none; position:absolute; top:12px; right:12px; background:#dc2626; color:#fff; font-size:0.65rem; font-weight:700; border-radius:9999px; padding:2px 7px;"></span>
-                        <span class="badge badge-blue" style="margin-bottom:0.75rem; text-transform:uppercase; letter-spacing:0.04em; font-size:0.7rem;">Ressources</span>
-                        <h3 style="margin-bottom:0.4rem; font-size:1.15rem;">Centre de Documents</h3>
-                        <p class="text-muted" style="font-size:0.88rem; line-height:1.5;">Cours, travaux pratiques et épreuves d'évaluation organisés par filière et par matière.</p>
+                            style="display:none; position:absolute; top:12px; right:12px; background:#ef4444; color:#fff; font-size:0.65rem; font-weight:800; border-radius:9999px; padding:2px 7px;"></span>
+                        <div style="font-size:2.8rem; margin-bottom:1rem; display:block;">📚</div>
+                        <h3 style="margin-bottom:0.6rem;">Centre de Documents</h3>
+                        <p class="text-muted" style="font-size:0.92rem;">Cours, TP, et évaluations des années
+                            précédentes
+                            pour un entraînement ciblé.</p>
                     </div>
-                    <div class="card" style="cursor:pointer; position:relative;"
+                    <div class="card text-center" style="cursor:pointer; position:relative;"
                         onclick="window.location='pages/infos.html'">
                         <span id="home-info-badge"
-                            style="display:none; position:absolute; top:12px; right:12px; background:#dc2626; color:#fff; font-size:0.65rem; font-weight:700; border-radius:9999px; padding:2px 7px;"></span>
-                        <span class="badge badge-green" style="margin-bottom:0.75rem; text-transform:uppercase; letter-spacing:0.04em; font-size:0.7rem;">Annonces</span>
-                        <h3 style="margin-bottom:0.4rem; font-size:1.15rem;">Informations & Vie de formation</h3>
-                        <p class="text-muted" style="font-size:0.88rem; line-height:1.5;">Consultez les notes d'information, événements académiques et avis de votre promotion.</p>
+                            style="display:none; position:absolute; top:12px; right:12px; background:#ef4444; color:#fff; font-size:0.65rem; font-weight:800; border-radius:9999px; padding:2px 7px;"></span>
+                        <div style="font-size:2.8rem; margin-bottom:1rem; display:block;">🔔</div>
+                        <h3 style="margin-bottom:0.6rem;">Actualités</h3>
+                        <p class="text-muted" style="font-size:0.92rem;">Ne manquez plus aucun événement, changement de
+                            salle ou conférence.</p>
                     </div>
-                    <div class="card" style="cursor:pointer; position:relative;"
+                    <div class="card text-center" style="cursor:pointer; position:relative;"
                         onclick="window.location='pages/heures.html'">
-                        <span class="badge" style="background:rgba(217,119,6,0.1); color:var(--warning); margin-bottom:0.75rem; text-transform:uppercase; letter-spacing:0.04em; font-size:0.7rem;">Planning</span>
-                        <h3 style="margin-bottom:0.4rem; font-size:1.15rem;">Suivi des Volumes Horaires</h3>
-                        <p class="text-muted" style="font-size:0.88rem; line-height:1.5;">Vérifiez la progression des volumes d'enseignement dispensés par matière au fil des semaines.</p>
+                        <div style="font-size:2.8rem; margin-bottom:1rem; display:block;">⏱️</div>
+                        <h3 style="margin-bottom:0.6rem;">Suivi des heures</h3>
+                        <p class="text-muted" style="font-size:0.92rem;">Consultez la progression horaire de votre année.</p>
                     </div>
                 </div>
 
@@ -162,20 +205,20 @@
             <img src="assets/img/logo.jpg" alt="LEFAXEUR">
             <button class="mobile-menu-close" id="mobile-menu-close" aria-label="Fermer">&times;</button>
         </div>
-        <a href="index.html" class="nav-link active" id="mm-home">Accueil</a>
-        <a href="pages/documents.html" class="nav-link" id="mm-docs" style="display:none;">Documents</a>
-        <a href="pages/notes.html" class="nav-link" id="mm-notes" style="display:none;">Notes</a>
-        <a href="pages/heures.html" class="nav-link" id="mm-heures" style="display:none;">Heures</a>
-        <a href="pages/infos.html" class="nav-link" id="mm-infos" style="display:none;">Informations</a>
-        <a href="pages/admin.html" class="nav-link" id="mm-admin" style="display:none;">Administration</a>
+        <a href="index.html" class="nav-link active" id="mm-home">🏠 Accueil</a>
+        <a href="pages/documents.html" class="nav-link" id="mm-docs" style="display:none;">📚 Documents</a>
+        <a href="pages/notes.html" class="nav-link" id="mm-notes" style="display:none;">📊 Notes</a>
+        <a href="pages/heures.html" class="nav-link" id="mm-heures" style="display:none;">⏱️ Heures</a>
+        <a href="pages/infos.html" class="nav-link" id="mm-infos" style="display:none;">🔔 Informations</a>
+        <a href="pages/admin.html" class="nav-link" id="mm-admin" style="display:none;">⚙️ Administration</a>
         <div class="mobile-menu-footer">
             <a href="pages/login.html" class="btn btn-primary" id="mm-auth">Se connecter</a>
             <a href="#" class="btn btn-outline" id="mm-logout" style="display:none;">Déconnexion</a>
         </div>
     </nav>
 
-    <script src="js/api.js"></script>
-    <script src="js/main.js"></script>
+    <script src="js/api.js?v=5"></script>
+    <script src="js/main.js?v=5"></script>
     <script>
         // Synchronise le menu mobile avec l'état d'authentification
         document.addEventListener('DOMContentLoaded', async () => {

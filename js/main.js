@@ -39,8 +39,8 @@ function checkAuthGuard() {
 }
 
 const THEME_ICONS = {
-    sun: `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`,
-    moon: `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`
+    sun: '☀️',
+    moon: '🌙'
 };
 
 function initTheme() {
@@ -113,27 +113,23 @@ function updateNavigation() {
                             <p><strong>Promotion :</strong> ${user.promotion || 'Non spécifiée'}</p>
                         </div>
                         <hr style="margin: 1rem 0; border:0; border-top:1px solid rgba(128,128,128,0.2);">
-                        <h3 style="font-size:1rem; margin-bottom:1rem;">Changer le mot de passe</h3>
+                        <h3 style="font-size:1rem; margin-bottom:1rem;">🔒 Changer le mot de passe</h3>
                         <form id="form-change-password">
                             <div class="form-group">
                                 <label class="form-label">Ancien mot de passe</label>
                                 <div style="position:relative;">
                                     <input type="password" class="form-control" id="old-password" required style="padding-right:2.5rem;">
-                                    <button type="button" id="toggle-old-pwd" aria-label="Afficher/Masquer le mot de passe" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:var(--text-muted); display:flex; align-items:center;">
-                                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                                    </button>
+                                    <button type="button" id="toggle-old-pwd" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; font-size:1.1rem; color:var(--text-muted);">👁️</button>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Nouveau mot de passe</label>
                                 <div style="position:relative;">
                                     <input type="password" class="form-control" id="new-password" required style="padding-right:2.5rem;">
-                                    <button type="button" id="toggle-new-pwd" aria-label="Afficher/Masquer le mot de passe" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:var(--text-muted); display:flex; align-items:center;">
-                                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                                    </button>
+                                    <button type="button" id="toggle-new-pwd" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; font-size:1.1rem; color:var(--text-muted);">👁️</button>
                                 </div>
                             </div>
-                            <button type="submit" class="btn btn-primary" style="width:100%;">Enregistrer les modifications</button>
+                            <button type="submit" class="btn btn-primary" style="width:100%;">Mettre à jour</button>
                         </form>
                     </div>
                 </div>`;
@@ -339,7 +335,7 @@ function initAuthPage() {
         const button = document.createElement('button');
         button.type = 'button';
         button.className = 'eye-toggle';
-        button.innerHTML = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+        button.innerHTML = '&#128065;';
         button.setAttribute('aria-label', 'Afficher le mot de passe');
         button.title = 'Afficher le mot de passe';
         button.addEventListener('click', () => {

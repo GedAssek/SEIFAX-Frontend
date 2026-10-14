@@ -74,16 +74,14 @@
             <ul class="navbar-nav">
                 <li><a href="../index.html" class="nav-link">Accueil</a></li>
                 <li><a href="documents.html" class="nav-link active">Documents<span id="docs-notif-badge" class="notif-badge-nav" style="display:none;"></span></a></li>
-                <li><a href="notes.html" class="nav-link" id="mm-notes" style="display:none;">Notes</a></li>
-                <li><a href="heures.html" class="nav-link" id="mm-heures" style="display:none;">Heures</a></li>
-                <li><a href="infos.html" class="nav-link" id="mm-infos" style="display:none;">Informations</a></li>
+                <li><a href="notes.html" class="nav-link" id="mm-notes" style="display:none;">📊 Notes</a></li>
+                <li><a href="heures.html" class="nav-link" id="mm-heures" style="display:none;">⏱️ Heures</a></li>
+                <li><a href="infos.html" class="nav-link" id="mm-infos" style="display:none;">🔔 Informations</a></li>
                 <li><a href="admin.html" class="nav-link" id="nav-admin" style="display:none;">Administration</a></li>
             </ul>
 
             <div class="navbar-actions">
-                <button id="theme-toggle" class="btn-icon" aria-label="Changer le thème" title="Changer le thème">
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-                </button>
+                <button id="theme-toggle" class="btn-icon" title="Thème">🌙</button>
                 <span id="user-badge" class="user-badge" style="display:none;"></span>
                 <a href="login.html" class="btn btn-primary" id="nav-auth">Se connecter</a>
                 <a href="#" class="btn btn-outline" id="nav-logout" style="display:none;">Déconnexion</a>
@@ -105,9 +103,9 @@
             <!-- Bannière nouveaux documents -->
             <div id="new-docs-banner" class="new-docs-banner" style="display:none;">
                 <div class="new-docs-banner-text">
-                    <span id="new-docs-count"></span> nouveau(x) document(s) disponible(s) pour votre filière
+                    🆕 <span id="new-docs-count"></span> nouveau(x) document(s) disponible(s) dans votre cycle !
                 </div>
-                <button class="new-docs-banner-close" id="btn-dismiss-banner" title="Fermer">Fermer</button>
+                <button class="new-docs-banner-close" id="btn-dismiss-banner" title="Fermer">✕ Marquer comme lus</button>
             </div>
 
             <!-- ── Tabs ───────────────────────────────────────────────── -->
@@ -194,20 +192,20 @@
             <img src="../assets/img/logo.jpg" alt="LEFAXEUR">
             <button class="mobile-menu-close" id="mobile-menu-close" aria-label="Fermer">&times;</button>
         </div>
-        <a href="../index.html" class="nav-link">Accueil</a>
-        <a href="documents.html" class="nav-link active">Documents</a>
-        <a href="notes.html" class="nav-link" id="mm-notes-drawer" style="display:none;">Notes</a>
-        <a href="heures.html" class="nav-link" id="mm-heures-drawer" style="display:none;">Heures</a>
-        <a href="infos.html" class="nav-link" id="mm-infos-drawer" style="display:none;">Informations</a>
-        <a href="admin.html" class="nav-link" id="mm-admin-drawer" style="display:none;">Administration</a>
+        <a href="../index.html" class="nav-link">🏠 Accueil</a>
+        <a href="documents.html" class="nav-link active">📚 Documents</a>
+        <a href="notes.html" class="nav-link" id="mm-notes-drawer" style="display:none;">📊 Notes</a>
+        <a href="heures.html" class="nav-link" id="mm-heures-drawer" style="display:none;">⏱️ Heures</a>
+        <a href="infos.html" class="nav-link" id="mm-infos-drawer" style="display:none;">🔔 Informations</a>
+        <a href="admin.html" class="nav-link" id="mm-admin-drawer" style="display:none;">⚙️ Administration</a>
         <div class="mobile-menu-footer">
             <a href="login.html" class="btn btn-primary" id="mm-auth-drawer">Se connecter</a>
             <a href="#" class="btn btn-outline" id="mm-logout-drawer" style="display:none;">Déconnexion</a>
         </div>
     </nav>
 
-    <script src="../js/api.js"></script>
-    <script src="../js/main.js"></script>
+    <script src="../js/api.js?v=5"></script>
+    <script src="../js/main.js?v=5"></script>
     <script>
         let allDocuments = [];
         let filteredDocuments = [];
@@ -272,7 +270,7 @@
                     if (cycleFilter) cycleFilter.style.display = 'none';
                     if (anneeFilter) anneeFilter.style.display = 'block'; // garder visible
                     lockedBadge.classList.remove('hidden');
-                    lockedBadge.innerHTML = `Filière : ${user.cycle}`;
+                    lockedBadge.innerHTML = `🔒 Cycle: ${user.cycle}`;
                     if (cycleFilter) cycleFilter.value = user.cycle;
                 } else {
                     // Admin: pré-remplir mais laisser libre
@@ -456,8 +454,8 @@
                 
                 <p class="text-muted" style="font-size:0.85rem;margin-bottom:1.25rem;">${doc.cycle}</p>
                 ${canDownload
-                    ? `<button class="btn btn-outline" style="width:100%;font-size:0.9rem;" onclick="markDocAsSeen('${doc.id}'); openAuthenticatedFile('${downloadUrl}')">Consulter le document</button>`
-                    : `<button class="btn btn-outline" style="width:100%;font-size:0.9rem;opacity:0.5;cursor:not-allowed;" disabled>Document non disponible</button>`
+                    ? `<button class="btn btn-outline" style="width:100%;font-size:0.9rem;" onclick="markDocAsSeen('${doc.id}'); openAuthenticatedFile('${downloadUrl}')">📄 Ouvrir le PDF</button>`
+                    : `<button class="btn btn-outline" style="width:100%;font-size:0.9rem;opacity:0.5;cursor:not-allowed;" disabled>Fichier non disponible</button>`
                 }
             </div>`;
             });

@@ -43,9 +43,7 @@
             </ul>
 
             <div class="navbar-actions">
-                <button id="theme-toggle" class="btn-icon" aria-label="Changer le thème" title="Changer le thème">
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-                </button>
+                <button id="theme-toggle" class="btn-icon" title="Thème">🌙</button>
                 <span id="user-badge" class="user-badge" style="display:none;"></span>
                 <a href="login.html" class="btn btn-primary" id="nav-auth">Se connecter</a>
                 <a href="#" class="btn btn-outline" id="nav-logout" style="display:none;">Déconnexion</a>
@@ -66,9 +64,9 @@
             <!-- Bannière nouvelles infos -->
             <div id="new-infos-banner" class="new-infos-banner" style="display:none;">
                 <div class="new-infos-banner-text">
-                    <span id="new-infos-count"></span> nouvelle(s) annonce(s) non lue(s)
+                    🔔 <span id="new-infos-count"></span> nouvelle(s) annonce(s) non lue(s) !
                 </div>
-                <button class="new-infos-banner-close" id="btn-dismiss-infos-banner" title="Fermer">Marquer comme lues</button>
+                <button class="new-infos-banner-close" id="btn-dismiss-infos-banner" title="Fermer">✕ Marquer comme lues</button>
             </div>
 
             <!-- Spinner de chargement -->
@@ -106,19 +104,19 @@
             <img src="../assets/img/logo.jpg" alt="LEFAXEUR">
             <button class="mobile-menu-close" id="mobile-menu-close" aria-label="Fermer">&times;</button>
         </div>
-        <a href="../index.html" class="nav-link">Accueil</a>
-        <a href="documents.html" class="nav-link">Documents</a>
-        <a href="notes.html" class="nav-link">Notes</a>
-        <a href="heures.html" class="nav-link">Heures</a>
-        <a href="infos.html" class="nav-link">Informations</a>
-        <a href="admin.html" class="nav-link" id="mm-admin-drawer" style="display:none;">Administration</a>
+        <a href="../index.html" class="nav-link">&#127968; Accueil</a>
+        <a href="documents.html" class="nav-link">&#128218; Documents</a>
+        <a href="notes.html" class="nav-link">&#128202; Notes</a>
+        <a href="heures.html" class="nav-link">&#9200;&#65039; Heures</a>
+        <a href="infos.html" class="nav-link">&#128276; Informations</a>
+        <a href="admin.html" class="nav-link" id="mm-admin-drawer" style="display:none;">&#9881;&#65039; Administration</a>
         <div class="mobile-menu-footer">
             <a href="login.html" class="btn btn-primary" id="mm-auth-drawer">Se connecter</a>
-            <a href="#" class="btn btn-outline" id="mm-logout-drawer" style="display:none;">Déconnexion</a>
+            <a href="#" class="btn btn-outline" id="mm-logout-drawer" style="display:none;">Deconnexion</a>
         </div>
     </nav>
-<script src="../js/api.js"></script>
-    <script src="../js/main.js"></script>
+    <script src="../js/api.js?v=5"></script>
+    <script src="../js/main.js?v=5"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             const userStr = localStorage.getItem('LEFAXEUR_user');
@@ -177,9 +175,9 @@
 
                 let cycleBadge = "";
                 if (info.cycle && info.cycle !== "Général") {
-                    cycleBadge = `<span class="badge" style="margin-left:0.5rem; background:rgba(22,163,74,0.1); color:var(--primary);">${info.cycle}</span>`;
+                    cycleBadge = `<span class="badge" style="margin-left:0.5rem; background:rgba(22,163,74,0.1); color:var(--primary);">🎯 ${info.cycle}</span>`;
                 } else {
-                    cycleBadge = `<span class="badge" style="margin-left:0.5rem; background:rgba(107,114,128,0.1); color:var(--text-muted);">Général</span>`;
+                    cycleBadge = `<span class="badge" style="margin-left:0.5rem; background:rgba(107,114,128,0.1); color:var(--text-muted);">📢 Général</span>`;
                 }
 
                 let attachmentHtml = "";
@@ -187,13 +185,13 @@
                     if (info.file_type === 'image') {
                         attachmentHtml = `
                             <div style="margin-top:1rem; border-radius:var(--radius-md); overflow:hidden;">
-                                <button class="btn btn-outline" style="font-size:0.85rem; padding:0.5rem 1rem;" onclick="openAuthenticatedFile('${info.file_url}')">Consulter l'image jointe</button>
+                                <button class="btn btn-outline" style="font-size:0.85rem; padding:0.5rem 1rem;" onclick="openAuthenticatedFile('${info.file_url}')">🖼️ Voir l'image jointe</button>
                             </div>
                         `;
                     } else if (info.file_type === 'pdf') {
                         attachmentHtml = `
                             <div style="margin-top:1rem;">
-                                <button class="btn btn-outline" style="padding:0.5rem 1rem; font-size:0.85rem;" onclick="openAuthenticatedFile('${info.file_url}')">Consulter le document joint</button>
+                                <button class="btn btn-outline" style="padding:0.5rem 1rem; font-size:0.85rem;" onclick="openAuthenticatedFile('${info.file_url}')">📥 Ouvrir le document PDF joint</button>
                             </div>
                         `;
                     }
@@ -206,7 +204,7 @@
                         ${info.titre}
                         ${cycleBadge}
                     </h3>
-                    <span class="badge badge-blue">Publié le ${dateStr}</span>
+                    <span class="badge badge-blue">📅 ${dateStr}</span>
                 </div>
                 <hr class="divider">
                 <p class="text-muted" style="font-size:0.93rem; line-height:1.7;">

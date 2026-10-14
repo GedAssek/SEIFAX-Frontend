@@ -65,64 +65,94 @@ async function openAuthenticatedFile(fileUrl, token) {
     }
 }
 
+async function parseErrorResponse(res, defaultErrMsg = "Erreur du serveur") {
+    let rawText = '';
+    try {
+        const contentType = res.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+            const err = await res.json();
+            if (typeof err.detail === 'string') return { message: err.detail, detail: err.detail };
+            if (Array.isArray(err.detail)) {
+                return { message: err.detail.map(e => e.msg || JSON.stringify(e)).join('\n'), detail: err.detail };
+            }
+            if (err.detail && typeof err.detail === 'object') {
+                return { message: err.detail.message || defaultErrMsg, detail: err.detail };
+            }
+            if (err.message) return { message: err.message, detail: err };
+        } else {
+            rawText = await res.text();
+        }
+    } catch {
+        // Ignorer l'erreur de parsing
+    }
+    if (rawText && rawText.length < 250 && !rawText.includes('<html') && !rawText.includes('<!DOCTYPE')) {
+        return { message: rawText };
+    }
+    if (res.status === 404) return { message: "Service ou ressource introuvable (Erreur 404)." };
+    if (res.status === 502 || res.status === 503 || res.status === 504) {
+        return { message: "Le serveur est temporairement inaccessible. Veuillez réessayer dans un instant." };
+    }
+    return { message: `${defaultErrMsg} (Erreur ${res.status})` };
+}
+
 const api = {
     // ─── Authentification ───────────────────────────────────────────────────
     login: async (username, password) => {
-        const res = await fetch(`${API_BASE_URL}/auth/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
-        });
+        let res;
+        try {
+            res = await fetch(`${API_BASE_URL}/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+        } catch (netErr) {
+            throw new Error("Impossible de joindre le serveur. Vérifiez votre connexion internet.");
+        }
         if (!res.ok) {
-            const err = await res.json();
-            if (err.detail && typeof err.detail === 'object') {
-                const errorObj = new Error(err.detail.message || 'Erreur de connexion');
-                errorObj.detail = err.detail;
-                throw errorObj;
-            }
-            throw new Error(err.detail || 'Erreur de connexion');
+            const parsed = await parseErrorResponse(res, 'Erreur de connexion');
+            const err = new Error(parsed.message);
+            if (parsed.detail) err.detail = parsed.detail;
+            throw err;
         }
         return res.json();
     },
 
     register: async (userData) => {
-        const res = await fetch(`${API_BASE_URL}/auth/register`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(userData)
-        });
+        let res;
+        try {
+            res = await fetch(`${API_BASE_URL}/auth/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(userData)
+            });
+        } catch (netErr) {
+            throw new Error("Impossible de joindre le serveur. Vérifiez votre connexion internet.");
+        }
         if (!res.ok) {
-            const err = await res.json();
-            let errMsg = "Erreur lors de l'inscription";
-            if (typeof err.detail === 'string') {
-                errMsg = err.detail;
-            } else if (Array.isArray(err.detail)) {
-                errMsg = err.detail.map(e => e.msg).join('\\n');
-            } else if (err.detail && typeof err.detail === 'object') {
-                errMsg = err.detail.message || JSON.stringify(err.detail);
-            }
-            throw new Error(errMsg);
+            const parsed = await parseErrorResponse(res, "Erreur lors de l'inscription");
+            const err = new Error(parsed.message);
+            if (parsed.detail) err.detail = parsed.detail;
+            throw err;
         }
         return res.json();
     },
 
     completeProfile: async (userData) => {
-        const res = await fetch(`${API_BASE_URL}/auth/complete-profile`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(userData)
-        });
+        let res;
+        try {
+            res = await fetch(`${API_BASE_URL}/auth/complete-profile`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(userData)
+            });
+        } catch (netErr) {
+            throw new Error("Impossible de joindre le serveur. Vérifiez votre connexion internet.");
+        }
         if (!res.ok) {
-            const err = await res.json();
-            let errMsg = "Erreur lors de la complétion du profil";
-            if (typeof err.detail === 'string') {
-                errMsg = err.detail;
-            } else if (Array.isArray(err.detail)) {
-                errMsg = err.detail.map(e => e.msg).join('\\n');
-            } else if (err.detail && typeof err.detail === 'object') {
-                errMsg = err.detail.message || JSON.stringify(err.detail);
-            }
-            throw new Error(errMsg);
+            const parsed = await parseErrorResponse(res, "Erreur lors de la complétion du profil");
+            const err = new Error(parsed.message);
+            if (parsed.detail) err.detail = parsed.detail;
+            throw err;
         }
         return res.json();
     },
