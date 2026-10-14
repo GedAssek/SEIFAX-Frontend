@@ -26,8 +26,29 @@ async function openAuthenticatedFile(fileUrl, token) {
         alert('Aucun fichier disponible.');
         return;
     }
+
+    // 1. Si le document provient de Google Drive, ouvrir directement
+    // (Ne pas faire de fetch() + blob, sinon c'est la page HTML Google Drive qui est téléchargée)
+    if (fileUrl.includes('drive.google.com')) {
+        const driveMatch = fileUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || fileUrl.match(/id=([a-zA-Z0-9_-]+)/);
+        if (driveMatch && driveMatch[1]) {
+            const fileId = driveMatch[1];
+            // Mode aperçu rapide Google Drive avec barre d'outils et téléchargement
+            window.open(`https://drive.google.com/file/d/${fileId}/preview`, '_blank');
+        } else {
+            window.open(fileUrl, '_blank');
+        }
+        return;
+    }
+
+    // 2. Si c'est un autre lien externe absolu (non hébergé sur notre API)
+    if ((fileUrl.startsWith('http://') || fileUrl.startsWith('https://')) && !fileUrl.startsWith(BACKEND_ORIGIN)) {
+        window.open(fileUrl, '_blank');
+        return;
+    }
+
+    // 3. Fichier hébergé sur notre Backend local (/api/files/...) : nécessite le JWT Bearer
     try {
-        // Résoudre l'URL absolue sans doubler /api
         const absoluteUrl = new URL(
             fileUrl.startsWith('http') ? fileUrl : (fileUrl.startsWith('/') ? fileUrl : '/' + fileUrl),
             BACKEND_ORIGIN
@@ -53,7 +74,6 @@ async function openAuthenticatedFile(fileUrl, token) {
         const blobUrl = URL.createObjectURL(blob);
         const newTab = window.open(blobUrl, '_blank');
 
-        // Libérer la mémoire après que l'onglet a eu le temps de charger
         setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
 
         if (!newTab) {
