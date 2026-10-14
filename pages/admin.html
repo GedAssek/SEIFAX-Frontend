@@ -11,44 +11,255 @@
     <!-- EmailJS SDK : envoi d'emails côté frontend sans serveur -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <style>
-        .stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:1rem; margin-bottom:2rem; }
-        .stat-card { background:var(--card-bg); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.25rem 1rem; text-align:center; transition:transform .2s,box-shadow .2s; }
-        .stat-card:hover { transform:translateY(-3px); box-shadow:0 8px 24px rgba(0,0,0,.1); }
-        .stat-card .stat-icon { font-size:2rem; margin-bottom:.5rem; }
-        .stat-card .stat-value { font-size:2rem; font-weight:800; color:var(--primary); line-height:1; }
-        .stat-card .stat-label { font-size:.82rem; color:var(--text-muted); margin-top:.25rem; }
-        .admin-tabs { display:flex; gap:.5rem; border-bottom:2px solid var(--border); margin-bottom:1.5rem; overflow-x:auto; scrollbar-width:none; }
-        .admin-tabs::-webkit-scrollbar { display:none; }
-        .admin-tab { padding:.65rem 1.25rem; border:none; background:none; cursor:pointer; font-size:.9rem; font-weight:600; color:var(--text-muted); border-bottom:3px solid transparent; white-space:nowrap; transition:all .2s; }
-        .admin-tab.active { color:var(--primary); border-bottom-color:var(--primary); }
-        .admin-tab:hover:not(.active) { color:var(--text); }
-        .tab-panel { display:none; }
-        .tab-panel.active { display:block; }
-        .data-table { width:100%; border-collapse:collapse; font-size:.88rem; }
-        .data-table th { padding:.75rem 1rem; text-align:left; font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--text-muted); background:rgba(0,0,0,.03); border-bottom:1px solid var(--border); }
-        .data-table td { padding:.85rem 1rem; border-bottom:1px solid var(--border); vertical-align:middle; }
-        .data-table tr:hover td { background:rgba(26,86,219,.03); }
-        .data-table tr:last-child td { border-bottom:none; }
-        .role-badge { display:inline-block; padding:.2rem .65rem; border-radius:9999px; font-size:.75rem; font-weight:700; }
-        .role-badge.admin { background:rgba(220,38,38,.1); color:var(--danger); border:1px solid rgba(220,38,38,.25); }
-        .role-badge.student { background:rgba(26,86,219,.1); color:var(--primary); border:1px solid rgba(26,86,219,.2); }
-        .action-btn { padding:.3rem .7rem; border-radius:var(--radius-sm); font-size:.78rem; font-weight:600; border:1px solid var(--border); cursor:pointer; background:var(--card-bg); color:var(--text); transition:all .15s; margin-left:3px; }
-        .action-btn:hover { opacity:.8; }
-        .action-btn.danger { border-color:var(--danger); color:var(--danger); }
-        .action-btn.promote { border-color:#16a34a; color:#16a34a; }
-        .form-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:.85rem; }
-        @media(max-width:480px) { .form-grid-2 { grid-template-columns:1fr; } }
-        textarea.form-control { resize:vertical; min-height:120px; }
-        .admin-badge-pill { display:inline-flex; align-items:center; gap:.4rem; background:rgba(220,38,38,.1); color:var(--danger); padding:.3rem .9rem; border-radius:9999px; font-size:.82rem; font-weight:700; border:1px solid rgba(220,38,38,.25); }
-        .cycle-bar-wrap { margin-bottom:.75rem; }
-        .cycle-bar-label { display:flex; justify-content:space-between; font-size:.82rem; margin-bottom:.25rem; }
-        .cycle-bar-track { background:var(--border); border-radius:9999px; height:8px; overflow:hidden; }
-        .cycle-bar-fill { height:100%; border-radius:9999px; background:linear-gradient(90deg,#1a56db,#6366f1); transition:width .5s ease; }
-        .table-wrap { overflow-x:auto; }
-        .search-box { padding:.55rem 1rem; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--card-bg); color:var(--text); font-size:.9rem; width:100%; max-width:320px; margin-bottom:1rem; }
-        .publish-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.75rem; }
-        @media(max-width:720px) { .publish-grid { grid-template-columns:1fr; } }
-        .action-btn.edit { border-color:#2563eb; color:#2563eb; }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem 1rem;
+            text-align: center;
+            transition: transform .2s, box-shadow .2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .1);
+        }
+
+        .stat-card .stat-icon {
+            font-size: 2rem;
+            margin-bottom: .5rem;
+        }
+
+        .stat-card .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1;
+        }
+
+        .stat-card .stat-label {
+            font-size: .82rem;
+            color: var(--text-muted);
+            margin-top: .25rem;
+        }
+
+        .admin-tabs {
+            display: flex;
+            gap: .5rem;
+            border-bottom: 2px solid var(--border);
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .admin-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .admin-tab {
+            padding: .65rem 1.25rem;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: .9rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+            transition: all .2s;
+        }
+
+        .admin-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .admin-tab:hover:not(.active) {
+            color: var(--text);
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: .88rem;
+        }
+
+        .data-table th {
+            padding: .75rem 1rem;
+            text-align: left;
+            font-size: .78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            color: var(--text-muted);
+            background: rgba(0, 0, 0, .03);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .data-table td {
+            padding: .85rem 1rem;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        .data-table tr:hover td {
+            background: rgba(26, 86, 219, .03);
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: .2rem .65rem;
+            border-radius: 9999px;
+            font-size: .75rem;
+            font-weight: 700;
+        }
+
+        .role-badge.admin {
+            background: rgba(220, 38, 38, .1);
+            color: var(--danger);
+            border: 1px solid rgba(220, 38, 38, .25);
+        }
+
+        .role-badge.student {
+            background: rgba(26, 86, 219, .1);
+            color: var(--primary);
+            border: 1px solid rgba(26, 86, 219, .2);
+        }
+
+        .action-btn {
+            padding: .3rem .7rem;
+            border-radius: var(--radius-sm);
+            font-size: .78rem;
+            font-weight: 600;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            background: var(--card-bg);
+            color: var(--text);
+            transition: all .15s;
+            margin-left: 3px;
+        }
+
+        .action-btn:hover {
+            opacity: .8;
+        }
+
+        .action-btn.danger {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .action-btn.promote {
+            border-color: #16a34a;
+            color: #16a34a;
+        }
+
+        .form-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: .85rem;
+        }
+
+        @media(max-width:480px) {
+            .form-grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .admin-badge-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            background: rgba(220, 38, 38, .1);
+            color: var(--danger);
+            padding: .3rem .9rem;
+            border-radius: 9999px;
+            font-size: .82rem;
+            font-weight: 700;
+            border: 1px solid rgba(220, 38, 38, .25);
+        }
+
+        .cycle-bar-wrap {
+            margin-bottom: .75rem;
+        }
+
+        .cycle-bar-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: .82rem;
+            margin-bottom: .25rem;
+        }
+
+        .cycle-bar-track {
+            background: var(--border);
+            border-radius: 9999px;
+            height: 8px;
+            overflow: hidden;
+        }
+
+        .cycle-bar-fill {
+            height: 100%;
+            border-radius: 9999px;
+            background: linear-gradient(90deg, #1a56db, #6366f1);
+            transition: width .5s ease;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        .search-box {
+            padding: .55rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            background: var(--card-bg);
+            color: var(--text);
+            font-size: .9rem;
+            width: 100%;
+            max-width: 320px;
+            margin-bottom: 1rem;
+        }
+
+        .publish-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.75rem;
+        }
+
+        @media(max-width:720px) {
+            .publish-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .action-btn.edit {
+            border-color: #2563eb;
+            color: #2563eb;
+        }
+
         /* ── Modal Édition ─────────────────────────────────────────── */
         .edit-modal-bg {
             display: none;
@@ -60,7 +271,11 @@
             align-items: center;
             backdrop-filter: blur(4px);
         }
-        .edit-modal-bg.open { display: flex; }
+
+        .edit-modal-bg.open {
+            display: flex;
+        }
+
         .edit-modal-box {
             background: #ffffff;
             border-radius: 16px;
@@ -69,11 +284,12 @@
             max-width: 520px;
             margin: 1rem;
             position: relative;
-            box-shadow: 0 24px 80px rgba(0,0,0,.35);
+            box-shadow: 0 24px 80px rgba(0, 0, 0, .35);
             color: #1a1a2e;
             max-height: 90vh;
             overflow-y: auto;
         }
+
         .edit-modal-box h3 {
             font-size: 1.15rem;
             font-weight: 800;
@@ -82,6 +298,7 @@
             padding-bottom: 0.75rem;
             border-bottom: 2px solid #e5e7eb;
         }
+
         .edit-modal-box .form-label {
             color: #374151 !important;
             font-weight: 600;
@@ -89,6 +306,7 @@
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
+
         .edit-modal-box .form-control {
             background: #f9fafb !important;
             border: 1.5px solid #d1d5db !important;
@@ -99,13 +317,22 @@
             width: 100%;
             box-sizing: border-box;
         }
+
         .edit-modal-box .form-control:focus {
             outline: none;
             border-color: #2563eb !important;
-            box-shadow: 0 0 0 3px rgba(37,99,235,.15);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, .15);
         }
-        .edit-modal-box textarea.form-control { min-height: 110px; resize: vertical; }
-        .edit-modal-box .form-group { margin-bottom: 1rem; }
+
+        .edit-modal-box textarea.form-control {
+            min-height: 110px;
+            resize: vertical;
+        }
+
+        .edit-modal-box .form-group {
+            margin-bottom: 1rem;
+        }
+
         .edit-modal-close {
             position: absolute;
             top: 1rem;
@@ -123,20 +350,89 @@
             justify-content: center;
             transition: background .15s;
         }
-        .edit-modal-close:hover { background: #e5e7eb; color: #111827; }
+
+        .edit-modal-close:hover {
+            background: #e5e7eb;
+            color: #111827;
+        }
+
         /* ── Upload Progress Bar ─────────────────────────────────────── */
-        .upload-progress-wrap { margin-top: 1rem; display: none; }
-        .upload-progress-wrap.visible { display: block; }
-        .upload-progress-bar-track { height: 6px; background: #e5e7eb; border-radius: 9999px; overflow: hidden; margin-bottom: 0.5rem; }
-        .upload-progress-bar-fill { height: 100%; background: linear-gradient(90deg, #16a34a, #22c55e); border-radius: 9999px; width: 0%; transition: width 0.4s ease; }
-        .upload-status-msg { font-size: 0.82rem; color: #6b7280; text-align: center; min-height: 1.2em; }
+        .upload-progress-wrap {
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .upload-progress-wrap.visible {
+            display: block;
+        }
+
+        .upload-progress-bar-track {
+            height: 6px;
+            background: #e5e7eb;
+            border-radius: 9999px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #16a34a, #22c55e);
+            border-radius: 9999px;
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        .upload-status-msg {
+            font-size: 0.82rem;
+            color: #6b7280;
+            text-align: center;
+            min-height: 1.2em;
+        }
+
         /* ── Wake-up Banner ──────────────────────────────────────────── */
-        .wakeup-banner { display: flex; align-items: center; gap: 0.6rem; padding: 0.65rem 1rem; background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.4); border-radius: var(--radius-md); font-size: 0.85rem; color: #92400e; margin-bottom: 1.25rem; }
-        .wakeup-banner .spinner { width: 16px; height: 16px; border: 2px solid rgba(245,158,11,0.3); border-top-color: #f59e0b; border-radius: 50%; animation: spin 0.8s linear infinite; flex-shrink: 0; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        .wakeup-banner {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.65rem 1rem;
+            background: rgba(245, 158, 11, 0.12);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            border-radius: var(--radius-md);
+            font-size: 0.85rem;
+            color: #92400e;
+            margin-bottom: 1.25rem;
+        }
+
+        .wakeup-banner .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(245, 158, 11, 0.3);
+            border-top-color: #f59e0b;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            flex-shrink: 0;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
         /* ── Notification Email Config ───────────────────────────────── */
-        .email-config-box { background: rgba(26,86,219,0.04); border: 1.5px dashed rgba(26,86,219,0.3); border-radius: var(--radius-md); padding: 0.9rem 1rem; margin-bottom: 1rem; font-size: 0.83rem; color: var(--text-muted); }
-        .email-config-box strong { color: var(--primary); }
+        .email-config-box {
+            background: rgba(26, 86, 219, 0.04);
+            border: 1.5px dashed rgba(26, 86, 219, 0.3);
+            border-radius: var(--radius-md);
+            padding: 0.9rem 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.83rem;
+            color: var(--text-muted);
+        }
+
+        .email-config-box strong {
+            color: var(--primary);
+        }
     </style>
 </head>
 
@@ -170,11 +466,31 @@
 
                 <!-- Stats -->
                 <div class="stats-grid">
-                    <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-value" id="stat-users">—</div><div class="stat-label">Utilisateurs</div></div>
-                    <div class="stat-card"><div class="stat-icon">🎓</div><div class="stat-value" id="stat-students">—</div><div class="stat-label">Étudiants</div></div>
-                    <div class="stat-card"><div class="stat-icon">🟢</div><div class="stat-value" id="stat-online" style="color:#16a34a;">—</div><div class="stat-label">En ligne</div></div>
-                    <div class="stat-card"><div class="stat-icon">📄</div><div class="stat-value" id="stat-docs">—</div><div class="stat-label">Documents</div></div>
-                    <div class="stat-card"><div class="stat-icon">🔔</div><div class="stat-value" id="stat-infos">—</div><div class="stat-label">Informations</div></div>
+                    <div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-value" id="stat-users">—</div>
+                        <div class="stat-label">Utilisateurs</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🎓</div>
+                        <div class="stat-value" id="stat-students">—</div>
+                        <div class="stat-label">Étudiants</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🟢</div>
+                        <div class="stat-value" id="stat-online" style="color:#16a34a;">—</div>
+                        <div class="stat-label">En ligne</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📄</div>
+                        <div class="stat-value" id="stat-docs">—</div>
+                        <div class="stat-label">Documents</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🔔</div>
+                        <div class="stat-value" id="stat-infos">—</div>
+                        <div class="stat-label">Informations</div>
+                    </div>
                 </div>
 
                 <!-- Tabs -->
@@ -189,15 +505,32 @@
                 <!-- Tab Utilisateurs -->
                 <div id="tab-users" class="tab-panel active">
                     <div class="card">
-                        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1rem;">
+                        <div
+                            style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1rem;">
                             <h2 style="font-size:1.1rem;font-weight:700;">Liste des utilisateurs</h2>
-                            <button class="btn btn-outline" id="btn-refresh-users" style="font-size:.85rem;">🔄 Actualiser</button>
+                            <button class="btn btn-outline" id="btn-refresh-users" style="font-size:.85rem;">🔄
+                                Actualiser</button>
                         </div>
-                        <input type="text" class="search-box" id="user-search" placeholder="🔍 Rechercher par nom, email, cycle...">
+                        <input type="text" class="search-box" id="user-search"
+                            placeholder="🔍 Rechercher par nom, email, cycle...">
                         <div class="table-wrap">
                             <table class="data-table">
-                                <thead><tr><th>Utilisateur</th><th>Email</th><th>Cycle</th><th>Activité</th><th>Rôle</th><th style="text-align:right;">Actions</th></tr></thead>
-                                <tbody id="users-table-body"><tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-muted);">Chargement...</td></tr></tbody>
+                                <thead>
+                                    <tr>
+                                        <th>Utilisateur</th>
+                                        <th>Email</th>
+                                        <th>Cycle</th>
+                                        <th>Activité</th>
+                                        <th>Rôle</th>
+                                        <th style="text-align:right;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="users-table-body">
+                                    <tr>
+                                        <td colspan="6" style="text-align:center;padding:2rem;color:var(--text-muted);">
+                                            Chargement...</td>
+                                    </tr>
+                                </tbody>
                             </table>
                         </div>
                     </div>
@@ -207,14 +540,28 @@
                 <div id="tab-cycles" class="tab-panel">
                     <div class="card">
                         <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;">📊 Étudiants par cycle</h2>
-                        <div id="cycle-bars"><p class="text-muted">Chargement...</p></div>
+                        <div id="cycle-bars">
+                            <p class="text-muted">Chargement...</p>
+                        </div>
                     </div>
                     <div class="card" style="margin-top:1.5rem;">
-                        <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;">🕐 Dernières inscriptions</h2>
+                        <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;">🕐 Dernières inscriptions
+                        </h2>
                         <div class="table-wrap">
                             <table class="data-table">
-                                <thead><tr><th>Nom</th><th>Email</th><th>Cycle</th></tr></thead>
-                                <tbody id="recent-users-body"><tr><td colspan="3" style="text-align:center;padding:2rem;color:var(--text-muted);">Chargement...</td></tr></tbody>
+                                <thead>
+                                    <tr>
+                                        <th>Nom</th>
+                                        <th>Email</th>
+                                        <th>Cycle</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recent-users-body">
+                                    <tr>
+                                        <td colspan="3" style="text-align:center;padding:2rem;color:var(--text-muted);">
+                                            Chargement...</td>
+                                    </tr>
+                                </tbody>
                             </table>
                         </div>
                     </div>
@@ -224,22 +571,45 @@
                 <div id="tab-publish" class="tab-panel">
                     <div class="publish-grid">
                         <div class="card">
-                            <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;">📚 Publier un Document</h2>
+                            <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;">📚 Publier un Document
+                            </h2>
                             <form id="form-add-document">
-                                <div class="form-group"><label class="form-label">Titre *</label><input type="text" id="doc-titre" class="form-control" required placeholder="ex: Chapitre 1"></div>
+                                <div class="form-group"><label class="form-label">Titre *</label><input type="text"
+                                        id="doc-titre" class="form-control" required placeholder="ex: Chapitre 1"></div>
                                 <div class="form-grid-2">
                                     <div class="form-group"><label class="form-label">Type *</label>
-                                        <select class="form-control" required id="doc-type"><option value="cours">Cours</option><option value="tp">TP / TD</option><option value="evaluation">Évaluation</option></select>
+                                        <select class="form-control" required id="doc-type">
+                                            <option value="cours">Cours</option>
+                                            <option value="tp">TP / TD</option>
+                                            <option value="evaluation">Évaluation</option>
+                                        </select>
                                     </div>
-                                    <div class="form-group hidden" id="group-categorie-eval"><label class="form-label">Catégorie *</label>
-                                        <select class="form-control" id="doc-categorie-eval"><option value="interro">Interrogation</option><option value="compo">Composition</option><option value="examen">Examen</option></select>
+                                    <div class="form-group hidden" id="group-categorie-eval"><label
+                                            class="form-label">Catégorie *</label>
+                                        <select class="form-control" id="doc-categorie-eval">
+                                            <option value="interro">Interrogation</option>
+                                            <option value="compo">Composition</option>
+                                            <option value="examen">Examen</option>
+                                        </select>
                                     </div>
                                 </div>
-                                <div class="form-group"><label class="form-label">Matière *</label><input type="text" id="doc-matiere" class="form-control" required placeholder="ex: Navigation aérienne"></div>
+                                <div class="form-group"><label class="form-label">Matière *</label><input type="text"
+                                        id="doc-matiere" class="form-control" required
+                                        placeholder="ex: Navigation aérienne"></div>
                                 <div class="form-grid-2">
-                                    <div class="form-group"><label class="form-label">Cycle *</label><select class="form-control" required id="doc-cycle"><option value="">Choisir...</option></select></div>
+                                    <div class="form-group"><label class="form-label">Cycle *</label><select
+                                            class="form-control" required id="doc-cycle">
+                                            <option value="">Choisir...</option>
+                                        </select></div>
                                     <div class="form-group"><label class="form-label">Année calendaire *</label>
-                                        <select class="form-control" required id="doc-annee"><option value="">Choisir...</option><option>2025</option><option>2024</option><option>2023</option><option>2022</option></select>
+                                        <select class="form-control" required id="doc-annee">
+                                            <option value="">Choisir...</option>
+                                            <option>2026</option>
+                                            <option>2025</option>
+                                            <option>2024</option>
+                                            <option>2023</option>
+                                            <option>2022</option>
+                                        </select>
                                     </div>
                                 </div>
                                 <div class="form-grid-2">
@@ -252,61 +622,89 @@
                                         </select>
                                     </div>
                                     <div class="form-group"><label class="form-label" style="opacity:0">-</label>
-                                        <p class="text-muted" style="font-size:.8rem; padding-top:.4rem;">Laissez "Tous" pour que tous les niveaux voient ce document.</p>
+                                        <p class="text-muted" style="font-size:.8rem; padding-top:.4rem;">Laissez "Tous"
+                                            pour que tous les niveaux voient ce document.</p>
                                     </div>
                                 </div>
-                                <div class="form-group"><label class="form-label">Fichier PDF *</label><input type="file" id="doc-file" class="form-control" accept=".pdf" required></div>
+                                <div class="form-group"><label class="form-label">Fichier PDF *</label><input
+                                        type="file" id="doc-file" class="form-control" accept=".pdf" required></div>
                                 <!-- Barre de progression upload -->
                                 <div class="upload-progress-wrap" id="doc-upload-progress">
-                                    <div class="upload-progress-bar-track"><div class="upload-progress-bar-fill" id="doc-progress-fill"></div></div>
+                                    <div class="upload-progress-bar-track">
+                                        <div class="upload-progress-bar-fill" id="doc-progress-fill"></div>
+                                    </div>
                                     <div class="upload-status-msg" id="doc-upload-status">Envoi en cours...</div>
                                 </div>
-                                <button type="submit" id="btn-submit-doc" class="btn btn-primary" style="width:100%;background:linear-gradient(135deg,#16a34a,#15803d);">✅ Mettre en ligne</button>
+                                <button type="submit" id="btn-submit-doc" class="btn btn-primary"
+                                    style="width:100%;background:linear-gradient(135deg,#16a34a,#15803d);">✅ Mettre en
+                                    ligne</button>
                             </form>
                         </div>
                         <div class="card">
-                            <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;">🔔 Publier une Information</h2>
+                            <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;">🔔 Publier une
+                                Information</h2>
                             <form id="form-add-info">
-                                <div class="form-group"><label class="form-label">Titre *</label><input type="text" id="info-titre" class="form-control" required placeholder="ex: Rentrée 2025"></div>
+                                <div class="form-group"><label class="form-label">Titre *</label><input type="text"
+                                        id="info-titre" class="form-control" required placeholder="ex: Rentrée 2025">
+                                </div>
                                 <div class="form-group"><label class="form-label">Cible *</label>
-                                    <select class="form-control" id="admin-cycle-info"><option value="Général">Général (Tous les cycles)</option></select>
+                                    <select class="form-control" id="admin-cycle-info">
+                                        <option value="Général">Général (Tous les cycles)</option>
+                                    </select>
                                 </div>
                                 <div class="form-group"><label class="form-label">Année d'étude ciblée</label>
                                     <select class="form-control" id="admin-info-annee-etude" disabled>
                                         <option value="">Toutes les années</option>
                                     </select>
-                                    <small class="text-muted" style="font-size:.8rem;">Choisissez d'abord un cycle pour cibler une année précise.</small>
+                                    <small class="text-muted" style="font-size:.8rem;">Choisissez d'abord un cycle pour
+                                        cibler une année précise.</small>
                                 </div>
-                                <div class="form-group"><label class="form-label">Contenu *</label><textarea class="form-control" id="info-contenu" required placeholder="Décrivez l'annonce ici..."></textarea></div>
-                                <div class="form-group"><label class="form-label">Pièce jointe (Optionnel)</label><input type="file" id="info-file" class="form-control" accept=".pdf,.jpg,.jpeg,.png"><small class="text-muted" style="font-size:.8rem;">JPG, PNG ou PDF.</small></div>
+                                <div class="form-group"><label class="form-label">Contenu *</label><textarea
+                                        class="form-control" id="info-contenu" required
+                                        placeholder="Décrivez l'annonce ici..."></textarea></div>
+                                <div class="form-group"><label class="form-label">Pièce jointe (Optionnel)</label><input
+                                        type="file" id="info-file" class="form-control"
+                                        accept=".pdf,.jpg,.jpeg,.png"><small class="text-muted"
+                                        style="font-size:.8rem;">JPG, PNG ou PDF.</small></div>
                                 <!-- Barre de progression -->
                                 <div class="upload-progress-wrap" id="info-upload-progress">
-                                    <div class="upload-progress-bar-track"><div class="upload-progress-bar-fill" id="info-progress-fill"></div></div>
+                                    <div class="upload-progress-bar-track">
+                                        <div class="upload-progress-bar-fill" id="info-progress-fill"></div>
+                                    </div>
                                     <div class="upload-status-msg" id="info-upload-status">Publication en cours...</div>
                                 </div>
-                                <button type="submit" id="btn-submit-info" class="btn btn-primary" style="width:100%;">📢 Publier</button>
+                                <button type="submit" id="btn-submit-info" class="btn btn-primary"
+                                    style="width:100%;">📢 Publier</button>
                             </form>
                         </div>
                     </div>
                 </div>
 
-                
+
                 <!-- Tab Suivi Horaire -->
                 <div id="tab-heures" class="tab-panel">
                     <div class="publish-grid">
                         <div class="card">
-                            <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;">⏱️ Enregistrer des heures (Semaine)</h2>
-                            <section style="padding-bottom:1.25rem;margin-bottom:1.25rem;border-bottom:1px solid var(--border);">
+                            <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;">⏱️ Enregistrer des
+                                heures (Semaine)</h2>
+                            <section
+                                style="padding-bottom:1.25rem;margin-bottom:1.25rem;border-bottom:1px solid var(--border);">
                                 <h3 style="font-size:1rem;font-weight:700;margin-bottom:1rem;">🎓 Rentrée scolaire</h3>
                                 <form id="form-rentree-scolaire">
                                     <div class="form-group">
                                         <label class="form-label" for="date-rentree">Date de rentrée scolaire *</label>
-                                        <input type="date" id="date-rentree" class="form-control" required aria-describedby="date-rentree-example">
-                                        <small id="date-rentree-example" class="text-muted" style="font-size:.8rem;">Exemple : 05/10/2026</small>
+                                        <input type="date" id="date-rentree" class="form-control" required
+                                            aria-describedby="date-rentree-example">
+                                        <small id="date-rentree-example" class="text-muted"
+                                            style="font-size:.8rem;">Exemple : 05/10/2026</small>
                                     </div>
-                                    <p id="rentree-annee-scolaire" class="text-muted" style="font-size:.85rem;margin:-.25rem 0 .85rem;" aria-live="polite">Aucune rentrée scolaire configurée.</p>
-                                    <button type="submit" id="btn-submit-rentree" class="btn btn-outline" style="width:100%;">Enregistrer la rentrée</button>
-                                    <p id="rentree-status" style="display:none;margin:.85rem 0 0;font-size:.85rem;" role="status" aria-live="polite"></p>
+                                    <p id="rentree-annee-scolaire" class="text-muted"
+                                        style="font-size:.85rem;margin:-.25rem 0 .85rem;" aria-live="polite">Aucune
+                                        rentrée scolaire configurée.</p>
+                                    <button type="submit" id="btn-submit-rentree" class="btn btn-outline"
+                                        style="width:100%;">Enregistrer la rentrée</button>
+                                    <p id="rentree-status" style="display:none;margin:.85rem 0 0;font-size:.85rem;"
+                                        role="status" aria-live="polite"></p>
                                 </form>
                             </section>
                             <form id="form-add-heures">
@@ -317,35 +715,53 @@
                                             <option value="2">EAC SEI 2ème année</option>
                                         </select>
                                     </div>
-                                    <div class="form-group"><label class="form-label" for="heures-semaine">Date de la semaine *</label>
-                                        <input type="text" id="heures-semaine" class="form-control" required placeholder="ex: 01, 05/10/2026">
+                                    <div class="form-group"><label class="form-label" for="heures-semaine">Date de la
+                                            semaine *</label>
+                                        <input type="text" id="heures-semaine" class="form-control" required
+                                            placeholder="ex: 01, 05/10/2026">
                                     </div>
                                 </div>
                                 <div style="margin-bottom: 1.25rem;">
-                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                                    <div
+                                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
                                         <label class="form-label" style="margin: 0;">Heures par matière *</label>
-                                        <button type="button" class="btn btn-outline" id="btn-add-matiere" style="font-size: 0.8rem; padding: 0.3rem 0.6rem;" disabled>➕ Ajouter une matière</button>
+                                        <button type="button" class="btn btn-outline" id="btn-add-matiere"
+                                            style="font-size: 0.8rem; padding: 0.3rem 0.6rem;" disabled>➕ Ajouter une
+                                            matière</button>
                                     </div>
-                                    <div id="matieres-container" style="display: flex; flex-direction: column; gap: 0.75rem;">
-                                        <div style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 1rem; border: 1px dashed var(--border); border-radius: var(--radius-md);">Veuillez sélectionner une année pour charger les matières.</div>
+                                    <div id="matieres-container"
+                                        style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                        <div
+                                            style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 1rem; border: 1px dashed var(--border); border-radius: var(--radius-md);">
+                                            Veuillez sélectionner une année pour charger les matières.</div>
                                     </div>
                                 </div>
-                                <div id="totaux-categories-container" style="display: none; background: rgba(26,86,219,0.04); border: 1px solid rgba(26,86,219,0.2); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1.25rem;">
-                                    <h4 style="font-size: 0.85rem; font-weight: 700; color: var(--primary); margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">📊 Récapitulatif par catégorie</h4>
-                                    <div id="totaux-categories-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; font-size: 0.85rem; color: var(--text-muted);">
+                                <div id="totaux-categories-container"
+                                    style="display: none; background: rgba(26,86,219,0.04); border: 1px solid rgba(26,86,219,0.2); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1.25rem;">
+                                    <h4
+                                        style="font-size: 0.85rem; font-weight: 700; color: var(--primary); margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">
+                                        📊 Récapitulatif par catégorie</h4>
+                                    <div id="totaux-categories-list"
+                                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; font-size: 0.85rem; color: var(--text-muted);">
                                         <!-- Computed totals injected here -->
                                     </div>
                                 </div>
                                 <div class="form-group"><label class="form-label">Commentaire (optionnel)</label>
-                                    <textarea id="heures-commentaire" class="form-control" style="min-height:60px;" placeholder="ex: Semaine normale..."></textarea>
+                                    <textarea id="heures-commentaire" class="form-control" style="min-height:60px;"
+                                        placeholder="ex: Semaine normale..."></textarea>
                                 </div>
-                                <button type="submit" id="btn-submit-heures" class="btn btn-primary" style="width:100%;" disabled>Enregistrer les heures</button>
-                                <p id="heures-rentree-warning" class="text-muted" style="margin:.85rem 0 0;font-size:.85rem;">Veuillez d’abord enregistrer la date de rentrée scolaire.</p>
-                                <p id="heures-status" style="display:none;margin:.85rem 0 0;font-size:.85rem;" role="status" aria-live="polite"></p>
+                                <button type="submit" id="btn-submit-heures" class="btn btn-primary" style="width:100%;"
+                                    disabled>Enregistrer les heures</button>
+                                <p id="heures-rentree-warning" class="text-muted"
+                                    style="margin:.85rem 0 0;font-size:.85rem;">Veuillez d’abord enregistrer la date de
+                                    rentrée scolaire.</p>
+                                <p id="heures-status" style="display:none;margin:.85rem 0 0;font-size:.85rem;"
+                                    role="status" aria-live="polite"></p>
                             </form>
                         </div>
                         <div class="card">
-                            <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;">📅 Historique des enregistrements</h2>
+                            <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;">📅 Historique des
+                                enregistrements</h2>
                             <div class="form-group" style="margin-bottom: 1rem;">
                                 <select class="form-control" id="heures-history-annee">
                                     <option value="1">EAC SEI 1ère année</option>
@@ -354,8 +770,21 @@
                             </div>
                             <div class="table-wrap">
                                 <table class="data-table">
-                                    <thead><tr><th>Semaine</th><th>Heures</th><th>Enregistré par</th><th style="text-align:right;">Actions</th></tr></thead>
-                                    <tbody id="heures-history-list"><tr><td colspan="4" style="text-align:center;padding:1.5rem;color:var(--text-muted);">Chargement...</td></tr></tbody>
+                                    <thead>
+                                        <tr>
+                                            <th>Semaine</th>
+                                            <th>Heures</th>
+                                            <th>Enregistré par</th>
+                                            <th style="text-align:right;">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="heures-history-list">
+                                        <tr>
+                                            <td colspan="4"
+                                                style="text-align:center;padding:1.5rem;color:var(--text-muted);">
+                                                Chargement...</td>
+                                        </tr>
+                                    </tbody>
                                 </table>
                             </div>
                         </div>
@@ -369,19 +798,45 @@
                             <button class="btn btn-outline" id="btn-manage-docs">📄 Documents</button>
                             <button class="btn btn-outline" id="btn-manage-infos">🔔 Informations</button>
                             <div style="margin-left:auto;display:flex;gap:.5rem;flex-wrap:wrap;">
-                                <button class="btn btn-primary" id="btn-fix-annee-direct" style="background:linear-gradient(135deg,#10b981,#059669);">✅ Corriger Années d'étude</button>
+                                <button class="btn btn-primary" id="btn-fix-annee-direct"
+                                    style="background:linear-gradient(135deg,#10b981,#059669);">✅ Corriger Années
+                                    d'étude</button>
                                 <button class="btn btn-primary" id="btn-sync-drive">☁️ Synchroniser le Drive</button>
                             </div>
                         </div>
                         <div id="manage-docs-section" style="display:none;">
                             <h3 style="font-size:1rem;margin-bottom:1rem;">Documents publiés</h3>
-                            <div class="table-wrap"><table class="data-table"><thead><tr><th>Titre</th><th>Type</th><th>Cycle</th><th style="text-align:right;">Actions</th></tr></thead><tbody id="manage-docs-list"></tbody></table></div>
+                            <div class="table-wrap">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Titre</th>
+                                            <th>Type</th>
+                                            <th>Cycle</th>
+                                            <th style="text-align:right;">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="manage-docs-list"></tbody>
+                                </table>
+                            </div>
                         </div>
                         <div id="manage-infos-section" style="display:none;">
                             <h3 style="font-size:1rem;margin-bottom:1rem;">Informations publiées</h3>
-                            <div class="table-wrap"><table class="data-table"><thead><tr><th>Titre</th><th>Cycle</th><th style="text-align:right;">Actions</th></tr></thead><tbody id="manage-infos-list"></tbody></table></div>
+                            <div class="table-wrap">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Titre</th>
+                                            <th>Cycle</th>
+                                            <th style="text-align:right;">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="manage-infos-list"></tbody>
+                                </table>
+                            </div>
                         </div>
-                        <div id="manage-empty" style="text-align:center;padding:2rem;color:var(--text-muted);">Cliquez sur un bouton pour charger le contenu.</div>
+                        <div id="manage-empty" style="text-align:center;padding:2rem;color:var(--text-muted);">Cliquez
+                            sur un bouton pour charger le contenu.</div>
                     </div>
                 </div>
 
@@ -397,11 +852,13 @@
     <!-- ======= MODAL EDIT INFORMATION ======= -->
     <div id="modal-edit-info" class="edit-modal-bg">
         <div class="edit-modal-box">
-            <button class="edit-modal-close" onclick="document.getElementById('modal-edit-info').classList.remove('open')">&times;</button>
+            <button class="edit-modal-close"
+                onclick="document.getElementById('modal-edit-info').classList.remove('open')">&times;</button>
             <h3>✏️ Modifier l’annonce</h3>
             <form id="form-edit-info">
                 <input type="hidden" id="edit-info-id">
-                <div class="form-group"><label class="form-label">Titre *</label><input type="text" id="edit-info-titre" class="form-control" required></div>
+                <div class="form-group"><label class="form-label">Titre *</label><input type="text" id="edit-info-titre"
+                        class="form-control" required></div>
                 <div class="form-group"><label class="form-label">Cycle cible</label>
                     <select class="form-control" id="edit-info-cycle">
                         <option value="Général">Général (Tous)</option>
@@ -412,9 +869,12 @@
                         <option value="">Toutes les années</option>
                     </select>
                 </div>
-                <div class="form-group"><label class="form-label">Contenu *</label><textarea class="form-control" id="edit-info-contenu" required></textarea></div>
-                <div class="form-group"><label class="form-label">Nouvelle pièce jointe (optionnel)</label><input type="file" id="edit-info-file" class="form-control" accept=".pdf,.jpg,.jpeg,.png"></div>
-                <button type="submit" id="btn-edit-info-submit" class="btn btn-primary" style="width:100%;">Sauvegarder</button>
+                <div class="form-group"><label class="form-label">Contenu *</label><textarea class="form-control"
+                        id="edit-info-contenu" required></textarea></div>
+                <div class="form-group"><label class="form-label">Nouvelle pièce jointe (optionnel)</label><input
+                        type="file" id="edit-info-file" class="form-control" accept=".pdf,.jpg,.jpeg,.png"></div>
+                <button type="submit" id="btn-edit-info-submit" class="btn btn-primary"
+                    style="width:100%;">Sauvegarder</button>
             </form>
         </div>
     </div>
@@ -422,20 +882,32 @@
     <!-- ======= MODAL EDIT DOCUMENT ======= -->
     <div id="modal-edit-doc" class="edit-modal-bg">
         <div class="edit-modal-box">
-            <button class="edit-modal-close" onclick="document.getElementById('modal-edit-doc').classList.remove('open')">&times;</button>
+            <button class="edit-modal-close"
+                onclick="document.getElementById('modal-edit-doc').classList.remove('open')">&times;</button>
             <h3>✏️ Modifier le document</h3>
             <form id="form-edit-doc">
                 <input type="hidden" id="edit-doc-id">
-                <div class="form-group"><label class="form-label">Titre *</label><input type="text" id="edit-doc-titre" class="form-control" required></div>
+                <div class="form-group"><label class="form-label">Titre *</label><input type="text" id="edit-doc-titre"
+                        class="form-control" required></div>
                 <div class="form-grid-2">
                     <div class="form-group"><label class="form-label">Type</label>
-                        <select class="form-control" id="edit-doc-type"><option value="cours">Cours</option><option value="tp">TP / TD</option><option value="evaluation">Évaluation</option></select>
+                        <select class="form-control" id="edit-doc-type">
+                            <option value="cours">Cours</option>
+                            <option value="tp">TP / TD</option>
+                            <option value="evaluation">Évaluation</option>
+                        </select>
                     </div>
                     <div class="form-group"><label class="form-label">Catégorie éval</label>
-                        <select class="form-control" id="edit-doc-cat"><option value="">Aucune</option><option value="interro">Interrogation</option><option value="compo">Composition</option><option value="examen">Examen</option></select>
+                        <select class="form-control" id="edit-doc-cat">
+                            <option value="">Aucune</option>
+                            <option value="interro">Interrogation</option>
+                            <option value="compo">Composition</option>
+                            <option value="examen">Examen</option>
+                        </select>
                     </div>
                 </div>
-                <div class="form-group"><label class="form-label">Matière</label><input type="text" id="edit-doc-matiere" class="form-control"></div>
+                <div class="form-group"><label class="form-label">Matière</label><input type="text"
+                        id="edit-doc-matiere" class="form-control"></div>
                 <div class="form-group"><label class="form-label">Année d'étude</label>
                     <select class="form-control" id="edit-doc-annee-etude">
                         <option value="">Tous les niveaux</option>
@@ -444,8 +916,10 @@
                         <option value="3">3ème Année</option>
                     </select>
                 </div>
-                <div class="form-group"><label class="form-label">Nouveau PDF (optionnel)</label><input type="file" id="edit-doc-file" class="form-control" accept=".pdf"></div>
-                <button type="submit" id="btn-edit-doc-submit" class="btn btn-primary" style="width:100%;">Sauvegarder</button>
+                <div class="form-group"><label class="form-label">Nouveau PDF (optionnel)</label><input type="file"
+                        id="edit-doc-file" class="form-control" accept=".pdf"></div>
+                <button type="submit" id="btn-edit-doc-submit" class="btn btn-primary"
+                    style="width:100%;">Sauvegarder</button>
             </form>
         </div>
     </div>
@@ -453,105 +927,105 @@
     <script src="../js/api.js"></script>
     <script src="../js/main.js"></script>
     <script>
-    document.addEventListener('DOMContentLoaded', async () => {
-        // Guard
-        const stored = JSON.parse(localStorage.getItem('LEFAXEUR_user') || 'null');
-        const user = stored?.user || null;
-        const content = document.getElementById('admin-content');
-        const protection = document.getElementById('admin-protection');
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Guard
+            const stored = JSON.parse(localStorage.getItem('LEFAXEUR_user') || 'null');
+            const user = stored?.user || null;
+            const content = document.getElementById('admin-content');
+            const protection = document.getElementById('admin-protection');
 
-        if (user && user.role === 'admin') {
-            content.style.display = 'block';
-            protection.classList.add('hidden');
-        } else {
-            content.style.display = 'none';
-            protection.classList.remove('hidden');
-            setTimeout(() => window.location.href = '../index.html', 3000);
-            return;
-        }
-
-        // Populate cycles
-        if (typeof SUBJECTS_DATA !== 'undefined') {
-            SUBJECTS_DATA.forEach(s => {
-                ['doc-cycle', 'admin-cycle-info'].forEach(id => {
-                    const sel = document.getElementById(id);
-                    if (!sel) return;
-                    const opt = document.createElement('option');
-                    opt.value = s.cycle; opt.textContent = s.label;
-                    sel.appendChild(opt);
-                });
-            });
-        }
-
-        function updateInfoYearOptions(cycleSelectId, yearSelectId, selectedYear = '') {
-            const cycle = document.getElementById(cycleSelectId).value;
-            const yearSelect = document.getElementById(yearSelectId);
-            const yearCount = cycle.startsWith('IEAMAC-') ? 3 : (cycle.startsWith('EAC-') || cycle === 'CCA') ? 2 : 1;
-            yearSelect.innerHTML = '<option value="">Toutes les années</option>';
-
-            if (cycle !== 'Général') {
-                for (let year = 1; year <= yearCount; year += 1) {
-                    const option = document.createElement('option');
-                    option.value = String(year);
-                    option.textContent = `${year}${year === 1 ? 'ère' : 'ème'} année`;
-                    yearSelect.appendChild(option);
-                }
+            if (user && user.role === 'admin') {
+                content.style.display = 'block';
+                protection.classList.add('hidden');
+            } else {
+                content.style.display = 'none';
+                protection.classList.remove('hidden');
+                setTimeout(() => window.location.href = '../index.html', 3000);
+                return;
             }
 
-            yearSelect.disabled = cycle === 'Général';
-            yearSelect.value = selectedYear ? String(selectedYear) : '';
-        }
+            // Populate cycles
+            if (typeof SUBJECTS_DATA !== 'undefined') {
+                SUBJECTS_DATA.forEach(s => {
+                    ['doc-cycle', 'admin-cycle-info'].forEach(id => {
+                        const sel = document.getElementById(id);
+                        if (!sel) return;
+                        const opt = document.createElement('option');
+                        opt.value = s.cycle; opt.textContent = s.label;
+                        sel.appendChild(opt);
+                    });
+                });
+            }
 
-        [['admin-cycle-info', 'admin-info-annee-etude'], ['edit-info-cycle', 'edit-info-annee-etude']].forEach(([cycleId, yearId]) => {
-            document.getElementById(cycleId)?.addEventListener('change', () => updateInfoYearOptions(cycleId, yearId));
-            updateInfoYearOptions(cycleId, yearId);
-        });
+            function updateInfoYearOptions(cycleSelectId, yearSelectId, selectedYear = '') {
+                const cycle = document.getElementById(cycleSelectId).value;
+                const yearSelect = document.getElementById(yearSelectId);
+                const yearCount = cycle.startsWith('IEAMAC-') ? 3 : (cycle.startsWith('EAC-') || cycle === 'CCA') ? 2 : 1;
+                yearSelect.innerHTML = '<option value="">Toutes les années</option>';
 
-        // Tabs
-        document.querySelectorAll('.admin-tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-                tab.classList.add('active');
-                document.getElementById(tab.dataset.tab).classList.add('active');
-                if (tab.dataset.tab === 'tab-users') loadUsers();
-                if (tab.dataset.tab === 'tab-cycles') loadCycleStats();
-            });
-        });
-
-        // Stats
-        async function loadStats() {
-            const stats = await api.getAdminStats();
-            if (!stats) return stats;
-            document.getElementById('stat-users').textContent = stats.total_users;
-            document.getElementById('stat-students').textContent = stats.total_students;
-            document.getElementById('stat-online').textContent = stats.total_online;
-            document.getElementById('stat-docs').textContent = stats.total_documents;
-            document.getElementById('stat-infos').textContent = stats.total_infos;
-            return stats;
-        }
-
-        // Users
-        let allUsers = [];
-        async function loadUsers() {
-            const tbody = document.getElementById('users-table-body');
-            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:1.5rem;color:var(--text-muted);">Chargement...</td></tr>';
-            allUsers = await api.getAdminUsers();
-            renderUsers(allUsers);
-        }
-
-        function renderUsers(users) {
-            const tbody = document.getElementById('users-table-body');
-            if (!users.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:1.5rem;color:var(--text-muted);">Aucun utilisateur.</td></tr>'; return; }
-            tbody.innerHTML = users.map(u => {
-                const isOnline = u.is_online ? '<span style="color:#16a34a;" title="En ligne">🟢</span>' : '<span style="color:#9ca3af;" title="Hors ligne">⚪</span>';
-                let lastActiveStr = 'Jamais';
-                if (u.last_active) {
-                    const d = new Date(u.last_active);
-                    lastActiveStr = d.toLocaleDateString('fr-FR') + ' ' + d.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'});
+                if (cycle !== 'Général') {
+                    for (let year = 1; year <= yearCount; year += 1) {
+                        const option = document.createElement('option');
+                        option.value = String(year);
+                        option.textContent = `${year}${year === 1 ? 'ère' : 'ème'} année`;
+                        yearSelect.appendChild(option);
+                    }
                 }
-                
-                return `
+
+                yearSelect.disabled = cycle === 'Général';
+                yearSelect.value = selectedYear ? String(selectedYear) : '';
+            }
+
+            [['admin-cycle-info', 'admin-info-annee-etude'], ['edit-info-cycle', 'edit-info-annee-etude']].forEach(([cycleId, yearId]) => {
+                document.getElementById(cycleId)?.addEventListener('change', () => updateInfoYearOptions(cycleId, yearId));
+                updateInfoYearOptions(cycleId, yearId);
+            });
+
+            // Tabs
+            document.querySelectorAll('.admin-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+                    tab.classList.add('active');
+                    document.getElementById(tab.dataset.tab).classList.add('active');
+                    if (tab.dataset.tab === 'tab-users') loadUsers();
+                    if (tab.dataset.tab === 'tab-cycles') loadCycleStats();
+                });
+            });
+
+            // Stats
+            async function loadStats() {
+                const stats = await api.getAdminStats();
+                if (!stats) return stats;
+                document.getElementById('stat-users').textContent = stats.total_users;
+                document.getElementById('stat-students').textContent = stats.total_students;
+                document.getElementById('stat-online').textContent = stats.total_online;
+                document.getElementById('stat-docs').textContent = stats.total_documents;
+                document.getElementById('stat-infos').textContent = stats.total_infos;
+                return stats;
+            }
+
+            // Users
+            let allUsers = [];
+            async function loadUsers() {
+                const tbody = document.getElementById('users-table-body');
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:1.5rem;color:var(--text-muted);">Chargement...</td></tr>';
+                allUsers = await api.getAdminUsers();
+                renderUsers(allUsers);
+            }
+
+            function renderUsers(users) {
+                const tbody = document.getElementById('users-table-body');
+                if (!users.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:1.5rem;color:var(--text-muted);">Aucun utilisateur.</td></tr>'; return; }
+                tbody.innerHTML = users.map(u => {
+                    const isOnline = u.is_online ? '<span style="color:#16a34a;" title="En ligne">🟢</span>' : '<span style="color:#9ca3af;" title="Hors ligne">⚪</span>';
+                    let lastActiveStr = 'Jamais';
+                    if (u.last_active) {
+                        const d = new Date(u.last_active);
+                        lastActiveStr = d.toLocaleDateString('fr-FR') + ' ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+                    }
+
+                    return `
                 <tr>
                     <td>
                         <div style="display:flex;align-items:center;gap:0.4rem;">
@@ -571,626 +1045,626 @@
                         <button class="action-btn danger" onclick="deleteUser('${u.id}')">🗑️</button>
                     </td>
                 </tr>`;
-            }).join('');
-        }
+                }).join('');
+            }
 
-        document.getElementById('user-search')?.addEventListener('input', e => {
-            const q = e.target.value.toLowerCase();
-            renderUsers(allUsers.filter(u => `${u.prenom} ${u.nom} ${u.email} ${u.cycle}`.toLowerCase().includes(q)));
-        });
-        document.getElementById('btn-refresh-users')?.addEventListener('click', loadUsers);
+            document.getElementById('user-search')?.addEventListener('input', e => {
+                const q = e.target.value.toLowerCase();
+                renderUsers(allUsers.filter(u => `${u.prenom} ${u.nom} ${u.email} ${u.cycle}`.toLowerCase().includes(q)));
+            });
+            document.getElementById('btn-refresh-users')?.addEventListener('click', loadUsers);
 
-        // Cycle stats
-        async function loadCycleStats() {
-            const stats = await api.getAdminStats();
-            if (!stats) return;
-            const maxCount = Math.max(...stats.cycle_stats.map(c => c.count), 1);
-            document.getElementById('cycle-bars').innerHTML = stats.cycle_stats.length
-                ? stats.cycle_stats.map(c => `
+            // Cycle stats
+            async function loadCycleStats() {
+                const stats = await api.getAdminStats();
+                if (!stats) return;
+                const maxCount = Math.max(...stats.cycle_stats.map(c => c.count), 1);
+                document.getElementById('cycle-bars').innerHTML = stats.cycle_stats.length
+                    ? stats.cycle_stats.map(c => `
                     <div class="cycle-bar-wrap">
                         <div class="cycle-bar-label"><span>${c.cycle}</span><strong>${c.count} étudiant${c.count > 1 ? 's' : ''}</strong></div>
-                        <div class="cycle-bar-track"><div class="cycle-bar-fill" style="width:${Math.round(c.count/maxCount*100)}%"></div></div>
+                        <div class="cycle-bar-track"><div class="cycle-bar-fill" style="width:${Math.round(c.count / maxCount * 100)}%"></div></div>
                     </div>`).join('')
-                : '<p class="text-muted">Aucune donnée.</p>';
+                    : '<p class="text-muted">Aucune donnée.</p>';
 
-            document.getElementById('recent-users-body').innerHTML = stats.recent_users.length
-                ? stats.recent_users.map(u => `<tr><td><strong>${u.prenom} ${u.nom}</strong></td><td style="color:var(--text-muted);">${u.email}</td><td>${u.cycle || '—'}</td></tr>`).join('')
-                : '<tr><td colspan="3" style="text-align:center;padding:1rem;color:var(--text-muted);">Aucune inscription récente.</td></tr>';
-        }
-
-        // User actions
-        window.promoteUser = async (id, role) => {
-            if (!confirm(`Changer le rôle en ${role} ?`)) return;
-            try { await api.updateUserRole(id, role); await Promise.all([loadUsers(), loadStats()]); }
-            catch(e) { alert(e.message); }
-        };
-        window.deleteUser = async (id) => {
-            if (!confirm('Supprimer définitivement cet utilisateur ?')) return;
-            try { await api.deleteAdminUser(id); await Promise.all([loadUsers(), loadStats()]); }
-            catch(e) { alert(e.message); }
-        };
-
-        // Bouton Synchroniser le Drive
-        document.getElementById('btn-sync-drive')?.addEventListener('click', async () => {
-            const btn = document.getElementById('btn-sync-drive');
-            if(!confirm('Lancer la synchronisation avec Google Drive ? Cela peut prendre quelques instants.')) return;
-            
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '⏳ Synchronisation...';
-            btn.disabled = true;
-            
-            try {
-                const res = await api.syncDrive();
-                alert('✅ ' + (res.message || 'Synchronisation réussie !'));
-                if(document.getElementById('manage-docs-section').style.display === 'block') {
-                    document.getElementById('btn-manage-docs').click(); // actualiser la liste
-                }
-            } catch(e) {
-                alert('❌ Erreur: ' + e.message);
-            } finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
+                document.getElementById('recent-users-body').innerHTML = stats.recent_users.length
+                    ? stats.recent_users.map(u => `<tr><td><strong>${u.prenom} ${u.nom}</strong></td><td style="color:var(--text-muted);">${u.email}</td><td>${u.cycle || '—'}</td></tr>`).join('')
+                    : '<tr><td colspan="3" style="text-align:center;padding:1rem;color:var(--text-muted);">Aucune inscription récente.</td></tr>';
             }
-        });
 
-        // Bouton Corriger Années d'étude (DIRECT - sans Google Drive)
-        document.getElementById('btn-fix-annee-direct')?.addEventListener('click', async () => {
-            const btn = document.getElementById('btn-fix-annee-direct');
-            if(!confirm('Corriger les années d\'étude de tous les documents ?\n\nCette opération analyse les noms de matières et assigne automatiquement les années d\'étude (1ère, 2ème, 3ème année) à chaque document.')) return;
-            
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '⏳ Correction en cours...';
-            btn.disabled = true;
-            
-            try {
-                const token = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.access_token;
-                const res = await fetch(API_BASE_URL + '/admin/fix-annee-direct', {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.detail || 'Erreur');
-                alert('✅ ' + (data.message || 'Correction réussie !'));
-            } catch(e) {
-                alert('❌ Erreur: ' + e.message);
-            } finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
-        });
-
-        // Form: Document
-        document.getElementById('doc-type')?.addEventListener('change', e => {
-            const grp = document.getElementById('group-categorie-eval');
-            const cat = document.getElementById('doc-categorie-eval');
-            if (e.target.value === 'evaluation') { grp.classList.remove('hidden'); cat.required = true; }
-            else { grp.classList.add('hidden'); cat.required = false; }
-        });
-
-        document.getElementById('form-add-document')?.addEventListener('submit', async e => {
-            e.preventDefault();
-            const btn = document.getElementById('btn-submit-doc');
-            const progressWrap = document.getElementById('doc-upload-progress');
-            const progressFill = document.getElementById('doc-progress-fill');
-            const statusMsg = document.getElementById('doc-upload-status');
-
-            btn.disabled = true;
-            btn.textContent = 'Envoi...';
-            progressWrap.classList.add('visible');
-
-            // Animation de progression simulée (le backend ne supporte pas les progress events)
-            let fakeProgress = 0;
-            statusMsg.textContent = '⏳ Réveil du serveur en cours...';
-            progressFill.style.width = '5%';
-            const progressInterval = setInterval(() => {
-                if (fakeProgress < 75) {
-                    fakeProgress += Math.random() * 8;
-                    fakeProgress = Math.min(fakeProgress, 75);
-                    progressFill.style.width = fakeProgress + '%';
-                    if (fakeProgress < 20) statusMsg.textContent = '⏳ Réveil du serveur...';
-                    else if (fakeProgress < 50) statusMsg.textContent = '📡 Connexion établie, envoi du fichier...';
-                    else statusMsg.textContent = '⬆️ Téléversement en cours...';
-                }
-            }, 400);
-
-            const fd = new FormData();
-            const titre = document.getElementById('doc-titre').value;
-            const cycle = document.getElementById('doc-cycle').value;
-            const annee = document.getElementById('doc-annee').value;
-            const anneeEtude = document.getElementById('doc-annee-etude').value;
-            fd.append('titre', titre);
-            const type = document.getElementById('doc-type').value;
-            fd.append('type', type);
-            if (type === 'evaluation') fd.append('categorie_eval', document.getElementById('doc-categorie-eval').value);
-            fd.append('matiere', document.getElementById('doc-matiere').value);
-            fd.append('cycle', cycle);
-            fd.append('annee', annee);
-            if (anneeEtude) fd.append('annee_etude', anneeEtude);
-            fd.append('file', document.getElementById('doc-file').files[0]);
-
-            try {
-                const result = await api.addDocument(fd);
-                clearInterval(progressInterval);
-                progressFill.style.width = '100%';
-                statusMsg.textContent = '✅ Document publié avec succès !';
-
-                document.getElementById('group-categorie-eval').classList.add('hidden');
-                await loadStats();
-
-                // Marquer comme vu pour ne pas notifier l'admin lui-même
-                const currentSeen = NotifSystem.getSeenDocs();
-                if (result && result.id) currentSeen.add(result.id);
-                localStorage.setItem(NotifSystem.STORAGE_KEY_DOCS, JSON.stringify([...currentSeen]));
-
-                // ── Notification Email via EmailJS ──────────────────────────
-                const adminUser = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.user;
-                sendDocumentNotificationEmail({
-                    titre,
-                    type,
-                    cycle,
-                    annee,
-                    admin_name: adminUser ? `${adminUser.prenom} ${adminUser.nom}` : 'Admin'
-                });
-
-                setTimeout(() => {
-                    e.target.reset();
-                    progressWrap.classList.remove('visible');
-                    progressFill.style.width = '0%';
-                    statusMsg.textContent = '';
-                }, 2000);
-
-                NotifSystem.showToast(`"${titre}" publié pour le cycle ${cycle} (${annee}).`, 'success');
-
-            } catch(err) {
-                clearInterval(progressInterval);
-                progressFill.style.width = '0%';
-                progressWrap.classList.remove('visible');
-                alert('❌ ' + err.message);
-            } finally {
-                btn.disabled = false;
-                btn.textContent = '✅ Mettre en ligne';
-            }
-        });
-
-        document.getElementById('form-add-info')?.addEventListener('submit', async e => {
-            e.preventDefault();
-            const btn = document.getElementById('btn-submit-info');
-            const progressWrap = document.getElementById('info-upload-progress');
-            const progressFill = document.getElementById('info-progress-fill');
-            const statusMsg = document.getElementById('info-upload-status');
-
-            btn.disabled = true;
-            btn.textContent = 'Publication...';
-            progressWrap.classList.add('visible');
-
-            let fakeProgress = 0;
-            statusMsg.textContent = '⏳ Envoi en cours...';
-            progressFill.style.width = '10%';
-            const progressInterval = setInterval(() => {
-                if (fakeProgress < 80) {
-                    fakeProgress += Math.random() * 12;
-                    fakeProgress = Math.min(fakeProgress, 80);
-                    progressFill.style.width = fakeProgress + '%';
-                }
-            }, 300);
-
-            const titre = document.getElementById('info-titre').value;
-            const contenu = document.getElementById('info-contenu').value;
-            const cycle = document.getElementById('admin-cycle-info').value;
-            const anneeEtude = document.getElementById('admin-info-annee-etude').value;
-
-            const fd = new FormData();
-            fd.append('titre', titre);
-            fd.append('contenu', contenu);
-            fd.append('cycle', cycle);
-            if (anneeEtude) fd.append('annee_etude', anneeEtude);
-            const file = document.getElementById('info-file').files[0];
-            if (file) fd.append('file', file);
-
-            try {
-                const result = await api.addInfo(fd);
-                clearInterval(progressInterval);
-                progressFill.style.width = '100%';
-                statusMsg.textContent = '✅ Information publiée !';
-
-                await loadStats();
-
-                // Marquer comme vue pour l'admin
-                const currentSeen = NotifSystem.getSeenInfos();
-                if (result && result.id) currentSeen.add(result.id);
-                localStorage.setItem(NotifSystem.STORAGE_KEY_INFOS, JSON.stringify([...currentSeen]));
-
-                // ── Notification Email via EmailJS ──────────────────────────
-                const adminUser = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.user;
-                sendInfoNotificationEmail({
-                    titre,
-                    contenu: contenu.substring(0, 200) + (contenu.length > 200 ? '...' : ''),
-                    cycle,
-                    admin_name: adminUser ? `${adminUser.prenom} ${adminUser.nom}` : 'Admin'
-                });
-
-                NotifSystem.showToast(`Annonce "${titre}" publiée avec succès !`, 'success');
-
-                setTimeout(() => {
-                    e.target.reset();
-                    progressWrap.classList.remove('visible');
-                    progressFill.style.width = '0%';
-                    statusMsg.textContent = '';
-                }, 2000);
-
-            } catch(err) {
-                clearInterval(progressInterval);
-                progressFill.style.width = '0%';
-                progressWrap.classList.remove('visible');
-                alert('❌ ' + err.message);
-            } finally {
-                btn.disabled = false;
-                btn.textContent = '📢 Publier';
-            }
-        });
-
-        // Manage Content
-        document.getElementById('btn-manage-docs')?.addEventListener('click', async () => {
-            document.getElementById('manage-docs-section').style.display = 'block';
-            document.getElementById('manage-infos-section').style.display = 'none';
-            document.getElementById('manage-empty').style.display = 'none';
-            const allDocs = await api.getDocuments();
-            const docs = allDocs.filter(d => d.source === 'admin');
-            document.getElementById('manage-docs-list').innerHTML = docs.length
-                ? docs.map(d => `<tr><td>${d.titre}</td><td><span class="role-badge student">${d.type}</span></td><td>${d.cycle}</td><td style="text-align:right;white-space:nowrap;"><button class="action-btn edit" onclick="editDocument('${d.id}','${d.titre.replace(/'/g,"&apos;")}','${d.type}','${d.matiere?.replace(/'/g,"&apos;")}','${d.categorie_eval||''}','${d.annee_etude||''}')">✏️ Modifier</button><button class="action-btn danger" onclick="deleteDocument('${d.id}')">🗑️ Supprimer</button></td></tr>`).join('')
-                : '<tr><td colspan="4" style="text-align:center;padding:1.5rem;color:var(--text-muted);">Aucun document publié manuellement.</td></tr>';
-        });
-
-        document.getElementById('btn-manage-infos')?.addEventListener('click', async () => {
-            document.getElementById('manage-infos-section').style.display = 'block';
-            document.getElementById('manage-docs-section').style.display = 'none';
-            document.getElementById('manage-empty').style.display = 'none';
-            const infos = await api.getInfos();
-            const infosList = document.getElementById('manage-infos-list');
-            infosList.innerHTML = infos.length
-                ? infos.map((i, index) => `<tr><td>${i.titre}</td><td>${i.cycle}</td><td style="text-align:right;white-space:nowrap;"><button class="action-btn edit" data-info-action="edit" data-info-index="${index}">✏️ Modifier</button><button class="action-btn danger" data-info-action="delete" data-info-index="${index}">🗑️ Supprimer</button></td></tr>`).join('')
-                : '<tr><td colspan="3" style="text-align:center;padding:1.5rem;color:var(--text-muted);">Aucune information.</td></tr>';
-
-            // Ne pas passer le titre ou le contenu dans un onclick HTML : une apostrophe
-            // rendait l'attribut invalide et empêchait l'édition de certaines annonces.
-            infosList.onclick = (event) => {
-                const button = event.target.closest('button[data-info-action]');
-                if (!button) return;
-                const info = infos[Number(button.dataset.infoIndex)];
-                if (!info) return;
-                if (button.dataset.infoAction === 'edit') {
-                    window.editInfo(info.id, info.titre, info.cycle || 'Général', info.contenu || '', info.annee_etude || '');
-                } else {
-                    window.deleteInfo(info.id);
-                }
+            // User actions
+            window.promoteUser = async (id, role) => {
+                if (!confirm(`Changer le rôle en ${role} ?`)) return;
+                try { await api.updateUserRole(id, role); await Promise.all([loadUsers(), loadStats()]); }
+                catch (e) { alert(e.message); }
             };
-        });
+            window.deleteUser = async (id) => {
+                if (!confirm('Supprimer définitivement cet utilisateur ?')) return;
+                try { await api.deleteAdminUser(id); await Promise.all([loadUsers(), loadStats()]); }
+                catch (e) { alert(e.message); }
+            };
 
-        window.deleteDocument = async (id) => {
-            if (!confirm('Supprimer ce document ?')) return;
-            try { await api.deleteDocument(id); document.getElementById('btn-manage-docs').click(); await loadStats(); }
-            catch(e) { alert(e.message); }
-        };
-        window.deleteInfo = async (id) => {
-            if (!confirm('Supprimer cette information ?')) return;
-            try { await api.deleteInfo(id); document.getElementById('btn-manage-infos').click(); await loadStats(); }
-            catch(e) { alert(e.message); }
-        };
+            // Bouton Synchroniser le Drive
+            document.getElementById('btn-sync-drive')?.addEventListener('click', async () => {
+                const btn = document.getElementById('btn-sync-drive');
+                if (!confirm('Lancer la synchronisation avec Google Drive ? Cela peut prendre quelques instants.')) return;
 
-        // ── Édition Information ────────────────────────────────────────────
-        window.editInfo = (id, titre, cycle, contenu, anneeEtude = '') => {
-            document.getElementById('edit-info-id').value = id;
-            document.getElementById('edit-info-titre').value = titre;
-            document.getElementById('edit-info-contenu').value = contenu;
-            // Set cycle select
-            const sel = document.getElementById('edit-info-cycle');
-            if ([...sel.options].some(o => o.value === cycle)) sel.value = cycle;
-            updateInfoYearOptions('edit-info-cycle', 'edit-info-annee-etude', anneeEtude);
-            document.getElementById('modal-edit-info').classList.add('open');
-        };
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '⏳ Synchronisation...';
+                btn.disabled = true;
 
-        // Populate cycle selects in edit modal
-        if (typeof SUBJECTS_DATA !== 'undefined') {
-            SUBJECTS_DATA.forEach(s => {
+                try {
+                    const res = await api.syncDrive();
+                    alert('✅ ' + (res.message || 'Synchronisation réussie !'));
+                    if (document.getElementById('manage-docs-section').style.display === 'block') {
+                        document.getElementById('btn-manage-docs').click(); // actualiser la liste
+                    }
+                } catch (e) {
+                    alert('❌ Erreur: ' + e.message);
+                } finally {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            });
+
+            // Bouton Corriger Années d'étude (DIRECT - sans Google Drive)
+            document.getElementById('btn-fix-annee-direct')?.addEventListener('click', async () => {
+                const btn = document.getElementById('btn-fix-annee-direct');
+                if (!confirm('Corriger les années d\'étude de tous les documents ?\n\nCette opération analyse les noms de matières et assigne automatiquement les années d\'étude (1ère, 2ème, 3ème année) à chaque document.')) return;
+
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '⏳ Correction en cours...';
+                btn.disabled = true;
+
+                try {
+                    const token = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.access_token;
+                    const res = await fetch(API_BASE_URL + '/admin/fix-annee-direct', {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.detail || 'Erreur');
+                    alert('✅ ' + (data.message || 'Correction réussie !'));
+                } catch (e) {
+                    alert('❌ Erreur: ' + e.message);
+                } finally {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            });
+
+            // Form: Document
+            document.getElementById('doc-type')?.addEventListener('change', e => {
+                const grp = document.getElementById('group-categorie-eval');
+                const cat = document.getElementById('doc-categorie-eval');
+                if (e.target.value === 'evaluation') { grp.classList.remove('hidden'); cat.required = true; }
+                else { grp.classList.add('hidden'); cat.required = false; }
+            });
+
+            document.getElementById('form-add-document')?.addEventListener('submit', async e => {
+                e.preventDefault();
+                const btn = document.getElementById('btn-submit-doc');
+                const progressWrap = document.getElementById('doc-upload-progress');
+                const progressFill = document.getElementById('doc-progress-fill');
+                const statusMsg = document.getElementById('doc-upload-status');
+
+                btn.disabled = true;
+                btn.textContent = 'Envoi...';
+                progressWrap.classList.add('visible');
+
+                // Animation de progression simulée (le backend ne supporte pas les progress events)
+                let fakeProgress = 0;
+                statusMsg.textContent = '⏳ Réveil du serveur en cours...';
+                progressFill.style.width = '5%';
+                const progressInterval = setInterval(() => {
+                    if (fakeProgress < 75) {
+                        fakeProgress += Math.random() * 8;
+                        fakeProgress = Math.min(fakeProgress, 75);
+                        progressFill.style.width = fakeProgress + '%';
+                        if (fakeProgress < 20) statusMsg.textContent = '⏳ Réveil du serveur...';
+                        else if (fakeProgress < 50) statusMsg.textContent = '📡 Connexion établie, envoi du fichier...';
+                        else statusMsg.textContent = '⬆️ Téléversement en cours...';
+                    }
+                }, 400);
+
+                const fd = new FormData();
+                const titre = document.getElementById('doc-titre').value;
+                const cycle = document.getElementById('doc-cycle').value;
+                const annee = document.getElementById('doc-annee').value;
+                const anneeEtude = document.getElementById('doc-annee-etude').value;
+                fd.append('titre', titre);
+                const type = document.getElementById('doc-type').value;
+                fd.append('type', type);
+                if (type === 'evaluation') fd.append('categorie_eval', document.getElementById('doc-categorie-eval').value);
+                fd.append('matiere', document.getElementById('doc-matiere').value);
+                fd.append('cycle', cycle);
+                fd.append('annee', annee);
+                if (anneeEtude) fd.append('annee_etude', anneeEtude);
+                fd.append('file', document.getElementById('doc-file').files[0]);
+
+                try {
+                    const result = await api.addDocument(fd);
+                    clearInterval(progressInterval);
+                    progressFill.style.width = '100%';
+                    statusMsg.textContent = '✅ Document publié avec succès !';
+
+                    document.getElementById('group-categorie-eval').classList.add('hidden');
+                    await loadStats();
+
+                    // Marquer comme vu pour ne pas notifier l'admin lui-même
+                    const currentSeen = NotifSystem.getSeenDocs();
+                    if (result && result.id) currentSeen.add(result.id);
+                    localStorage.setItem(NotifSystem.STORAGE_KEY_DOCS, JSON.stringify([...currentSeen]));
+
+                    // ── Notification Email via EmailJS ──────────────────────────
+                    const adminUser = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.user;
+                    sendDocumentNotificationEmail({
+                        titre,
+                        type,
+                        cycle,
+                        annee,
+                        admin_name: adminUser ? `${adminUser.prenom} ${adminUser.nom}` : 'Admin'
+                    });
+
+                    setTimeout(() => {
+                        e.target.reset();
+                        progressWrap.classList.remove('visible');
+                        progressFill.style.width = '0%';
+                        statusMsg.textContent = '';
+                    }, 2000);
+
+                    NotifSystem.showToast(`"${titre}" publié pour le cycle ${cycle} (${annee}).`, 'success');
+
+                } catch (err) {
+                    clearInterval(progressInterval);
+                    progressFill.style.width = '0%';
+                    progressWrap.classList.remove('visible');
+                    alert('❌ ' + err.message);
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = '✅ Mettre en ligne';
+                }
+            });
+
+            document.getElementById('form-add-info')?.addEventListener('submit', async e => {
+                e.preventDefault();
+                const btn = document.getElementById('btn-submit-info');
+                const progressWrap = document.getElementById('info-upload-progress');
+                const progressFill = document.getElementById('info-progress-fill');
+                const statusMsg = document.getElementById('info-upload-status');
+
+                btn.disabled = true;
+                btn.textContent = 'Publication...';
+                progressWrap.classList.add('visible');
+
+                let fakeProgress = 0;
+                statusMsg.textContent = '⏳ Envoi en cours...';
+                progressFill.style.width = '10%';
+                const progressInterval = setInterval(() => {
+                    if (fakeProgress < 80) {
+                        fakeProgress += Math.random() * 12;
+                        fakeProgress = Math.min(fakeProgress, 80);
+                        progressFill.style.width = fakeProgress + '%';
+                    }
+                }, 300);
+
+                const titre = document.getElementById('info-titre').value;
+                const contenu = document.getElementById('info-contenu').value;
+                const cycle = document.getElementById('admin-cycle-info').value;
+                const anneeEtude = document.getElementById('admin-info-annee-etude').value;
+
+                const fd = new FormData();
+                fd.append('titre', titre);
+                fd.append('contenu', contenu);
+                fd.append('cycle', cycle);
+                if (anneeEtude) fd.append('annee_etude', anneeEtude);
+                const file = document.getElementById('info-file').files[0];
+                if (file) fd.append('file', file);
+
+                try {
+                    const result = await api.addInfo(fd);
+                    clearInterval(progressInterval);
+                    progressFill.style.width = '100%';
+                    statusMsg.textContent = '✅ Information publiée !';
+
+                    await loadStats();
+
+                    // Marquer comme vue pour l'admin
+                    const currentSeen = NotifSystem.getSeenInfos();
+                    if (result && result.id) currentSeen.add(result.id);
+                    localStorage.setItem(NotifSystem.STORAGE_KEY_INFOS, JSON.stringify([...currentSeen]));
+
+                    // ── Notification Email via EmailJS ──────────────────────────
+                    const adminUser = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.user;
+                    sendInfoNotificationEmail({
+                        titre,
+                        contenu: contenu.substring(0, 200) + (contenu.length > 200 ? '...' : ''),
+                        cycle,
+                        admin_name: adminUser ? `${adminUser.prenom} ${adminUser.nom}` : 'Admin'
+                    });
+
+                    NotifSystem.showToast(`Annonce "${titre}" publiée avec succès !`, 'success');
+
+                    setTimeout(() => {
+                        e.target.reset();
+                        progressWrap.classList.remove('visible');
+                        progressFill.style.width = '0%';
+                        statusMsg.textContent = '';
+                    }, 2000);
+
+                } catch (err) {
+                    clearInterval(progressInterval);
+                    progressFill.style.width = '0%';
+                    progressWrap.classList.remove('visible');
+                    alert('❌ ' + err.message);
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = '📢 Publier';
+                }
+            });
+
+            // Manage Content
+            document.getElementById('btn-manage-docs')?.addEventListener('click', async () => {
+                document.getElementById('manage-docs-section').style.display = 'block';
+                document.getElementById('manage-infos-section').style.display = 'none';
+                document.getElementById('manage-empty').style.display = 'none';
+                const allDocs = await api.getDocuments();
+                const docs = allDocs.filter(d => d.source === 'admin');
+                document.getElementById('manage-docs-list').innerHTML = docs.length
+                    ? docs.map(d => `<tr><td>${d.titre}</td><td><span class="role-badge student">${d.type}</span></td><td>${d.cycle}</td><td style="text-align:right;white-space:nowrap;"><button class="action-btn edit" onclick="editDocument('${d.id}','${d.titre.replace(/'/g, "&apos;")}','${d.type}','${d.matiere?.replace(/'/g, "&apos;")}','${d.categorie_eval || ''}','${d.annee_etude || ''}')">✏️ Modifier</button><button class="action-btn danger" onclick="deleteDocument('${d.id}')">🗑️ Supprimer</button></td></tr>`).join('')
+                    : '<tr><td colspan="4" style="text-align:center;padding:1.5rem;color:var(--text-muted);">Aucun document publié manuellement.</td></tr>';
+            });
+
+            document.getElementById('btn-manage-infos')?.addEventListener('click', async () => {
+                document.getElementById('manage-infos-section').style.display = 'block';
+                document.getElementById('manage-docs-section').style.display = 'none';
+                document.getElementById('manage-empty').style.display = 'none';
+                const infos = await api.getInfos();
+                const infosList = document.getElementById('manage-infos-list');
+                infosList.innerHTML = infos.length
+                    ? infos.map((i, index) => `<tr><td>${i.titre}</td><td>${i.cycle}</td><td style="text-align:right;white-space:nowrap;"><button class="action-btn edit" data-info-action="edit" data-info-index="${index}">✏️ Modifier</button><button class="action-btn danger" data-info-action="delete" data-info-index="${index}">🗑️ Supprimer</button></td></tr>`).join('')
+                    : '<tr><td colspan="3" style="text-align:center;padding:1.5rem;color:var(--text-muted);">Aucune information.</td></tr>';
+
+                // Ne pas passer le titre ou le contenu dans un onclick HTML : une apostrophe
+                // rendait l'attribut invalide et empêchait l'édition de certaines annonces.
+                infosList.onclick = (event) => {
+                    const button = event.target.closest('button[data-info-action]');
+                    if (!button) return;
+                    const info = infos[Number(button.dataset.infoIndex)];
+                    if (!info) return;
+                    if (button.dataset.infoAction === 'edit') {
+                        window.editInfo(info.id, info.titre, info.cycle || 'Général', info.contenu || '', info.annee_etude || '');
+                    } else {
+                        window.deleteInfo(info.id);
+                    }
+                };
+            });
+
+            window.deleteDocument = async (id) => {
+                if (!confirm('Supprimer ce document ?')) return;
+                try { await api.deleteDocument(id); document.getElementById('btn-manage-docs').click(); await loadStats(); }
+                catch (e) { alert(e.message); }
+            };
+            window.deleteInfo = async (id) => {
+                if (!confirm('Supprimer cette information ?')) return;
+                try { await api.deleteInfo(id); document.getElementById('btn-manage-infos').click(); await loadStats(); }
+                catch (e) { alert(e.message); }
+            };
+
+            // ── Édition Information ────────────────────────────────────────────
+            window.editInfo = (id, titre, cycle, contenu, anneeEtude = '') => {
+                document.getElementById('edit-info-id').value = id;
+                document.getElementById('edit-info-titre').value = titre;
+                document.getElementById('edit-info-contenu').value = contenu;
+                // Set cycle select
                 const sel = document.getElementById('edit-info-cycle');
-                if (sel) { const opt = document.createElement('option'); opt.value = s.cycle; opt.textContent = s.label; sel.appendChild(opt); }
+                if ([...sel.options].some(o => o.value === cycle)) sel.value = cycle;
+                updateInfoYearOptions('edit-info-cycle', 'edit-info-annee-etude', anneeEtude);
+                document.getElementById('modal-edit-info').classList.add('open');
+            };
+
+            // Populate cycle selects in edit modal
+            if (typeof SUBJECTS_DATA !== 'undefined') {
+                SUBJECTS_DATA.forEach(s => {
+                    const sel = document.getElementById('edit-info-cycle');
+                    if (sel) { const opt = document.createElement('option'); opt.value = s.cycle; opt.textContent = s.label; sel.appendChild(opt); }
+                });
+            }
+
+            document.getElementById('form-edit-info')?.addEventListener('submit', async e => {
+                e.preventDefault();
+                const btn = document.getElementById('btn-edit-info-submit');
+                btn.disabled = true; btn.textContent = 'Sauvegarde...';
+                const fd = new FormData();
+                fd.append('titre', document.getElementById('edit-info-titre').value);
+                fd.append('contenu', document.getElementById('edit-info-contenu').value);
+                fd.append('cycle', document.getElementById('edit-info-cycle').value);
+                const anneeEtude = document.getElementById('edit-info-annee-etude').value;
+                if (anneeEtude) fd.append('annee_etude', anneeEtude);
+                const file = document.getElementById('edit-info-file').files[0];
+                if (file) fd.append('file', file);
+                try {
+                    await api.updateInfo(document.getElementById('edit-info-id').value, fd);
+                    document.getElementById('modal-edit-info').classList.remove('open');
+                    e.target.reset();
+                    document.getElementById('btn-manage-infos').click();
+                } catch (err) { alert('❌ ' + err.message); }
+                finally { btn.disabled = false; btn.textContent = 'Sauvegarder'; }
             });
-        }
-
-        document.getElementById('form-edit-info')?.addEventListener('submit', async e => {
-            e.preventDefault();
-            const btn = document.getElementById('btn-edit-info-submit');
-            btn.disabled = true; btn.textContent = 'Sauvegarde...';
-            const fd = new FormData();
-            fd.append('titre', document.getElementById('edit-info-titre').value);
-            fd.append('contenu', document.getElementById('edit-info-contenu').value);
-            fd.append('cycle', document.getElementById('edit-info-cycle').value);
-            const anneeEtude = document.getElementById('edit-info-annee-etude').value;
-            if (anneeEtude) fd.append('annee_etude', anneeEtude);
-            const file = document.getElementById('edit-info-file').files[0];
-            if (file) fd.append('file', file);
-            try {
-                await api.updateInfo(document.getElementById('edit-info-id').value, fd);
-                document.getElementById('modal-edit-info').classList.remove('open');
-                e.target.reset();
-                document.getElementById('btn-manage-infos').click();
-            } catch(err) { alert('❌ ' + err.message); }
-            finally { btn.disabled = false; btn.textContent = 'Sauvegarder'; }
-        });
 
 
 
-        // ── Édition Document ───────────────────────────────────────────────
-        window.editDocument = (id, titre, type, matiere, cat, anneeEtude) => {
-            document.getElementById('edit-doc-id').value = id;
-            document.getElementById('edit-doc-titre').value = titre;
-            document.getElementById('edit-doc-type').value = type || 'cours';
-            document.getElementById('edit-doc-matiere').value = matiere || '';
-            document.getElementById('edit-doc-cat').value = cat || '';
-            const aeSelect = document.getElementById('edit-doc-annee-etude');
-            if (aeSelect) aeSelect.value = anneeEtude || '';
-            document.getElementById('modal-edit-doc').classList.add('open');
-        };
+            // ── Édition Document ───────────────────────────────────────────────
+            window.editDocument = (id, titre, type, matiere, cat, anneeEtude) => {
+                document.getElementById('edit-doc-id').value = id;
+                document.getElementById('edit-doc-titre').value = titre;
+                document.getElementById('edit-doc-type').value = type || 'cours';
+                document.getElementById('edit-doc-matiere').value = matiere || '';
+                document.getElementById('edit-doc-cat').value = cat || '';
+                const aeSelect = document.getElementById('edit-doc-annee-etude');
+                if (aeSelect) aeSelect.value = anneeEtude || '';
+                document.getElementById('modal-edit-doc').classList.add('open');
+            };
 
-        document.getElementById('form-edit-doc')?.addEventListener('submit', async e => {
-            e.preventDefault();
-            const btn = document.getElementById('btn-edit-doc-submit');
-            btn.disabled = true; btn.textContent = 'Sauvegarde...';
-            const fd = new FormData();
-            fd.append('titre', document.getElementById('edit-doc-titre').value);
-            fd.append('type', document.getElementById('edit-doc-type').value);
-            const cat = document.getElementById('edit-doc-cat').value;
-            if (cat) fd.append('categorie_eval', cat);
-            const matiere = document.getElementById('edit-doc-matiere').value;
-            if (matiere) fd.append('matiere', matiere);
-            const anneeEtude = document.getElementById('edit-doc-annee-etude').value;
-            if (anneeEtude) fd.append('annee_etude', parseInt(anneeEtude));
-            const file = document.getElementById('edit-doc-file').files[0];
-            if (file) fd.append('file', file);
-            try {
-                await api.updateDocument(document.getElementById('edit-doc-id').value, fd);
-                document.getElementById('modal-edit-doc').classList.remove('open');
-                e.target.reset();
-                document.getElementById('btn-manage-docs').click();
-            } catch(err) { alert('❌ ' + err.message); }
-            finally { btn.disabled = false; btn.textContent = 'Sauvegarder'; }
-        });
+            document.getElementById('form-edit-doc')?.addEventListener('submit', async e => {
+                e.preventDefault();
+                const btn = document.getElementById('btn-edit-doc-submit');
+                btn.disabled = true; btn.textContent = 'Sauvegarde...';
+                const fd = new FormData();
+                fd.append('titre', document.getElementById('edit-doc-titre').value);
+                fd.append('type', document.getElementById('edit-doc-type').value);
+                const cat = document.getElementById('edit-doc-cat').value;
+                if (cat) fd.append('categorie_eval', cat);
+                const matiere = document.getElementById('edit-doc-matiere').value;
+                if (matiere) fd.append('matiere', matiere);
+                const anneeEtude = document.getElementById('edit-doc-annee-etude').value;
+                if (anneeEtude) fd.append('annee_etude', parseInt(anneeEtude));
+                const file = document.getElementById('edit-doc-file').files[0];
+                if (file) fd.append('file', file);
+                try {
+                    await api.updateDocument(document.getElementById('edit-doc-id').value, fd);
+                    document.getElementById('modal-edit-doc').classList.remove('open');
+                    e.target.reset();
+                    document.getElementById('btn-manage-docs').click();
+                } catch (err) { alert('❌ ' + err.message); }
+                finally { btn.disabled = false; btn.textContent = 'Sauvegarder'; }
+            });
 
-        
-        // Tab Heures Logic
-        let rentreeConfigured = false;
 
-        function formatDateFr(date) {
-            if (!date) return '';
-            const [annee, mois, jour] = String(date).slice(0, 10).split('-');
-            return annee && mois && jour ? `${jour}/${mois}/${annee}` : date;
-        }
+            // Tab Heures Logic
+            let rentreeConfigured = false;
 
-        function getAnneeScolaire(dateRentree, anneeScolaire) {
-            if (anneeScolaire) return anneeScolaire;
-            const [annee, mois] = String(dateRentree || '').slice(0, 10).split('-').map(Number);
-            if (!annee || !mois) return '';
-            const debut = mois >= 8 ? annee : annee - 1;
-            return `${debut}-${debut + 1}`;
-        }
-
-        function setStatus(elementId, message, isError = false) {
-            const element = document.getElementById(elementId);
-            if (!element) return;
-            element.textContent = message;
-            element.style.display = 'block';
-            element.style.color = isError ? 'var(--danger)' : '#16a34a';
-        }
-
-        function updateHeuresFormAvailability() {
-            const button = document.getElementById('btn-submit-heures');
-            const warning = document.getElementById('heures-rentree-warning');
-            if (button) button.disabled = !rentreeConfigured;
-            if (warning) warning.style.display = rentreeConfigured ? 'none' : 'block';
-        }
-
-        function afficherRentree(rentree) {
-            const dateRentree = rentree?.date_rentree || rentree?.date || '';
-            const input = document.getElementById('date-rentree');
-            const anneeScolaire = document.getElementById('rentree-annee-scolaire');
-            rentreeConfigured = Boolean(dateRentree);
-            if (input) input.value = dateRentree ? String(dateRentree).slice(0, 10) : '';
-            if (anneeScolaire) {
-                anneeScolaire.textContent = rentreeConfigured
-                    ? `Année scolaire : ${getAnneeScolaire(dateRentree, rentree.annee_scolaire || rentree.school_year)}`
-                    : 'Aucune rentrée scolaire configurée.';
+            function formatDateFr(date) {
+                if (!date) return '';
+                const [annee, mois, jour] = String(date).slice(0, 10).split('-');
+                return annee && mois && jour ? `${jour}/${mois}/${annee}` : date;
             }
-            updateHeuresFormAvailability();
-        }
 
-        async function loadRentree() {
-            try {
-                const response = await api.getRentrees();
-                const rentrees = Array.isArray(response) ? response : (Array.isArray(response?.rentrees) ? response.rentrees : [response]);
-                const derniereRentree = rentrees
-                    .filter(rentree => rentree?.date_rentree || rentree?.date)
-                    .sort((a, b) => String(b.date_rentree || b.date).localeCompare(String(a.date_rentree || a.date)))[0];
-                afficherRentree(derniereRentree);
-            } catch (error) {
-                afficherRentree(null);
-                setStatus('rentree-status', `Erreur : ${error.message}`, true);
+            function getAnneeScolaire(dateRentree, anneeScolaire) {
+                if (anneeScolaire) return anneeScolaire;
+                const [annee, mois] = String(dateRentree || '').slice(0, 10).split('-').map(Number);
+                if (!annee || !mois) return '';
+                const debut = mois >= 8 ? annee : annee - 1;
+                return `${debut}-${debut + 1}`;
             }
-        }
 
-        document.getElementById('form-rentree-scolaire')?.addEventListener('submit', async e => {
-            e.preventDefault();
-            const button = document.getElementById('btn-submit-rentree');
-            const dateRentree = document.getElementById('date-rentree').value;
-            button.disabled = true;
-            button.textContent = 'Enregistrement...';
-            try {
-                const response = await api.sauvegarderRentree(dateRentree);
-                afficherRentree(response?.date_rentree || response?.date ? response : { date_rentree: dateRentree });
-                setStatus('rentree-status', 'Rentrée scolaire enregistrée avec succès.');
-            } catch (error) {
-                setStatus('rentree-status', `Erreur : ${error.message}`, true);
-            } finally {
-                button.disabled = false;
-                button.textContent = 'Enregistrer la rentrée';
+            function setStatus(elementId, message, isError = false) {
+                const element = document.getElementById(elementId);
+                if (!element) return;
+                element.textContent = message;
+                element.style.display = 'block';
+                element.style.color = isError ? 'var(--danger)' : '#16a34a';
             }
-        });
 
-        document.querySelectorAll('.admin-tab').forEach(tab => {
-            tab.addEventListener('click', (e) => {
-                if (tab.dataset.tab === 'tab-heures') {
-                    loadHeuresHistory(document.getElementById('heures-history-annee').value);
-                    if (!document.querySelector('.category-input')) {
-                        loadHeuresCategories(document.getElementById('heures-annee').value);
+            function updateHeuresFormAvailability() {
+                const button = document.getElementById('btn-submit-heures');
+                const warning = document.getElementById('heures-rentree-warning');
+                if (button) button.disabled = !rentreeConfigured;
+                if (warning) warning.style.display = rentreeConfigured ? 'none' : 'block';
+            }
+
+            function afficherRentree(rentree) {
+                const dateRentree = rentree?.date_rentree || rentree?.date || '';
+                const input = document.getElementById('date-rentree');
+                const anneeScolaire = document.getElementById('rentree-annee-scolaire');
+                rentreeConfigured = Boolean(dateRentree);
+                if (input) input.value = dateRentree ? String(dateRentree).slice(0, 10) : '';
+                if (anneeScolaire) {
+                    anneeScolaire.textContent = rentreeConfigured
+                        ? `Année scolaire : ${getAnneeScolaire(dateRentree, rentree.annee_scolaire || rentree.school_year)}`
+                        : 'Aucune rentrée scolaire configurée.';
+                }
+                updateHeuresFormAvailability();
+            }
+
+            async function loadRentree() {
+                try {
+                    const response = await api.getRentrees();
+                    const rentrees = Array.isArray(response) ? response : (Array.isArray(response?.rentrees) ? response.rentrees : [response]);
+                    const derniereRentree = rentrees
+                        .filter(rentree => rentree?.date_rentree || rentree?.date)
+                        .sort((a, b) => String(b.date_rentree || b.date).localeCompare(String(a.date_rentree || a.date)))[0];
+                    afficherRentree(derniereRentree);
+                } catch (error) {
+                    afficherRentree(null);
+                    setStatus('rentree-status', `Erreur : ${error.message}`, true);
+                }
+            }
+
+            document.getElementById('form-rentree-scolaire')?.addEventListener('submit', async e => {
+                e.preventDefault();
+                const button = document.getElementById('btn-submit-rentree');
+                const dateRentree = document.getElementById('date-rentree').value;
+                button.disabled = true;
+                button.textContent = 'Enregistrement...';
+                try {
+                    const response = await api.sauvegarderRentree(dateRentree);
+                    afficherRentree(response?.date_rentree || response?.date ? response : { date_rentree: dateRentree });
+                    setStatus('rentree-status', 'Rentrée scolaire enregistrée avec succès.');
+                } catch (error) {
+                    setStatus('rentree-status', `Erreur : ${error.message}`, true);
+                } finally {
+                    button.disabled = false;
+                    button.textContent = 'Enregistrer la rentrée';
+                }
+            });
+
+            document.querySelectorAll('.admin-tab').forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    if (tab.dataset.tab === 'tab-heures') {
+                        loadHeuresHistory(document.getElementById('heures-history-annee').value);
+                        if (!document.querySelector('.category-input')) {
+                            loadHeuresCategories(document.getElementById('heures-annee').value);
+                        }
                     }
-                }
+                });
             });
-        });
 
-        document.getElementById('heures-history-annee')?.addEventListener('change', (e) => {
-            loadHeuresHistory(e.target.value);
-        });
+            document.getElementById('heures-history-annee')?.addEventListener('change', (e) => {
+                loadHeuresHistory(e.target.value);
+            });
 
-        document.getElementById('heures-annee')?.addEventListener('change', (e) => {
-            loadHeuresCategories(e.target.value);
-        });
+            document.getElementById('heures-annee')?.addEventListener('change', (e) => {
+                loadHeuresCategories(e.target.value);
+            });
 
-        let matieresDisponibles = [];
-        let categoriesDisponibles = [];
+            let matieresDisponibles = [];
+            let categoriesDisponibles = [];
 
-        async function loadHeuresCategories(annee) {
-            const container = document.getElementById('matieres-container');
-            const btnAdd = document.getElementById('btn-add-matiere');
-            if(!container) return;
-            
-            container.innerHTML = '';
-            if (btnAdd) btnAdd.disabled = false;
-            matieresDisponibles = [];
-            categoriesDisponibles = [];
+            async function loadHeuresCategories(annee) {
+                const container = document.getElementById('matieres-container');
+                const btnAdd = document.getElementById('btn-add-matiere');
+                if (!container) return;
 
-            try {
-                // On récupère toutes les matières sans filtrer par année
-                const rawData = await api.getSubjectsAPI();
-                let dataArray = [];
-                
-                // Extraire le tableau brut (soit la réponse elle-même, soit une de ses propriétés courantes)
-                if (Array.isArray(rawData)) {
-                    dataArray = rawData;
-                } else if (rawData && Array.isArray(rawData.categories)) {
-                    dataArray = rawData.categories;
-                } else if (rawData && Array.isArray(rawData.matieres)) {
-                    dataArray = rawData.matieres;
-                }
+                container.innerHTML = '';
+                if (btnAdd) btnAdd.disabled = false;
+                matieresDisponibles = [];
+                categoriesDisponibles = [];
 
-                if (dataArray.length > 0) {
-                    const anneeSelect = document.getElementById('heures-annee');
-                    const selectedAnneeText = anneeSelect && anneeSelect.selectedIndex >= 0 ? anneeSelect.options[anneeSelect.selectedIndex].text : annee;
-                    const selectedAnneeVal = annee;
-                    
-                    const currentCycleData = dataArray.find(c => 
-                        c.label === selectedAnneeText || c.cycle === selectedAnneeText ||
-                        c.label === selectedAnneeVal || c.cycle === selectedAnneeVal
-                    );
-                    
-                    const matieresDuCycle = currentCycleData ? currentCycleData.matieres : [];
-                    
-                    if (matieresDuCycle && matieresDuCycle.length > 0) {
-                        const catName = currentCycleData.label || currentCycleData.cycle || 'Général';
-                        
-                        matieresDisponibles = matieresDuCycle.map(mat => {
-                            // Au cas où ce serait quand même des objets, on gère les deux
-                            if (typeof mat === 'string') {
-                                return { id: mat, nom: mat, categorie: catName };
-                            }
-                            return { ...mat, categorie: catName };
-                        });
-                        categoriesDisponibles = [{ nom: catName }];
+                try {
+                    // On récupère toutes les matières sans filtrer par année
+                    const rawData = await api.getSubjectsAPI();
+                    let dataArray = [];
+
+                    // Extraire le tableau brut (soit la réponse elle-même, soit une de ses propriétés courantes)
+                    if (Array.isArray(rawData)) {
+                        dataArray = rawData;
+                    } else if (rawData && Array.isArray(rawData.categories)) {
+                        dataArray = rawData.categories;
+                    } else if (rawData && Array.isArray(rawData.matieres)) {
+                        dataArray = rawData.matieres;
                     }
-                }
-                
-                updateTotauxCategories();
-                // Toujours afficher au moins une ligne, peu importe le résultat
-                addMatiereRow();
-            } catch (error) {
-                // S'il y a une erreur réseau, on affiche quand même une ligne vide pour pouvoir saisir
-                addMatiereRow();
-            }
-        }
 
-        function updateTotauxCategories() {
-            const listContainer = document.getElementById('totaux-categories-list');
-            const summaryContainer = document.getElementById('totaux-categories-container');
-            if (!listContainer || !summaryContainer) return;
-            
-            if (matieresDisponibles.length === 0) {
-                summaryContainer.style.display = 'none';
-                return;
-            }
-            
-            const totaux = {};
-            categoriesDisponibles.forEach(cat => {
-                const catName = cat.nom || cat.label || cat.titre || 'Général';
-                totaux[catName] = 0;
-            });
-            
-            document.querySelectorAll('.matiere-row').forEach(row => {
-                const select = row.querySelector('.matiere-select');
-                const input = row.querySelector('.heures-input');
-                if (select && select.value && input && input.value) {
-                    const matiereId = select.value;
-                    const matiere = matieresDisponibles.find(m => String(m.id || m.matiereId || m._id || m) === String(matiereId));
-                    if (matiere && matiere.categorie) {
-                        totaux[matiere.categorie] += parseFloat(input.value) || 0;
+                    if (dataArray.length > 0) {
+                        const anneeSelect = document.getElementById('heures-annee');
+                        const selectedAnneeText = anneeSelect && anneeSelect.selectedIndex >= 0 ? anneeSelect.options[anneeSelect.selectedIndex].text : annee;
+                        const selectedAnneeVal = annee;
+
+                        const currentCycleData = dataArray.find(c =>
+                            c.label === selectedAnneeText || c.cycle === selectedAnneeText ||
+                            c.label === selectedAnneeVal || c.cycle === selectedAnneeVal
+                        );
+
+                        const matieresDuCycle = currentCycleData ? currentCycleData.matieres : [];
+
+                        if (matieresDuCycle && matieresDuCycle.length > 0) {
+                            const catName = currentCycleData.label || currentCycleData.cycle || 'Général';
+
+                            matieresDisponibles = matieresDuCycle.map(mat => {
+                                // Au cas où ce serait quand même des objets, on gère les deux
+                                if (typeof mat === 'string') {
+                                    return { id: mat, nom: mat, categorie: catName };
+                                }
+                                return { ...mat, categorie: catName };
+                            });
+                            categoriesDisponibles = [{ nom: catName }];
+                        }
                     }
+
+                    updateTotauxCategories();
+                    // Toujours afficher au moins une ligne, peu importe le résultat
+                    addMatiereRow();
+                } catch (error) {
+                    // S'il y a une erreur réseau, on affiche quand même une ligne vide pour pouvoir saisir
+                    addMatiereRow();
                 }
-            });
-            
-            let html = '';
-            let totalGeneral = 0;
-            for (const [categorie, total] of Object.entries(totaux)) {
-                html += `<div style="display: flex; justify-content: space-between; padding-bottom: 0.25rem; border-bottom: 1px solid rgba(0,0,0,0.05);">
+            }
+
+            function updateTotauxCategories() {
+                const listContainer = document.getElementById('totaux-categories-list');
+                const summaryContainer = document.getElementById('totaux-categories-container');
+                if (!listContainer || !summaryContainer) return;
+
+                if (matieresDisponibles.length === 0) {
+                    summaryContainer.style.display = 'none';
+                    return;
+                }
+
+                const totaux = {};
+                categoriesDisponibles.forEach(cat => {
+                    const catName = cat.nom || cat.label || cat.titre || 'Général';
+                    totaux[catName] = 0;
+                });
+
+                document.querySelectorAll('.matiere-row').forEach(row => {
+                    const select = row.querySelector('.matiere-select');
+                    const input = row.querySelector('.heures-input');
+                    if (select && select.value && input && input.value) {
+                        const matiereId = select.value;
+                        const matiere = matieresDisponibles.find(m => String(m.id || m.matiereId || m._id || m) === String(matiereId));
+                        if (matiere && matiere.categorie) {
+                            totaux[matiere.categorie] += parseFloat(input.value) || 0;
+                        }
+                    }
+                });
+
+                let html = '';
+                let totalGeneral = 0;
+                for (const [categorie, total] of Object.entries(totaux)) {
+                    html += `<div style="display: flex; justify-content: space-between; padding-bottom: 0.25rem; border-bottom: 1px solid rgba(0,0,0,0.05);">
                     <span>${categorie}</span>
                     <strong style="color: var(--text);">${total}h</strong>
                 </div>`;
-                totalGeneral += total;
-            }
-            
-            html += `<div style="display: flex; justify-content: space-between; padding-top: 0.25rem; margin-top: 0.25rem; font-weight: 700; grid-column: 1 / -1;">
+                    totalGeneral += total;
+                }
+
+                html += `<div style="display: flex; justify-content: space-between; padding-top: 0.25rem; margin-top: 0.25rem; font-weight: 700; grid-column: 1 / -1;">
                 <span style="color: var(--text);">Total Global</span>
                 <span style="color: var(--primary);">${totalGeneral}h</span>
             </div>`;
-            
-            listContainer.innerHTML = html;
-            summaryContainer.style.display = 'block';
-        }
 
-        function addMatiereRow() {
-            const container = document.getElementById('matieres-container');
-            if (!container) return;
-            
-            const row = document.createElement('div');
-            row.style.display = 'flex';
-            row.style.gap = '0.75rem';
-            row.style.alignItems = 'center';
-            row.style.flexWrap = 'wrap';
-            row.className = 'matiere-row';
-            
-            let optionsHTML = '<option value="">-- Choisir une matière --</option>';
-            categoriesDisponibles.forEach(cat => {
-                const catName = cat.nom;
-                // Trouver les matières de cette catégorie
-                const matieresDeCat = matieresDisponibles.filter(m => (m.categorie || 'Général') === catName);
-                if (matieresDeCat.length > 0) {
-                    optionsHTML += `<optgroup label="${catName}">`;
-                    matieresDeCat.forEach(mat => {
-                        const nom = mat.nom || mat.label || mat.titre || 'Matière Inconnue';
-                        const id = mat.id || mat.matiereId || mat._id || mat.nom;
-                        optionsHTML += `<option value="${id}">${nom}</option>`;
-                    });
-                    optionsHTML += `</optgroup>`;
-                }
-            });
+                listContainer.innerHTML = html;
+                summaryContainer.style.display = 'block';
+            }
 
-            row.innerHTML = `
+            function addMatiereRow() {
+                const container = document.getElementById('matieres-container');
+                if (!container) return;
+
+                const row = document.createElement('div');
+                row.style.display = 'flex';
+                row.style.gap = '0.75rem';
+                row.style.alignItems = 'center';
+                row.style.flexWrap = 'wrap';
+                row.className = 'matiere-row';
+
+                let optionsHTML = '<option value="">-- Choisir une matière --</option>';
+                categoriesDisponibles.forEach(cat => {
+                    const catName = cat.nom;
+                    // Trouver les matières de cette catégorie
+                    const matieresDeCat = matieresDisponibles.filter(m => (m.categorie || 'Général') === catName);
+                    if (matieresDeCat.length > 0) {
+                        optionsHTML += `<optgroup label="${catName}">`;
+                        matieresDeCat.forEach(mat => {
+                            const nom = mat.nom || mat.label || mat.titre || 'Matière Inconnue';
+                            const id = mat.id || mat.matiereId || mat._id || mat.nom;
+                            optionsHTML += `<option value="${id}">${nom}</option>`;
+                        });
+                        optionsHTML += `</optgroup>`;
+                    }
+                });
+
+                row.innerHTML = `
                 <div style="flex: 2; min-width: 200px;">
                     <select class="form-control matiere-select" required>
                         ${optionsHTML}
@@ -1203,204 +1677,205 @@
                     <button type="button" class="btn btn-outline danger btn-remove-matiere" style="padding: 0.55rem 0.75rem; color: var(--danger); border-color: var(--danger);" title="Supprimer">🗑️</button>
                 </div>
             `;
-            
-            const select = row.querySelector('.matiere-select');
-            const input = row.querySelector('.heures-input');
-            
-            select.addEventListener('change', updateTotauxCategories);
-            input.addEventListener('input', updateTotauxCategories);
-            
-            row.querySelector('.btn-remove-matiere').addEventListener('click', () => {
-                row.remove();
-                updateTotauxCategories();
+
+                const select = row.querySelector('.matiere-select');
+                const input = row.querySelector('.heures-input');
+
+                select.addEventListener('change', updateTotauxCategories);
+                input.addEventListener('input', updateTotauxCategories);
+
+                row.querySelector('.btn-remove-matiere').addEventListener('click', () => {
+                    row.remove();
+                    updateTotauxCategories();
+                });
+
+                container.appendChild(row);
+            }
+
+            document.getElementById('btn-add-matiere')?.addEventListener('click', () => {
+                addMatiereRow();
             });
-            
-            container.appendChild(row);
-        }
 
-        document.getElementById('btn-add-matiere')?.addEventListener('click', () => {
-            addMatiereRow();
-        });
-
-        async function loadHeuresHistory(annee) {
-            const tbody = document.getElementById('heures-history-list');
-            if(!tbody) return;
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:1.5rem;color:var(--text-muted);">Chargement...</td></tr>';
-            try {
-                const semaines = await api.getHeuresSemaines(annee);
-                if (!semaines || !semaines.length) {
-                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:1.5rem;color:var(--text-muted);">Aucun historique pour cette année.</td></tr>';
-                    return;
-                }
-                tbody.innerHTML = semaines.map(s => {
-                    return `<tr>
+            async function loadHeuresHistory(annee) {
+                const tbody = document.getElementById('heures-history-list');
+                if (!tbody) return;
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:1.5rem;color:var(--text-muted);">Chargement...</td></tr>';
+                try {
+                    const semaines = await api.getHeuresSemaines(annee);
+                    if (!semaines || !semaines.length) {
+                        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:1.5rem;color:var(--text-muted);">Aucun historique pour cette année.</td></tr>';
+                        return;
+                    }
+                    tbody.innerHTML = semaines.map(s => {
+                        return `<tr>
                         <td><strong>${s.semaine}</strong></td>
                         <td><span class="badge badge-blue">${s.heures_totales}h</span></td>
                         <td>${s.enregistre_par}</td>
                         <td style="text-align:right;"><button class="action-btn danger" onclick="deleteHeuresSemaine('${s.id}', ${annee})">🗑️</button></td>
                     </tr>`;
-                }).join('');
-            } catch (error) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:1.5rem;color:var(--danger);">Erreur de chargement.</td></tr>';
+                    }).join('');
+                } catch (error) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:1.5rem;color:var(--danger);">Erreur de chargement.</td></tr>';
+                }
             }
-        }
 
-        window.deleteHeuresSemaine = async (id, annee) => {
-            if (!confirm('Voulez-vous vraiment supprimer cet enregistrement ?')) return;
-            try {
-                await api.deleteSemaine(id);
-                loadHeuresHistory(annee);
-            } catch (err) { alert('❌ ' + err.message); }
-        };
+            window.deleteHeuresSemaine = async (id, annee) => {
+                if (!confirm('Voulez-vous vraiment supprimer cet enregistrement ?')) return;
+                try {
+                    await api.deleteSemaine(id);
+                    loadHeuresHistory(annee);
+                } catch (err) { alert('❌ ' + err.message); }
+            };
 
-        document.getElementById('form-add-heures')?.addEventListener('submit', async e => {
-            e.preventDefault();
-            const btn = document.getElementById('btn-submit-heures');
-            if (!rentreeConfigured) {
-                updateHeuresFormAvailability();
-                return;
-            }
-            btn.disabled = true; btn.textContent = 'Enregistrement...';
-            
-            const annee = parseInt(document.getElementById('heures-annee').value);
-            const semaineInput = document.getElementById('heures-semaine').value;
-            
-            const heuresSaisies = [];
-            document.querySelectorAll('.matiere-row').forEach(row => {
-                const select = row.querySelector('.matiere-select');
-                const input = row.querySelector('.heures-input');
-                if (select && select.value && input && input.value) {
-                    const parsedId = parseInt(select.value);
-                    heuresSaisies.push({
-                        matiereId: isNaN(parsedId) ? select.value : parsedId,
-                        heures: parseFloat(input.value) || 0
+            document.getElementById('form-add-heures')?.addEventListener('submit', async e => {
+                e.preventDefault();
+                const btn = document.getElementById('btn-submit-heures');
+                if (!rentreeConfigured) {
+                    updateHeuresFormAvailability();
+                    return;
+                }
+                btn.disabled = true; btn.textContent = 'Enregistrement...';
+
+                const annee = parseInt(document.getElementById('heures-annee').value);
+                const semaineInput = document.getElementById('heures-semaine').value;
+
+                const heuresSaisies = [];
+                document.querySelectorAll('.matiere-row').forEach(row => {
+                    const select = row.querySelector('.matiere-select');
+                    const input = row.querySelector('.heures-input');
+                    if (select && select.value && input && input.value) {
+                        const parsedId = parseInt(select.value);
+                        heuresSaisies.push({
+                            matiereId: isNaN(parsedId) ? select.value : parsedId,
+                            heures: parseFloat(input.value) || 0
+                        });
+                    }
+                });
+
+                const commentaire = document.getElementById('heures-commentaire').value;
+
+                try {
+                    const response = await api.sauvegarderSemaine({
+                        annee: annee,
+                        semaine: semaineInput,
+                        heuresSaisies: heuresSaisies,
+                        commentaire: commentaire
                     });
+                    const periode = response.date_debut && response.date_fin
+                        ? ` — du ${formatDateFr(response.date_debut)} au ${formatDateFr(response.date_fin)}`
+                        : '';
+                    setStatus('heures-status', `✓ ${response.semaine || 'Heures enregistrées'}${periode}`);
+                    e.target.reset();
+                    if (document.getElementById('heures-history-annee').value == annee) {
+                        loadHeuresHistory(annee);
+                    }
+                } catch (err) {
+                    setStatus('heures-status', `Erreur : ${err.message}`, true);
+                } finally {
+                    btn.disabled = !rentreeConfigured; btn.textContent = 'Enregistrer les heures';
                 }
             });
-            
-            const commentaire = document.getElementById('heures-commentaire').value;
-            
-            try {
-                const response = await api.sauvegarderSemaine({
-                    annee: annee,
-                    semaine: semaineInput,
-                    heuresSaisies: heuresSaisies,
-                    commentaire: commentaire
-                });
-                const periode = response.date_debut && response.date_fin
-                    ? ` — du ${formatDateFr(response.date_debut)} au ${formatDateFr(response.date_fin)}`
-                    : '';
-                setStatus('heures-status', `✓ ${response.semaine || 'Heures enregistrées'}${periode}`);
-                e.target.reset();
-                if (document.getElementById('heures-history-annee').value == annee) {
-                    loadHeuresHistory(annee);
+
+            // ── Init : Wake-up du serveur + chargement initial ────────────────
+            async function wakeUpServer() {
+                // Ping le serveur backend pour le réveiller (cold start sur Render free tier)
+                // Affiche une bannière temporaire si la réponse prend du temps
+                const wakeupBanner = document.createElement('div');
+                wakeupBanner.className = 'wakeup-banner';
+                wakeupBanner.id = 'wakeup-banner';
+                wakeupBanner.innerHTML = '<div class="spinner"></div><span>⚡ Réveil du serveur en cours (première connexion ~30s)...</span>';
+
+                const mainContent = document.getElementById('admin-content');
+                const firstChild = mainContent?.firstElementChild;
+                if (mainContent && firstChild) mainContent.insertBefore(wakeupBanner, firstChild);
+
+                const startTime = Date.now();
+                try {
+                    const token = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.access_token;
+                    await fetch('https://seifax-backend.onrender.com/api/admin/stats', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                } catch (e) { /* ignoré */ }
+
+                const elapsed = Date.now() - startTime;
+                const banner = document.getElementById('wakeup-banner');
+                if (banner) {
+                    if (elapsed > 5000) {
+                        banner.innerHTML = '✅ <span>Serveur opérationnel !</span>';
+                        banner.style.background = 'rgba(22,163,74,0.1)';
+                        banner.style.borderColor = 'rgba(22,163,74,0.4)';
+                        banner.style.color = '#166534';
+                    }
+                    setTimeout(() => banner.remove(), 2500);
                 }
-            } catch(err) {
-                setStatus('heures-status', `Erreur : ${err.message}`, true);
-            } finally {
-                btn.disabled = !rentreeConfigured; btn.textContent = 'Enregistrer les heures';
             }
+
+            // ── EmailJS : Notification par email lors des publications ─────────
+            // ================================================================
+            // CONFIGURATION EMAILJS :
+            // 1. Créez un compte gratuit sur https://www.emailjs.com
+            // 2. Créez un Service Email (Gmail, Outlook, etc.)
+            // 3. Créez un Template avec les variables : {{doc_titre}}, {{doc_type}},
+            //    {{doc_cycle}}, {{doc_annee}}, {{admin_name}}, {{to_email}}
+            // 4. Remplacez les valeurs ci-dessous par vos clés
+            // ================================================================
+            const EMAILJS_PUBLIC_KEY = 'VOTRE_PUBLIC_KEY';   // ex: 'aBcDeFgHiJ_XXXXX'
+            const EMAILJS_SERVICE_ID = 'VOTRE_SERVICE_ID';   // ex: 'service_abc123'
+            const EMAILJS_DOC_TEMPLATE_ID = 'VOTRE_TEMPLATE_DOC';  // ex: 'template_doc_notif'
+            const EMAILJS_INFO_TEMPLATE_ID = 'VOTRE_TEMPLATE_INFO'; // ex: 'template_info_notif'
+
+            // Email de la liste de diffusion (ou email groupe des étudiants)
+            // Dans EmailJS, vous pouvez configurer le template pour envoyer à une liste
+            const NOTIF_TARGET_EMAIL = 'etudiants@eamac.org'; // ← à changer
+
+            function initEmailJS() {
+                if (typeof emailjs !== 'undefined' && EMAILJS_PUBLIC_KEY !== 'VOTRE_PUBLIC_KEY') {
+                    emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+                }
+            }
+
+            function sendDocumentNotificationEmail({ titre, type, cycle, annee, admin_name }) {
+                if (typeof emailjs === 'undefined' || EMAILJS_PUBLIC_KEY === 'VOTRE_PUBLIC_KEY') {
+                    console.log('[EmailJS] Non configuré - notification email non envoyée.');
+                    console.log('[EmailJS] Configure EMAILJS_PUBLIC_KEY, EMAILJS_SERVICE_ID et EMAILJS_DOC_TEMPLATE_ID dans admin.html');
+                    return;
+                }
+                emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_DOC_TEMPLATE_ID, {
+                    to_email: NOTIF_TARGET_EMAIL,
+                    admin_name: admin_name,
+                    doc_titre: titre,
+                    doc_type: type,
+                    doc_cycle: cycle,
+                    doc_annee: annee,
+                    site_url: window.location.origin
+                }).then(
+                    () => console.log('[EmailJS] Notification document envoyée !'),
+                    (err) => console.warn('[EmailJS] Erreur envoi:', err)
+                );
+            }
+
+            function sendInfoNotificationEmail({ titre, contenu, cycle, admin_name }) {
+                if (typeof emailjs === 'undefined' || EMAILJS_PUBLIC_KEY === 'VOTRE_PUBLIC_KEY') {
+                    console.log('[EmailJS] Non configuré - notification email non envoyée.');
+                    return;
+                }
+                emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_INFO_TEMPLATE_ID, {
+                    to_email: NOTIF_TARGET_EMAIL,
+                    admin_name: admin_name,
+                    info_titre: titre,
+                    info_contenu: contenu,
+                    info_cycle: cycle,
+                    site_url: window.location.origin
+                }).then(
+                    () => console.log('[EmailJS] Notification info envoyée !'),
+                    (err) => console.warn('[EmailJS] Erreur envoi:', err)
+                );
+            }
+
+            initEmailJS();
+            await Promise.all([wakeUpServer(), loadStats(), loadUsers(), loadRentree()]);
         });
-
-        // ── Init : Wake-up du serveur + chargement initial ────────────────
-        async function wakeUpServer() {
-            // Ping le serveur backend pour le réveiller (cold start sur Render free tier)
-            // Affiche une bannière temporaire si la réponse prend du temps
-            const wakeupBanner = document.createElement('div');
-            wakeupBanner.className = 'wakeup-banner';
-            wakeupBanner.id = 'wakeup-banner';
-            wakeupBanner.innerHTML = '<div class="spinner"></div><span>⚡ Réveil du serveur en cours (première connexion ~30s)...</span>';
-
-            const mainContent = document.getElementById('admin-content');
-            const firstChild = mainContent?.firstElementChild;
-            if (mainContent && firstChild) mainContent.insertBefore(wakeupBanner, firstChild);
-
-            const startTime = Date.now();
-            try {
-                const token = JSON.parse(localStorage.getItem('LEFAXEUR_user'))?.access_token;
-                await fetch('https://seifax-backend.onrender.com/api/admin/stats', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-            } catch (e) { /* ignoré */ }
-
-            const elapsed = Date.now() - startTime;
-            const banner = document.getElementById('wakeup-banner');
-            if (banner) {
-                if (elapsed > 5000) {
-                    banner.innerHTML = '✅ <span>Serveur opérationnel !</span>';
-                    banner.style.background = 'rgba(22,163,74,0.1)';
-                    banner.style.borderColor = 'rgba(22,163,74,0.4)';
-                    banner.style.color = '#166534';
-                }
-                setTimeout(() => banner.remove(), 2500);
-            }
-        }
-
-        // ── EmailJS : Notification par email lors des publications ─────────
-        // ================================================================
-        // CONFIGURATION EMAILJS :
-        // 1. Créez un compte gratuit sur https://www.emailjs.com
-        // 2. Créez un Service Email (Gmail, Outlook, etc.)
-        // 3. Créez un Template avec les variables : {{doc_titre}}, {{doc_type}},
-        //    {{doc_cycle}}, {{doc_annee}}, {{admin_name}}, {{to_email}}
-        // 4. Remplacez les valeurs ci-dessous par vos clés
-        // ================================================================
-        const EMAILJS_PUBLIC_KEY  = 'VOTRE_PUBLIC_KEY';   // ex: 'aBcDeFgHiJ_XXXXX'
-        const EMAILJS_SERVICE_ID  = 'VOTRE_SERVICE_ID';   // ex: 'service_abc123'
-        const EMAILJS_DOC_TEMPLATE_ID  = 'VOTRE_TEMPLATE_DOC';  // ex: 'template_doc_notif'
-        const EMAILJS_INFO_TEMPLATE_ID = 'VOTRE_TEMPLATE_INFO'; // ex: 'template_info_notif'
-
-        // Email de la liste de diffusion (ou email groupe des étudiants)
-        // Dans EmailJS, vous pouvez configurer le template pour envoyer à une liste
-        const NOTIF_TARGET_EMAIL = 'etudiants@eamac.org'; // ← à changer
-
-        function initEmailJS() {
-            if (typeof emailjs !== 'undefined' && EMAILJS_PUBLIC_KEY !== 'VOTRE_PUBLIC_KEY') {
-                emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
-            }
-        }
-
-        function sendDocumentNotificationEmail({ titre, type, cycle, annee, admin_name }) {
-            if (typeof emailjs === 'undefined' || EMAILJS_PUBLIC_KEY === 'VOTRE_PUBLIC_KEY') {
-                console.log('[EmailJS] Non configuré - notification email non envoyée.');
-                console.log('[EmailJS] Configure EMAILJS_PUBLIC_KEY, EMAILJS_SERVICE_ID et EMAILJS_DOC_TEMPLATE_ID dans admin.html');
-                return;
-            }
-            emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_DOC_TEMPLATE_ID, {
-                to_email:    NOTIF_TARGET_EMAIL,
-                admin_name:  admin_name,
-                doc_titre:   titre,
-                doc_type:    type,
-                doc_cycle:   cycle,
-                doc_annee:   annee,
-                site_url:    window.location.origin
-            }).then(
-                () => console.log('[EmailJS] Notification document envoyée !'),
-                (err) => console.warn('[EmailJS] Erreur envoi:', err)
-            );
-        }
-
-        function sendInfoNotificationEmail({ titre, contenu, cycle, admin_name }) {
-            if (typeof emailjs === 'undefined' || EMAILJS_PUBLIC_KEY === 'VOTRE_PUBLIC_KEY') {
-                console.log('[EmailJS] Non configuré - notification email non envoyée.');
-                return;
-            }
-            emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_INFO_TEMPLATE_ID, {
-                to_email:    NOTIF_TARGET_EMAIL,
-                admin_name:  admin_name,
-                info_titre:  titre,
-                info_contenu: contenu,
-                info_cycle:  cycle,
-                site_url:    window.location.origin
-            }).then(
-                () => console.log('[EmailJS] Notification info envoyée !'),
-                (err) => console.warn('[EmailJS] Erreur envoi:', err)
-            );
-        }
-
-        initEmailJS();
-        await Promise.all([wakeUpServer(), loadStats(), loadUsers(), loadRentree()]);
-    });
     </script>
 </body>
+
 </html>
