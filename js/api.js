@@ -1,10 +1,10 @@
 
 
-const API_BASE_URL = 'seifax-backend-production.up.railway.app/api';
+const API_BASE_URL = 'https://seifax-backend-production.up.railway.app/api';
 
 
 // Origine du backend SANS /api pour construire les URL de fichiers correctement
-const BACKEND_ORIGIN = 'seifax-backend-production.up.railway.app';
+const BACKEND_ORIGIN = 'https://seifax-backend-production.up.railway.app';
 
 
 function toAbsoluteUrl(url) {
