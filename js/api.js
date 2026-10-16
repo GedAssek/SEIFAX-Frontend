@@ -5,8 +5,6 @@ const API_BASE_URL = 'https://seifax-backend-xh0q.onrender.com/api';
 
 // Origine du backend SANS /api pour construire les URL de fichiers correctement
 const BACKEND_ORIGIN = 'https://seifax-backend-xh0q.onrender.com';
-
-è
 function toAbsoluteUrl(url) {
     if (!url) return null;
     if (url.startsWith('http://') || url.startsWith('https://')) return url;
